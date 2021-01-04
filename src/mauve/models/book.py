@@ -224,6 +224,29 @@ class Book(GenericObject):
             'top_verbs': self.get_top_verbs(10)
         }
 
+    def __del__(self):
+        attrs_to_del = [
+            'lang',
+            'sentences_tokens',
+            'sentences',
+            'adverbs',
+            'adjectives',
+            'nouns',
+            'proper_nouns',
+            'verbs',
+            'author_gender',
+            'content',
+            'dictionary_words',
+            'words',
+            'tokens'
+        ]
+
+        for attr in attrs_to_del:
+            try:
+                delattr(self, attr)
+            except:
+                pass
+
     @property
     def epub_path(self):
         # TODO: get the epub of the filename. Not needed so far
