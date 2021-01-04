@@ -86,10 +86,14 @@ def main():
                 count += 1
                 number = str(p).strip().split(' ')[-1][0:-1]
                 unit = str(p).strip().split(' ')[-1][-1]
-                size = parse_size(number, unit)
-                if size < args.max_bytes:
-                    fns.extend(cache)
-                cache = []
+                try:
+                    size = parse_size(number, unit)
+                except ValueError:
+                    print('Can\'t get size from: %s' % (p))
+                else:
+                    if size < args.max_bytes:
+                        fns.extend(cache)
+                    cache = []
 
             fn = p.get('href')
             if os.path.exists(os.path.join(EPUB_PATH, unquote(fn))):
