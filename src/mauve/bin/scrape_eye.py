@@ -1,0 +1,119 @@
+import argparse
+import random
+import os
+import time
+from urllib.request import urlopen
+from urllib.request import urlretrieve
+from multiprocessing.pool import ThreadPool
+
+from urllib.parse import unquote
+import bs4
+
+from mauve.constants import EPUB_PATH
+
+
+def download(data):
+
+    category = data[0]
+    filename = data[1]
+
+    if not '.epub' in filename:
+        return
+
+    if '..' in filename:
+        return
+
+    dl_url = 'https://the-eye.eu/public/Books/Bibliotik/{}/{}'.format(category, filename)
+
+    try:
+        filename = os.path.join(EPUB_PATH, unquote(filename))
+        urlretrieve(dl_url, filename)
+        time.sleep(0.5)
+    except Exception as ex:
+        print(ex)
+        try:
+            os.remove(filename)
+        except:
+            pass
+
+
+def parse_size(number, unit):
+    units = {'K': 10**3, 'M': 10**6, 'G': 10**9}
+    return int(float(number)*units[unit])
+
+
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        '--category',
+        type=str,
+        default='A',
+        help='single char 0-9A-Z'
+    )
+    parser.add_argument(
+        '--shuffle',
+        action='store_true',
+        dest='shuffle',
+        help='to shuffle the items to download'
+    )
+    parser.add_argument(
+        '--processes',
+        type=int,
+        dest='num_processes',
+        default=2
+    )
+    parser.add_argument(
+        '--max-bytes',
+        type=int,
+        dest='max_bytes',
+        default=10000000  # 10M
+    )
+
+    args = parser.parse_args()
+
+    base_url = 'https://the-eye.eu/public/Books/Bibliotik/'
+
+    source = urlopen(base_url + '%s/' % (args.category.upper()))
+    soup = bs4.BeautifulSoup(source, 'html.parser')
+    pre = soup.find_all('pre')[0]
+
+    count = 0
+    fns = []
+    cache = []
+    for p in pre:
+        try:
+            if count % 2 == 1:
+                count += 1
+                number = str(p).strip().split(' ')[-1][0:-1]
+                unit = str(p).strip().split(' ')[-1][-1]
+                size = parse_size(number, unit)
+                if size < args.max_bytes:
+                    fns.extend(cache)
+                cache = []
+
+            fn = p.get('href')
+            if os.path.exists(os.path.join(EPUB_PATH, unquote(fn))):
+                continue
+            count += 1
+            cache.append((args.category.upper(), fn))
+        except AttributeError:
+            pass
+
+    print('REMAINING: %s' % (len(fns)))
+
+    res = []
+    with ThreadPool(processes=args.num_processes) as pool:
+        # They limit so have to set to 2. Takes ages
+        # Can get away with up to 8 if max-bytes is fairly low
+        if args.shuffle:
+            random.shuffle(fns)
+        res.extend(
+            pool.map(
+                download,
+                fns
+            )
+        )
+
+
+if __name__ == '__main__':
+    main()

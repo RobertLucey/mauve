@@ -1,0 +1,25 @@
+.env_python3.6/
+__pycache__/
+dist/
+src/mauve.egg-info/
+
+.coverage*
+coverage.xml
+htmlcov/
+
+src/s3_lambda.egg-info/
+
+# Swap
+[._]*.s[a-v][a-z]
+[._]*.sw[a-p]
+[._]s[a-rt-v][a-z]
+[._]ss[a-gi-z]
+[._]sw[a-p]
+
+.eggs/
+dist/
+RPMS/
+BUILD/
+BUILDROOT/
+SRPMS/
+SOURCES/
