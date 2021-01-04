@@ -14,7 +14,8 @@ INSTALL_REQUIRES = [
     'boto3',
     'gender-guesser',
     'langdetect',
-    'tqdm'
+    'tqdm',
+    'textstat'
 ]
 
 setup(

@@ -9,3 +9,4 @@ boto3
 gender-guesser
 langdetect
 tqdm
+textstat

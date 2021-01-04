@@ -8,6 +8,7 @@ from collections import Counter
 from cached_property import cached_property
 import fast_json
 
+import textstat
 import nltk
 import gender_guesser.detector as gender
 from langdetect import detect as langdetect
@@ -221,7 +222,9 @@ class Book(GenericObject):
             'adjective_score': self.get_token_type_score('adjective'),
             'top_adjectives': self.get_top_adjectives(10),
             'top_nouns': self.get_top_nouns(10),
-            'top_verbs': self.get_top_verbs(10)
+            'top_verbs': self.get_top_verbs(10),
+            'flesch_reading_ease_score': textstat.flesch_reading_ease(self.content),
+            'crawford_score': textstat.crawford(self.content)
         }
 
     def __del__(self):
