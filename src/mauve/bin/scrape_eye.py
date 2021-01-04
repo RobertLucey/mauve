@@ -5,8 +5,9 @@ import time
 from urllib.request import urlopen
 from urllib.request import urlretrieve
 from multiprocessing.pool import ThreadPool
-
 from urllib.parse import unquote
+
+import tqdm
 import bs4
 
 from mauve.constants import EPUB_PATH
@@ -30,7 +31,6 @@ def download(data):
         urlretrieve(dl_url, filename)
         time.sleep(0.5)
     except Exception as ex:
-        print(ex)
         try:
             os.remove(filename)
         except:
@@ -105,18 +105,15 @@ def main():
 
     print('REMAINING: %s' % (len(fns)))
 
-    res = []
-    with ThreadPool(processes=args.num_processes) as pool:
-        # They limit so have to set to 2. Takes ages
-        # Can get away with up to 8 if max-bytes is fairly low
-        if args.shuffle:
-            random.shuffle(fns)
-        res.extend(
-            pool.map(
-                download,
-                fns
-            )
-        )
+    if args.shuffle:
+        random.shuffle(fns)
+
+    pool = ThreadPool(processes=args.num_processes)
+    for _ in tqdm.tqdm(
+        pool.imap_unordered(download, fns),
+        total=len(fns)
+    ):
+        pass
 
 
 if __name__ == '__main__':

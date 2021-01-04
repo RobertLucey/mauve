@@ -2,6 +2,7 @@ import argparse
 import os
 from multiprocessing import Pool
 
+import tqdm
 import ebooklib
 from ebooklib import epub
 from bs4 import BeautifulSoup
@@ -69,7 +70,6 @@ def process(book_path):
         f = open(text_path, 'w')
         f.write('\n'.join(out))
         f.close()
-        print(text_path)
     except:
         pass
 
@@ -85,14 +85,13 @@ def main():
     )
     args = parser.parse_args()
 
-    res = []
-    with Pool(processes=args.num_processes) as pool:
-        res.extend(
-            pool.map(
-                process,
-                os.listdir(CLEAN_EPUB_PATH)
-            )
-        )
+    files = os.listdir(CLEAN_EPUB_PATH)
+    pool = Pool(processes=args.num_processes)
+    for _ in tqdm.tqdm(
+        pool.imap_unordered(process, files),
+        total=len(files)
+    ):
+        pass
 
 
 if __name__ == '__main__':

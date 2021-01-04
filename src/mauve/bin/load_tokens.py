@@ -7,6 +7,8 @@ import argparse
 import os
 from multiprocessing import Pool
 
+import tqdm
+
 from mauve.utils import iter_books
 
 from mauve.constants import (
@@ -37,13 +39,12 @@ def main():
             continue
         books.append(i)
 
-    with Pool(processes=args.num_processes) as pool:
-        for processed in pool.map(
-            get_tokens,
-            books
-        ):
-            print(processed)
-
+    pool = Pool(processes=args.num_processes)
+    for _ in tqdm.tqdm(
+        pool.imap_unordered(get_tokens, books),
+        total=len(books)
+    ):
+        pass
 
 if __name__ == '__main__':
     main()

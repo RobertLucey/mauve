@@ -13,7 +13,8 @@ INSTALL_REQUIRES = [
     'profanity',
     'boto3',
     'gender-guesser',
-    'langdetect'
+    'langdetect',
+    'tqdm'
 ]
 
 setup(
@@ -26,6 +27,13 @@ setup(
     install_requires=INSTALL_REQUIRES,
     entry_points={
         'console_scripts': [
+            'mauve_convert_filenames = mauve.bin.convert_filenames:main',
+            'mauve_load_tokens = mauve.bin.load_tokens:main',
+            'mauve_epub_slimmer = mauve.bin.rm_images:main',
+            'mauve_scrape_calibre = mauve.bin.scrape_calibre:main',
+            'mauve_scrape_eye = mauve.bin.scrape_eye:main',
+            'mauve_scrape_goodreads = mauve.bin.scrape_goodreads:main',
+            'mauve_epub_to_text = mauve.bin.to_text:main',
         ]
     }
 )

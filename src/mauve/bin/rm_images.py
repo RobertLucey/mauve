@@ -14,6 +14,7 @@ import glob
 import os
 import shutil
 
+import tqdm
 from ebooklib import epub
 
 from mauve.constants import BASE_DATA_PATH
@@ -26,9 +27,7 @@ def remove_images(b):
         shutil.move(b+'.rmp', b)
     except:
         # TODO: At some point go through these
-        print('NO: %s' % (b))
-    else:
-        print(b)
+        pass
 
 
 def main():
@@ -49,12 +48,12 @@ def main():
     ):
         books.append(filename)
 
-    with Pool(processes=args.num_processes) as pool:
-        for processed in pool.map(
-            remove_images,
-            books
-        ):
-            print(processed)
+    pool = Pool(processes=args.num_processes)
+    for _ in tqdm.tqdm(
+        pool.imap_unordered(remove_images, books),
+        total=len(books)
+    ):
+        pass
 
 if __name__ == '__main__':
     main()

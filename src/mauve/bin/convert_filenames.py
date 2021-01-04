@@ -5,9 +5,9 @@ Badly optimized, fight me
 import argparse
 import os
 from shutil import copyfile
-
 from multiprocessing import Pool
 
+import tqdm
 from ebooklib import epub
 
 from mauve.constants import (
@@ -101,16 +101,11 @@ def process_filename(book_filename):
         if os.path.exists(new_path):
             return
 
-        print('%s -> %s' % (full_path, new_path))
-
         copyfile(full_path, new_path)
     except epub.EpubException:
-        print('Bad file: remove %s' % (full_path))
         os.remove(full_path)
     except:
-        print('No: %s' % (book_filename))
-    else:
-        print('Good: %s' % (book_filename))
+        pass  # Check these out at some point
 
 
 def main():
@@ -124,14 +119,13 @@ def main():
     )
     args = parser.parse_args()
 
-    res = []
-    with Pool(processes=args.num_processes) as pool:
-        res.extend(
-            pool.map(
-                process_filename,
-                os.listdir(EPUB_PATH)
-            )
-        )
+    files = os.listdir(EPUB_PATH)
+    pool = Pool(processes=args.num_processes)
+    for _ in tqdm.tqdm(
+        pool.imap_unordered(process_filename, files),
+        total=len(files)
+    ):
+        pass
 
 
 if __name__ == '__main__':
