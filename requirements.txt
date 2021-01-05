@@ -10,3 +10,4 @@ gender-guesser
 langdetect
 tqdm
 textstat
+vaderSentiment

@@ -15,7 +15,8 @@ INSTALL_REQUIRES = [
     'gender-guesser',
     'langdetect',
     'tqdm',
-    'textstat'
+    'textstat',
+    'vaderSentiment'
 ]
 
 setup(

@@ -4,6 +4,7 @@ import statistics
 import json
 import os
 from collections import Counter
+import random
 
 from cached_property import cached_property
 import fast_json
@@ -12,6 +13,7 @@ import textstat
 import nltk
 import gender_guesser.detector as gender
 from langdetect import detect as langdetect
+from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
 
 from mauve.decorators import kwarg_validator
 from mauve.constants import (
@@ -36,6 +38,7 @@ from mauve.splunk_push import StreamSubmit
 
 
 GENDER_DETECTOR = gender.Detector()
+VADER = SentimentIntensityAnalyzer()
 
 
 class Book(GenericObject):
@@ -196,8 +199,9 @@ class Book(GenericObject):
         )
 
     def serialize(self):
+        vader_stats = VADER.polarity_scores([a for a in self.sentences if random.random() < 0.05])  # Need more power but this may be an indication
         return {
-            'analysis_version': '3',
+            'analysis_version': '7',
             'author_similarity': self.author_similarity,
             'title': self.title,
             'author': self.author,
@@ -224,7 +228,11 @@ class Book(GenericObject):
             'top_nouns': self.get_top_nouns(10),
             'top_verbs': self.get_top_verbs(10),
             'flesch_reading_ease_score': textstat.flesch_reading_ease(self.content),
-            'crawford_score': textstat.crawford(self.content)
+            'crawford_score': textstat.crawford(self.content),
+            'vader_pos': vader_stats['pos'],
+            'vader_neg': vader_stats['neg'],
+            'vader_neu': vader_stats['neu'],
+            'vader_compound': vader_stats['compound'],
         }
 
     def __del__(self):
