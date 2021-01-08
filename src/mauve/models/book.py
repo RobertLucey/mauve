@@ -1,4 +1,5 @@
 from collections import defaultdict
+import pickle
 import difflib
 import statistics
 import json
@@ -344,7 +345,7 @@ class Book(GenericObject):
     def words(self):
         # TODO: optional preprocess to make it's it is and all that
 
-        if os.path.exists(self.content_path + '.tokenv2.json'):
+        if os.path.exists(self.content_path + '.tokenv2.pickle'):
             return [i[0] for i in self.tokens]
         else:
             return nltk.word_tokenize(self.content)
@@ -352,29 +353,17 @@ class Book(GenericObject):
     @cached_property
     def tokens(self):
         data = []
-        if os.path.exists(self.content_path + '.tokenv2.json'):
-            try:
-                data = fast_json.loads(
-                    open(
-                        self.content_path + '.tokenv2.json',
-                        'r'
-                    ).read()
-                )
-            except Exception as ex:
-                print(
-                    'filename: %s\nerr: %s' % (
-                        self.content_path + '.tokenv2.json',
-                        ex
-                    )
-                )
+        if os.path.exists(self.content_path + '.tokenv2.pickle'):
+            data = pickle.load(open(self.content_path + '.tokenv2.pickle', 'rb'))
         else:
             # XXX can skip here to speed things up once cached
 
             data = nltk.pos_tag(self.words)
 
-            f = open(self.content_path + '.tokenv2.json', 'w')
-            f.write(json.dumps(data))
-            f.close()
+            f_pickle = open(self.content_path + '.tokenv2.pickle', 'wb')
+            pickle.dump(data, f_pickle)
+            f_pickle.close()
+
         return data
 
     @property

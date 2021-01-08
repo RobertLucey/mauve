@@ -35,7 +35,7 @@ def main():
 
     books = []
     for i in iter_books(GOODREADS_METADATA_PATH, TEXT_PATH, version=2):
-        if os.path.exists(i.content_path + '.tokenv2.json'):
+        if os.path.exists(i.content_path + '.tokenv2.pickle'):
             continue
         books.append(i)
 
