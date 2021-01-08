@@ -1,14 +1,12 @@
 from collections import defaultdict
+from collections import Counter
 import pickle
 import difflib
 import statistics
-import json
 import os
-from collections import Counter
 import random
 
 from cached_property import cached_property
-import fast_json
 
 import textstat
 import nltk
@@ -19,7 +17,8 @@ from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
 from mauve.decorators import kwarg_validator
 from mauve.constants import (
     ENG_WORDS,
-    PROFANITY_LIST
+    PROFANITY_LIST,
+    SENTENCE_TERMINATORS
 )
 
 from mauve.models.generic import (
@@ -274,7 +273,7 @@ class Book(GenericObject):
     def sentences_tokens(self):
         size = len(self.tokens)
         idx_list = [
-            idx + 1 for idx, val in enumerate(self.tokens) if val[0] == '.'
+            idx + 1 for idx, val in enumerate(self.tokens) if val[0] in SENTENCE_TERMINATORS
         ]
 
         return [
