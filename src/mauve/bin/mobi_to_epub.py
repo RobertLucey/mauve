@@ -12,7 +12,7 @@ from mauve.constants import BASE_DATA_PATH
 
 
 def to_epub(b):
-    os.system('/usr/bin/ebook-convert "%s" "%s"' % (b, b.replace('.mobi', '.epub')))
+    os.system('/usr/bin/ebook-convert "%s" "%s" > /dev/null' % (b, b.replace('.mobi', '.epub')))
     os.remove(b)
 
 def main():
