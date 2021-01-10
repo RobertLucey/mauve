@@ -16,7 +16,9 @@ INSTALL_REQUIRES = [
     'langdetect',
     'tqdm',
     'textstat',
-    'vaderSentiment'
+    'vaderSentiment',
+    'mobi',
+    'EbookLib'
 ]
 
 setup(

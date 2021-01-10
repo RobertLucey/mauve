@@ -11,3 +11,5 @@ langdetect
 tqdm
 textstat
 vaderSentiment
+mobi
+EbookLib
