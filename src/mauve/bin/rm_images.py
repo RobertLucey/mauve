@@ -16,6 +16,7 @@ import shutil
 
 import tqdm
 from ebooklib import epub
+import mobi
 
 from mauve.constants import BASE_DATA_PATH
 
@@ -39,6 +40,7 @@ def main():
         dest='num_processes',
         default=4
     )
+
     args = parser.parse_args()
 
     books = []
@@ -46,7 +48,16 @@ def main():
         os.path.join(BASE_DATA_PATH, '**/*.epub'),
         recursive=True
     ):
-        books.append(filename)
+
+        books.append((filename, os.path.getsize(filename)))
+
+    books = [
+        b[0] for b in sorted(
+            books,
+            key=lambda tup: tup[1],
+            reverse=True
+        )
+    ]
 
     pool = Pool(processes=args.num_processes)
     for _ in tqdm.tqdm(
