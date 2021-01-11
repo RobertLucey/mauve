@@ -4,6 +4,7 @@ from setuptools import (
 )
 
 INSTALL_REQUIRES = [
+    'pandas',
     'scapy',
     'textacy',
     'nltk',
