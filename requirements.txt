@@ -1,3 +1,4 @@
+compress-pickle
 pandas
 scapy
 textacy

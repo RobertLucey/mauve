@@ -4,6 +4,7 @@ from setuptools import (
 )
 
 INSTALL_REQUIRES = [
+    'compress-pickle',
     'pandas',
     'scapy',
     'textacy',

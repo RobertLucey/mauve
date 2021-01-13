@@ -29,13 +29,13 @@ def main():
         '--processes',
         type=int,
         dest='num_processes',
-        default=4
+        default=7
     )
     args = parser.parse_args()
 
     books = []
-    for i in iter_books(GOODREADS_METADATA_PATH, TEXT_PATH, version=2):
-        if os.path.exists(i.content_path + '.tokenv2.pickle'):
+    for i in iter_books(TEXT_PATH, source='goodreads', version=2):
+        if os.path.exists(i.content_path + '.tokenv2.pickle.bz') or os.path.exists(i.content_path + '.tokenv2.pickle') or '.pickle' in i.content_path:
             continue
         books.append(i)
 
