@@ -35,13 +35,14 @@ from mauve.bst import (
 
 from mauve.constants import SIMPLE_TOKEN_MAP
 from mauve.splunk_push import StreamSubmit
+from mauve.models.text import Text
 
 
 GENDER_DETECTOR = gender.Detector()
 VADER = SentimentIntensityAnalyzer()
 
 
-class Book(GenericObject):
+class Book(Text):
 
     @kwarg_validator('title', 'author', 'year_published',)
     def __init__(
@@ -85,110 +86,6 @@ class Book(GenericObject):
 
     def is_genre(self, genre_name):
         return self.tags.contains(genre_name)
-
-    def set_content_location(self, content_path):
-        '''
-
-        :param content_path:
-        '''
-        self.content_path = content_path
-
-    def get_top_adjectives(self, num_to_get):
-        adjs = Counter(
-            [a.lower() for a in self.adjectives]
-        ).most_common(num_to_get * 2)
-        return dict(
-            [
-                a for a in adjs if all([
-                    a[0] in self.dictionary_words,
-                    'â' not in str(a),
-                    a != 'n'
-                ])
-            ][0:num_to_get]
-        )
-
-    def get_top_nouns(self, num_to_get):
-        nouns = Counter(
-            [a.lower() for a in self.nouns]
-        ).most_common(num_to_get * 2)
-        return dict(
-            [
-                a for a in nouns if all([
-                    a[0] in self.dictionary_words,
-                    'â' not in str(a),
-                    a != 'n'
-                ])
-            ][0:num_to_get]
-        )
-
-    def get_top_verbs(self, num_to_get):
-        verbs = Counter(
-            [a.lower() for a in self.verbs]
-        ).most_common(num_to_get * 2)
-        return dict(
-            [
-                a for a in verbs if all([
-                    a[0] in self.dictionary_words,
-                    'â' not in str(a),
-                    a != 'n'
-                ])
-            ][0:num_to_get]
-        )
-
-    def get_profanity_score(self):
-        words = defaultdict(int)
-        count = 0
-
-        original_len = len(self.words)
-
-        tree = create(self.words)
-        for curse in PROFANITY_LIST:
-            if search(tree, curse) != (0, 0):
-                words[curse] += 1
-                count += 1
-
-        if count == 0:
-            return 0
-
-        div = original_len / 10000.
-        return count / div
-
-    def get_token_type_score(self, token_type):
-        assert(token_type in SIMPLE_TOKEN_MAP.values())
-        div = len(self.words) / 10000.
-        return len([m for m in self.tokens if SIMPLE_TOKEN_MAP[m[1]] == token_type]) / div
-
-    def get_lexical_diversity(self, only_dictionary_words=False):
-        '''
-
-        :kwargs only_dictionary_words:
-        :return:
-        :rtype:
-        '''
-        if only_dictionary_words:
-            return len(set(self.dictionary_words)) / len(self.dictionary_words)
-        return len(set(self.words)) / len(self.words)
-
-    def get_avg_word_len(self, only_dictionary_words=False):
-        '''
-
-        :kwargs only_dictionary_words:
-        :return:
-        :rtype:
-        '''
-        if only_dictionary_words:
-            return statistics.mean([len(i) for i in self.dictionary_words])
-        return statistics.mean([len(i) for i in self.words])
-
-    def get_avg_sentence_word_len(self):
-        return statistics.mean(
-            [len(nltk.word_tokenize(i)) for i in self.sentences]
-        )
-
-    def get_avg_sentence_char_len(self):
-        return statistics.mean(
-            [len(i) for i in self.sentences]
-        )
 
     def push_to_splunk(self):
         StreamSubmit().submit(
@@ -258,91 +155,27 @@ class Book(GenericObject):
             except:
                 pass
 
-    @property
-    def epub_path(self):
-        # TODO: get the epub of the filename. Not needed so far
-        raise NotImplementedError()
-
-    @cached_property
-    def lang(self):
-        # TODO: update metadata and use as a cache since this can't be very good
-        # Also only go far enough until we're certain. Don't need to process entire books
-        return langdetect(self.content)
-
-    @cached_property
-    def sentences_tokens(self):
-        size = len(self.tokens)
-        idx_list = [
-            idx + 1 for idx, val in enumerate(self.tokens) if val[0] in SENTENCE_TERMINATORS
-        ]
-
-        return [
-            self.tokens[i: j] for i, j in zip(
-                [0] + idx_list,
-                idx_list + ([size] if idx_list[-1] != size else [])
-            )
-        ]
-
-    @cached_property
-    def sentences(self):
-        return nltk.tokenize.sent_tokenize(self.content)
-
-    @cached_property
-    def adverbs(self):
-        return [m[0] for m in self.tokens if SIMPLE_TOKEN_MAP[m[1]] == 'adverb']
-
-    @cached_property
-    def adjectives(self):
-        return [m[0] for m in self.tokens if SIMPLE_TOKEN_MAP[m[1]] == 'adjective']
-
-    @cached_property
-    def nouns(self):
-        return [m[0] for m in self.tokens if SIMPLE_TOKEN_MAP[m[1]] == 'noun']
-
-    @cached_property
-    def proper_nouns(self):
-        return [m[0] for m in self.tokens if SIMPLE_TOKEN_MAP[m[1]] == 'proper noun']
-
-    @cached_property
-    def verbs(self):
-        return [m[0] for m in self.tokens if SIMPLE_TOKEN_MAP[m[1]] == 'verb']
-
-    @cached_property
-    def author_gender(self):
-        author_split = self.author.split(' ')
-        if '.' in author_split[0]:
-            # Try use the author's wikipedia page or something
-            return None
-
-        if ' and ' in self.author.lower() or '&' in self.author.lower():
-            return None
-
-        gender = GENDER_DETECTOR.get_gender(author_split[0])
-        if gender != 'male' and gender != 'female':
-            # Try use the author's wikipedia page or something
-            return None
-
-        return gender
-
     @cached_property
     def content(self):
         '''
         '''
-        return open(
-            self.content_path,
-            'r',
-            encoding='latin1'
-        ).read()
-
-    @cached_property
-    def dictionary_words(self):
-        return [
-            w for w in self.words if w.lower() in ENG_WORDS or not w.isalpha()
-        ]
+        try:
+            return open(
+                self.content_path,
+                'r',
+                encoding='latin1'
+            ).read()
+        except Exception as ex:
+            print('BAD FILE: %s' % (self.content_path))
+            print(ex)
+            return ''
 
     @cached_property
     def words(self):
         # TODO: optional preprocess to make it's it is and all that
+
+        if self.content_path is None:
+            return []
 
         if os.path.exists(self.content_path + '.tokenv2.pickle'):
             return [i[0] for i in self.tokens]
@@ -351,6 +184,9 @@ class Book(GenericObject):
 
     @cached_property
     def tokens(self):
+
+        # TODO: first off try to get from non compressed then try get from compressed
+
         data = []
         if os.path.exists(self.content_path + '.tokenv2.pickle'):
             data = pickle.load(open(self.content_path + '.tokenv2.pickle', 'rb'))
@@ -359,9 +195,12 @@ class Book(GenericObject):
 
             data = nltk.pos_tag(self.words)
 
-            f_pickle = open(self.content_path + '.tokenv2.pickle', 'wb')
-            pickle.dump(data, f_pickle)
-            f_pickle.close()
+            try:
+                f_pickle = open(self.content_path + '.tokenv2.pickle', 'wb')
+                pickle.dump(data, f_pickle)
+                f_pickle.close()
+            except Exception as ex:
+                print('Could not open file %s: %s' % (self.content_path + '.tokenv2.pickle', ex))
 
         return data
 
@@ -424,10 +263,6 @@ class Book(GenericObject):
             return True
 
         return False
-
-    @property
-    def reading_age(self):
-        raise NotImplementedError()
 
 
 class Books(GenericObjects):
