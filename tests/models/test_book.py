@@ -36,11 +36,11 @@ class TestBook(TestCase):
         book.set_content_location('/tmp/mauve_tok')
         self.assertAlmostEqual(0, book.get_profanity_score())
 
-    @mock.patch('mauve.models.book.Book.content', 'fuck nice')
+    @mock.patch('mauve.models.book.Book.content', 'fuck fuck nice')
     def test_get_profanity_score_3(self):
         book = Book(title='t', author='a', year_published=1)
         book.set_content_location('/tmp/mauve_tok')
-        self.assertAlmostEqual(5000, book.get_profanity_score())
+        self.assertAlmostEqual((2/3.)*10000, book.get_profanity_score())
 
     @mock.patch('mauve.models.book.Book.content', 'run small big')
     def test_get_token_type_score(self):
