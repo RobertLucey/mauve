@@ -109,6 +109,7 @@ GOODREADS_METADATA_PATH = os.path.join(BASE_DATA_PATH, 'metadata')
 TEXT_PATH = os.path.join(BASE_DATA_PATH, 'txt')
 EPUB_PATH = os.path.join(BASE_DATA_PATH, 'epub')
 CLEAN_EPUB_PATH = os.path.join(BASE_DATA_PATH, 'clean_books')
+OIREACHTAS_DIR = os.path.join(BASE_DATA_PATH, 'oireachtas')
 
 
 SENTENCE_TERMINATORS = set(['.', '?', '!'])
