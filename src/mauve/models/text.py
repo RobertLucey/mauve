@@ -274,7 +274,7 @@ class Text(GenericObject):
     @cached_property
     def dictionary_words(self):
         return [
-            w for w in self.words if w.lower() in ENG_WORDS or not w.isalpha()
+            w.lower() for w in self.words if w.lower() in ENG_WORDS and w.isalpha()
         ]
 
     @cached_property
