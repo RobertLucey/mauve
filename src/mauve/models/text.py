@@ -93,24 +93,24 @@ class Text(GenericObject):
         )
 
     def get_profanity_score(self):
-        words = defaultdict(int)
-        count = 0
+        word_counts = {}
+        words = []
 
         original_len = len(self.words)
 
         tree = create(self.words)
         for curse in PROFANITY_LIST:
             if search(tree, curse) != (0, 0):
-                words[curse] += 1
-                count += 1
+                words.append(curse)
 
-        print(words)
+        for w in words:
+            word_counts[w] = self.words.count(w)
 
-        if count == 0:
+        if words == []:
             return 0
 
         div = original_len / 10000.
-        return count / div
+        return sum(word_counts.values()) / div
 
     def get_token_type_score(self, token_type):
         assert(token_type in SIMPLE_TOKEN_MAP.values())

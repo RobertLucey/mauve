@@ -1,8 +1,5 @@
-from collections import defaultdict
-from collections import Counter
 import pickle
 import difflib
-import statistics
 import os
 import random
 
@@ -15,30 +12,13 @@ from langdetect import detect as langdetect
 from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
 
 from mauve.decorators import kwarg_validator
-from mauve.constants import (
-    ENG_WORDS,
-    PROFANITY_LIST,
-    SENTENCE_TERMINATORS
-)
-
-from mauve.models.generic import (
-    GenericObject,
-    GenericObjects
-)
+from mauve.models.generic import GenericObjects
 from mauve.models.tag import Tags
 from mauve.models.review import Reviews
-from mauve.bst import (
-    Node,
-    create,
-    search
-)
-
-from mauve.constants import SIMPLE_TOKEN_MAP
 from mauve.splunk_push import StreamSubmit
 from mauve.models.text import Text
 
 
-GENDER_DETECTOR = gender.Detector()
 VADER = SentimentIntensityAnalyzer()
 
 
