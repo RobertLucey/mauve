@@ -122,6 +122,7 @@ def process(fn):
 
 
 def main():
+    return # because danger danger you see?
     files = []
     for filename in glob.iglob(
         os.path.join('/opt/mauve/oireachtas/', '**/*.pdf'),
