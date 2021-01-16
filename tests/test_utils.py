@@ -8,7 +8,7 @@ import shutil
 import glob
 import os
 
-from mauve.models.book import Book
+from mauve.models.books.book import Book
 from mauve.constants import (
     TEXT_PATH,
     EPUB_PATH,

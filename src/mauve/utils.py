@@ -8,7 +8,7 @@ from compress_pickle import (
     load
 )
 
-from mauve.models.tag import (
+from mauve.models.books.tag import (
     Tag,
     Tags
 )
@@ -141,7 +141,7 @@ def iter_books(source='goodreads'):
     :kwarg: the v of tokens to get from
     :return: generator of book objects
     '''
-    from mauve.models.book import Book
+    from mauve.models.books.book import Book
     books_dir = {
         'goodreads': GOODREADS_METADATA_PATH,
         'local_text': TEXT_PATH

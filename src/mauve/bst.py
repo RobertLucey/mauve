@@ -8,6 +8,7 @@ class Node(object):
     def __str__(self):
         return 'value: {0}, count: {1}'.format(self.value, self.count)
 
+
 def insert(root, value):
     if not root:
         return Node(value)
@@ -20,12 +21,14 @@ def insert(root, value):
 
     return root
 
+
 def create(seq):
     root = None
     for word in seq:
         root = insert(root, word)
 
     return root
+
 
 def search(root, word, depth=1):
     if not root:

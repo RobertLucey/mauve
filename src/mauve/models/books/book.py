@@ -13,12 +13,15 @@ from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
 
 from mauve.decorators import kwarg_validator
 from mauve.models.generic import GenericObjects
-from mauve.models.tag import Tags
-from mauve.models.review import Reviews
+from mauve.models.books.tag import Tags
+from mauve.models.books.review import Reviews
 from mauve.splunk_push import StreamSubmit
 from mauve.models.text import Text
 from mauve.constants import TOKEN_VERSION
-from mauve.utils import get_file_content, get_loose_filepath
+from mauve.utils import (
+    get_file_content,
+    get_loose_filepath
+)
 
 
 VADER = SentimentIntensityAnalyzer()

@@ -25,8 +25,8 @@ from mauve.models.generic import (
     GenericObject,
     GenericObjects
 )
-from mauve.models.tag import Tags
-from mauve.models.review import Reviews
+from mauve.models.books.tag import Tags
+from mauve.models.books.review import Reviews
 from mauve.bst import (
     Node,
     create,
