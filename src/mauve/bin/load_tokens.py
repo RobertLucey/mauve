@@ -13,7 +13,8 @@ from mauve.utils import iter_books
 
 from mauve.constants import (
     TEXT_PATH,
-    GOODREADS_METADATA_PATH
+    GOODREADS_METADATA_PATH,
+    TOKEN_VERSION
 )
 
 
@@ -34,8 +35,8 @@ def main():
     args = parser.parse_args()
 
     books = []
-    for i in iter_books(TEXT_PATH, source='goodreads', version=2):
-        if os.path.exists(i.content_path + '.tokenv2.pickle.bz') or os.path.exists(i.content_path + '.tokenv2.pickle') or '.pickle' in i.content_path:
+    for i in iter_books(TEXT_PATH, source='goodreads'):
+        if os.path.exists(i.content_path + '.tokenv{}.pickle.bz'.format(TOKEN_VERSION)) or os.path.exists(i.content_path + '.tokenv{}.pickle'.format(TOKEN_VERSION)) or '.pickle' in i.content_path:
             continue
         books.append(i)
 

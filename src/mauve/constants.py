@@ -104,7 +104,8 @@ SIMPLE_TOKEN_MAP = {
 }
 
 
-BASE_DATA_PATH = '/opt/mauve/'
+TOKEN_VERSION = '2'
+BASE_DATA_PATH = '/opt/mauve/' if os.getenv('TEST_ENV', 'False') == 'False' else '/tmp/mauve'
 GOODREADS_METADATA_PATH = os.path.join(BASE_DATA_PATH, 'metadata')
 TEXT_PATH = os.path.join(BASE_DATA_PATH, 'txt')
 EPUB_PATH = os.path.join(BASE_DATA_PATH, 'epub')

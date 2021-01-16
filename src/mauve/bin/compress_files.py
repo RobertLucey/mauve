@@ -46,22 +46,16 @@ def main():
     )
     args = parser.parse_args()
 
-    books = []
-    #for filename in glob.iglob(
-    #    os.path.join(BASE_DATA_PATH, '**/*.txt'),
-    #    recursive=True
-    #):
-    #    books.append((filename, os.path.getsize(filename)))
-
+    files = []
     for filename in glob.iglob(
         os.path.join(BASE_DATA_PATH, '**/*.pickle'),
         recursive=True
     ):
-        books.append((filename, os.path.getsize(filename)))
+        files.append((filename, os.path.getsize(filename)))
 
-    books = [
+    files = [
         b[0] for b in sorted(
-            books,
+            files,
             key=lambda tup: tup[1],
             reverse=True
         )
@@ -69,8 +63,8 @@ def main():
 
     pool = Pool(processes=args.num_processes)
     for _ in tqdm.tqdm(
-        pool.imap_unordered(_compress_file, books),
-        total=len(books)
+        pool.imap_unordered(_compress_file, files),
+        total=len(files)
     ):
         pass
 

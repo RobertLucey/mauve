@@ -17,6 +17,7 @@ from mauve.models.tag import Tags
 from mauve.models.review import Reviews
 from mauve.splunk_push import StreamSubmit
 from mauve.models.text import Text
+from mauve.constants import TOKEN_VERSION
 
 
 VADER = SentimentIntensityAnalyzer()
@@ -157,7 +158,7 @@ class Book(Text):
         if self.content_path is None:
             return []
 
-        if os.path.exists(self.content_path + '.tokenv2.pickle'):
+        if os.path.exists(self.content_path + '.tokenv{}.pickle'.format(TOKEN_VERSION)):
             return [i[0] for i in self.tokens]
         else:
             return nltk.word_tokenize(self.content)
@@ -168,19 +169,19 @@ class Book(Text):
         # TODO: first off try to get from non compressed then try get from compressed
 
         data = []
-        if os.path.exists(self.content_path + '.tokenv2.pickle'):
-            data = pickle.load(open(self.content_path + '.tokenv2.pickle', 'rb'))
+        if os.path.exists(self.content_path + '.tokenv{}.pickle'.format(TOKEN_VERSION)):
+            data = pickle.load(open(self.content_path + '.tokenv{}.pickle'.format(TOKEN_VERSION), 'rb'))
         else:
             # XXX can skip here to speed things up once cached
 
             data = nltk.pos_tag(self.words)
 
             try:
-                f_pickle = open(self.content_path + '.tokenv2.pickle', 'wb')
+                f_pickle = open(self.content_path + '.tokenv{}.pickle'.format(TOKEN_VERSION), 'wb')
                 pickle.dump(data, f_pickle)
                 f_pickle.close()
             except Exception as ex:
-                print('Could not open file %s: %s' % (self.content_path + '.tokenv2.pickle', ex))
+                print('Could not open file %s: %s' % (self.content_path + '.tokenv{}.pickle'.format(TOKEN_VERSION), ex))
 
         return data
 

@@ -24,11 +24,24 @@ def loose_exists(fp):
 
 
 def get_loose_filepath(fp):
+    if os.path.exists(fp):
+        return fp
+
     ext = os.path.splitext(fp)[1]
-    pass
-    # always see first
-    # if bz remove and see
-    # if pickle add bz and see
+    if ext == '.bz':
+        unextend = os.path.splitext(fp)[0]
+        if os.path.exists(unextend):
+            return unextend
+    elif ext == '.pickle':
+        if os.path.exists(fp + '.bz'):
+            return fp
+    elif ext == '.txt':
+        if os.path.exists(fp + '.bz'):
+            return fp
+        if os.path.exists(fp + '.pickle'):
+            return fp
+
+    return None
 
 
 def compress_file(fp):
@@ -65,12 +78,11 @@ def get_file_content(fp):
         raise NotImplementedError()
 
 
-def get_metadata(source='goodreads', version=1):
+def get_metadata(source='goodreads'):
     '''
 
     :param data_dir:
     :kwarg source:
-    :kwarg version:
     :return:
     :rtype:
     '''
@@ -86,11 +98,6 @@ def get_metadata(source='goodreads', version=1):
 
     filenames = os.listdir(data_dir)
     random.shuffle(filenames)
-
-    if version == 1:
-        filenames = [f for f in filenames if '.v2' in f]
-    elif version == 2:
-        filenames = [f for f in filenames if '.v2' not in f]  # fix
 
     for filename in filenames:
         if filename == 'title_id_map.json':
@@ -108,7 +115,7 @@ def get_metadata(source='goodreads', version=1):
     return data
 
 
-def iter_books(books_dir, source='goodreads', version=1):
+def iter_books(books_dir, source='goodreads'):
     '''
 
     :param data_dir:
@@ -117,7 +124,7 @@ def iter_books(books_dir, source='goodreads', version=1):
     :kwarg: the v of tokens to get from
     :return: generator of book objects
     '''
-    for book_meta in get_metadata(source=source, version=version):
+    for book_meta in get_metadata(source=source):
         content_path = os.path.join(
             books_dir,
             book_meta['original_filename']
