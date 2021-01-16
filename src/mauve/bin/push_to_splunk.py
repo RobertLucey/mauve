@@ -1,8 +1,3 @@
-'''
-Use this to set the tokens of books.
-Just set the data dir for output and the source txt dir
-'''
-
 import argparse
 import os
 from multiprocessing import Pool
@@ -19,8 +14,12 @@ from mauve.constants import (
 
 
 def get_tokens(b):
-    b.tokens
-    return b.title
+    try:
+        b.push_to_splunk()
+        del b
+    except Exception as ex:
+        print('BAD: %s %s' (b.title, ex))
+        pass
 
 
 def main():
@@ -30,15 +29,14 @@ def main():
         '--processes',
         type=int,
         dest='num_processes',
-        default=7
+        default=6
     )
     args = parser.parse_args()
 
     books = []
     for i in iter_books(source='local_text'):
-        if os.path.exists(i.pickle_path + '.bz') or os.path.exists(i.pickle_path) or '.pickle' in i.content_path:
-            continue
-        books.append(i)
+        if os.path.exists(i.content_path + '.tokenv{}.pickle'.format(TOKEN_VERSION)):
+            books.append(i)
 
     pool = Pool(processes=args.num_processes)
     for _ in tqdm.tqdm(

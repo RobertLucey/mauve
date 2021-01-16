@@ -40,7 +40,7 @@ def main():
     chamber_id = ''
     chamber = ''
     date_start = '1900-01-01'
-    date_end = '1990-06-01'
+    date_end = '2000-06-01'
     limit = '1000'
 
     req = Request(

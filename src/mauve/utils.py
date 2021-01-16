@@ -8,14 +8,14 @@ from compress_pickle import (
     load
 )
 
-from mauve.models.book import Book
 from mauve.models.tag import (
     Tag,
     Tags
 )
 from mauve.constants import (
     GOODREADS_METADATA_PATH,
-    SIMPLE_TOKEN_MAP
+    SIMPLE_TOKEN_MAP,
+    TEXT_PATH
 )
 
 
@@ -89,62 +89,84 @@ def get_metadata(source='goodreads'):
     data = []
     if source == 'goodreads':
         data_dir = GOODREADS_METADATA_PATH
+
+        title_id_map = fast_json.loads(
+            open(os.path.join(data_dir, 'title_id_map.json'), 'r').read()
+        )
+
+        filenames = os.listdir(data_dir)
+        random.shuffle(filenames)
+
+        for filename in filenames:
+            if filename == 'title_id_map.json':
+                continue
+            ext = os.path.splitext(filename)[1]
+            if ext != '.json':
+                continue
+            try:
+                tmp = fast_json.loads(
+                    open(os.path.join(data_dir, filename), 'r').read()
+                )
+                real_filename = title_id_map[tmp['book_id']]
+                tmp['original_filename'] = real_filename
+                data.append(tmp)
+            except Exception as ex:
+                print('Problematic file: %s' % (filename))
+    elif source == 'local_text':
+        data_dir = TEXT_PATH
+
+        filenames = os.listdir(data_dir)
+        random.shuffle(filenames)
+
+        for filename in filenames:
+            data.append(
+                {
+                    'original_filename': os.path.join(data_dir, filename)
+                }
+            )
+
+
     else:
         raise Exception('No source named %s' % (source))
 
-    title_id_map = fast_json.loads(
-        open(os.path.join(data_dir, 'title_id_map.json'), 'r').read()
-    )
-
-    filenames = os.listdir(data_dir)
-    random.shuffle(filenames)
-
-    for filename in filenames:
-        if filename == 'title_id_map.json':
-            continue
-        try:
-            tmp = fast_json.loads(
-                open(os.path.join(data_dir, filename), 'r').read()
-            )
-            real_filename = title_id_map[tmp['book_id']]
-            tmp['original_filename'] = real_filename
-            data.append(tmp)
-        except:
-            print('Problematic file: %s' % (filename))
 
     return data
 
 
-def iter_books(books_dir, source='goodreads'):
+def iter_books(source='goodreads'):
     '''
 
-    :param data_dir:
     :param books_dir:
     :kwarg source:
     :kwarg: the v of tokens to get from
     :return: generator of book objects
     '''
+    from mauve.models.book import Book
+    books_dir = {
+        'goodreads': GOODREADS_METADATA_PATH,
+        'local_text': TEXT_PATH
+    }[source]
     for book_meta in get_metadata(source=source):
         content_path = os.path.join(
             books_dir,
             book_meta['original_filename']
         )
 
-        genres = book_meta['genres']
+        genres = book_meta.get('genres', [])
 
         tags = Tags()
         for genre in genres:
             tags.append(Tag(name=genre))
 
         book = Book(
-            title=book_meta['book_title'],
-            isbn=book_meta['isbn'],
-            isbn13=book_meta['isbn13'],
-            year_published=book_meta['year_first_published'],
-            author=book_meta['author'],
-            avg_rating=book_meta['average_rating'],
+            title=book_meta.get('book_title', None),
+            isbn=book_meta.get('isbn', None),
+            isbn13=book_meta.get('isbn13', None),
+            year_published=book_meta.get('year_first_published', None),
+            author=book_meta.get('author', None),
+            avg_rating=book_meta.get('average_rating', None),
             tags=tags,
-            num_ratings=book_meta['num_ratings']
+            num_ratings=book_meta.get('num_ratings', None)
         )
 
         book.set_content_location(content_path)

@@ -22,7 +22,7 @@ def main():
         '--processes',
         type=int,
         dest='num_processes',
-        default=4
+        default=7
     )
     args = parser.parse_args()
 

@@ -18,6 +18,7 @@ from mauve.models.review import Reviews
 from mauve.splunk_push import StreamSubmit
 from mauve.models.text import Text
 from mauve.constants import TOKEN_VERSION
+from mauve.utils import get_file_content, get_loose_filepath
 
 
 VADER = SentimentIntensityAnalyzer()
@@ -169,8 +170,8 @@ class Book(Text):
         # TODO: first off try to get from non compressed then try get from compressed
 
         data = []
-        if os.path.exists(self.pickle_path):
-            data = pickle.load(open(self.pickle_path, 'rb'))
+        if get_loose_filepath(self.pickle_path):
+            data = get_file_content(self.pickle_path)
         else:
             # XXX can skip here to speed things up once cached
 
