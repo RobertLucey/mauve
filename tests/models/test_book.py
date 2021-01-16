@@ -60,3 +60,37 @@ class TestBook(TestCase):
         book = Book(title='t', author='a', year_published=1)
         book.set_content_location('/tmp/mauve_tok')
         self.assertEquals(1/3., book.get_lexical_diversity())
+
+    def test_author_similarity(self):
+        book = Book(title='t', author='Author', year_published=1)
+        book.set_content_location('/tmp/mauve/isbn___Author___title.txt')
+        self.assertTrue(book.author_similarity)
+
+        book = Book(title='t', author='Author', year_published=1)
+        book.set_content_location('/tmp/mauve/isbn___Author Something___title.txt')
+        self.assertTrue(book.author_similarity)
+
+        book = Book(title='t', author='Author', year_published=1)
+        book.set_content_location('/tmp/mauve/isbn___Something Author___title.txt')
+        self.assertTrue(book.author_similarity)
+
+        book = Book(title='t', author='Arthur', year_published=1)
+        book.set_content_location('/tmp/mauve/isbn___Something Author___title.txt')
+        self.assertFalse(book.author_similarity)
+
+    def test_safe_to_use(self):
+        book = Book(title='t', author='Author', year_published=2020, num_ratings=100)
+        book.set_content_location('/tmp/mauve/isbn___Something Author___title.txt')
+        self.assertTrue(book.safe_to_use)
+
+        book = Book(title='t', author='Author', year_published=2020, num_ratings=0)
+        book.set_content_location('/tmp/mauve/isbn___Something Author___title.txt')
+        self.assertFalse(book.safe_to_use)
+
+        book = Book(title='t', author='Author', year_published=1700, num_ratings=100)
+        book.set_content_location('/tmp/mauve/isbn___Something Author___title.txt')
+        self.assertFalse(book.safe_to_use)
+
+        book = Book(title='t', author='Arthur', year_published=2020, num_ratings=100)
+        book.set_content_location('/tmp/mauve/isbn___Something Author___title.txt')
+        self.assertFalse(book.safe_to_use)
