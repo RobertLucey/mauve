@@ -158,7 +158,7 @@ class Book(Text):
         if self.content_path is None:
             return []
 
-        if os.path.exists(self.content_path + '.tokenv{}.pickle'.format(TOKEN_VERSION)):
+        if os.path.exists(self.pickle_path):
             return [i[0] for i in self.tokens]
         else:
             return nltk.word_tokenize(self.content)
@@ -169,19 +169,19 @@ class Book(Text):
         # TODO: first off try to get from non compressed then try get from compressed
 
         data = []
-        if os.path.exists(self.content_path + '.tokenv{}.pickle'.format(TOKEN_VERSION)):
-            data = pickle.load(open(self.content_path + '.tokenv{}.pickle'.format(TOKEN_VERSION), 'rb'))
+        if os.path.exists(self.pickle_path):
+            data = pickle.load(open(self.pickle_path, 'rb'))
         else:
             # XXX can skip here to speed things up once cached
 
             data = nltk.pos_tag(self.words)
 
             try:
-                f_pickle = open(self.content_path + '.tokenv{}.pickle'.format(TOKEN_VERSION), 'wb')
+                f_pickle = open(self.pickle_path, 'wb')
                 pickle.dump(data, f_pickle)
                 f_pickle.close()
             except Exception as ex:
-                print('Could not open file %s: %s' % (self.content_path + '.tokenv{}.pickle'.format(TOKEN_VERSION), ex))
+                print('Could not open file %s: %s' % (self.pickle_path, ex))
 
         return data
 
@@ -244,6 +244,10 @@ class Book(Text):
             return True
 
         return False
+
+    @property
+    def pickle_path(self):
+        return self.content_path + '.tokenv{}.pickle'.format(TOKEN_VERSION)
 
 
 class Books(GenericObjects):

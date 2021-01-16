@@ -40,7 +40,6 @@ class TestUtils(TestCase):
         except:
             pass
 
-
         Path(EPUB_PATH).mkdir(parents=True, exist_ok=True)
         Path(CLEAN_EPUB_PATH).mkdir(parents=True, exist_ok=True)
         Path(TEXT_PATH).mkdir(parents=True, exist_ok=True)
@@ -80,7 +79,6 @@ class TestUtils(TestCase):
 
     def test_loose_exists(self):
         self.assertTrue(loose_exists(os.path.join(EPUB_PATH, 'Another Great Title.epub')))
-
         # TODO: when more files generated do some more of this
 
     def test_compress_file(self):
@@ -88,19 +86,10 @@ class TestUtils(TestCase):
         book.set_content_location(os.path.join(CLEAN_EPUB_PATH, '9783161484100___Author A. Author___Another Great Title.epub'))
         book.tokens  # Load the tokens file
 
-        compress_file(book.content_path + '.tokenv{}.pickle'.format(TOKEN_VERSION))
-        self.assertTrue(os.path.exists(book.content_path + '.tokenv{}.pickle.bz'.format(TOKEN_VERSION)))
+        compress_file(book.pickle_path)
+        self.assertTrue(os.path.exists(book.pickle_path + '.bz'))
 
-        content_pickle = get_file_content(book.content_path + '.tokenv{}.pickle'.format(TOKEN_VERSION))
-        content_bz = get_file_content(book.content_path + '.tokenv{}.pickle.bz'.format(TOKEN_VERSION))
+        content_pickle = get_file_content(book.pickle_path)
+        content_bz = get_file_content(book.pickle_path + '.bz')
 
         self.assertEqual(content_pickle, content_bz)
-
-'''
-loose_exists,
-get_loose_filepath,
-compress_file,
-get_file_content,
-get_metadata,
-iter_books
-'''

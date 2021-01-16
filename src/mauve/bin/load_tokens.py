@@ -36,7 +36,7 @@ def main():
 
     books = []
     for i in iter_books(TEXT_PATH, source='goodreads'):
-        if os.path.exists(i.content_path + '.tokenv{}.pickle.bz'.format(TOKEN_VERSION)) or os.path.exists(i.content_path + '.tokenv{}.pickle'.format(TOKEN_VERSION)) or '.pickle' in i.content_path:
+        if os.path.exists(i.pickle_path + '.bz') or os.path.exists(i.pickle_path) or '.pickle' in i.content_path:
             continue
         books.append(i)
 
