@@ -159,7 +159,7 @@ class TestCompressFiles(TestCase):
 
         content_pickle = get_file_content(book.pickle_path)
 
-        compress()
+        compress(num_processes=1)
 
         # make sure files deleted and bz created
 

@@ -90,7 +90,7 @@ class TestConvertFilenames(TestCase):
         self.assertFalse(os.path.exists(os.path.join(CLEAN_EPUB_PATH, '9783161484101___Author A. Author___Another Great Title.epub')))
         self.assertTrue(os.path.exists(os.path.join(CLEAN_EPUB_PATH, '9783161484102___Author A. Author___Another Great Title.epub')))
 
-        process_filenames()
+        process_filenames(num_processes=1)
 
         self.assertTrue(os.path.exists(os.path.join(CLEAN_EPUB_PATH, '9783161484100___Author A. Author___Title title.epub')))
         self.assertTrue(os.path.exists(os.path.join(CLEAN_EPUB_PATH, '9783161484101___Author A. Author___Another Great Title.epub')))

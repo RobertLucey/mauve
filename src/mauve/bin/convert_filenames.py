@@ -110,12 +110,16 @@ def process_filename(book_filename):
 
 def process_filenames(num_processes=4):
     files = os.listdir(EPUB_PATH)
-    pool = Pool(processes=num_processes)
-    for _ in tqdm.tqdm(
-        pool.imap_unordered(process_filename, files),
-        total=len(files)
-    ):
-        pass
+    if num_processes == 1:
+        for f in files:
+            process_filename(f)
+    else:
+        pool = Pool(processes=num_processes)
+        for _ in tqdm.tqdm(
+            pool.imap_unordered(process_filename, files),
+            total=len(files)
+        ):
+            pass
 
 
 def main():
