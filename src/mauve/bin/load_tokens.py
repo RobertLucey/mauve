@@ -20,7 +20,27 @@ from mauve.constants import (
 
 def get_tokens(b):
     b.tokens
+
     return b.title
+
+
+def process_filenames(num_processes=4):
+    files = []
+    for i in iter_books(source='local_text'):
+        if os.path.exists(i.pickle_path + '.bz') or os.path.exists(i.pickle_path) or '.pickle' in i.content_path:
+            continue
+        files.append(i)
+
+    if num_processes == 1:
+        for f in files:
+            get_tokens(f)
+    else:
+        pool = Pool(processes=num_processes)
+        for _ in tqdm.tqdm(
+            pool.imap_unordered(get_tokens, files),
+            total=len(files)
+        ):
+            pass
 
 
 def main():
@@ -34,18 +54,8 @@ def main():
     )
     args = parser.parse_args()
 
-    books = []
-    for i in iter_books(source='local_text'):
-        if os.path.exists(i.pickle_path + '.bz') or os.path.exists(i.pickle_path) or '.pickle' in i.content_path:
-            continue
-        books.append(i)
+    process_filenames(num_processes=args.num_processes)
 
-    pool = Pool(processes=args.num_processes)
-    for _ in tqdm.tqdm(
-        pool.imap_unordered(get_tokens, books),
-        total=len(books)
-    ):
-        pass
 
 if __name__ == '__main__':
     main()
