@@ -19,40 +19,56 @@ from mauve.constants import (
 )
 
 
-def loose_exists(fp):
-    return get_loose_filepath(fp) is not None
+def loose_exists(filepath):
+    '''
+
+    :param filepath: filepath to get a related file of
+    :return: Bool if a file or related file exists
+    '''
+    return get_loose_filepath(filepath) is not None
 
 
-def get_loose_filepath(fp):
-    if os.path.exists(fp):
-        return fp
+def get_loose_filepath(filepath):
+    '''
 
-    ext = os.path.splitext(fp)[1]
+    :param: filepath to get a related file of
+    :return: The path to the file or loose file that was found
+    '''
+    if os.path.exists(filepath):
+        return filepath
+
+    ext = os.path.splitext(filepath)[1]
     if ext == '.bz':
-        unextend = os.path.splitext(fp)[0]
+        unextend = os.path.splitext(filepath)[0]
         if os.path.exists(unextend):
             return unextend
     elif ext == '.pickle':
-        if os.path.exists(fp + '.bz'):
-            return fp
+        if os.path.exists(filepath + '.bz'):
+            return filepath
     elif ext == '.txt':
-        if os.path.exists(fp + '.bz'):
-            return fp
-        if os.path.exists(fp + '.pickle'):
-            return fp
+        if os.path.exists(filepath + '.bz'):
+            return filepath
+        if os.path.exists(filepath + '.pickle'):
+            return filepath
 
     return None
 
 
-def compress_file(fp):
-    ext = os.path.splitext(fp)[1]
+def compress_file(filepath):
+    '''
+    Compress a file if possible. When reading files that may have been
+    compressed use the get_file_content
+
+    :param filepath: Filepath to compress
+    '''
+    ext = os.path.splitext(filepath)[1]
     if ext == '.txt':
         # We want to do this? txt files necessary at all?
         raise NotImplementedError()
     elif ext == '.pickle':
         return dump(
-            get_file_content(fp),
-            fp,
+            get_file_content(filepath),
+            filepath,
             compression='bz2'
         )
     elif ext == 'bz2':
@@ -61,19 +77,23 @@ def compress_file(fp):
         raise NotImplementedError()
 
 
-def get_file_content(fp):
+def get_file_content(filepath):
     '''
+    Read a file regardless of the extension
 
-    :param fp:
-    :return:
+    For instance if there's some pickle files and some pickle.bz files
+    this will give back the same data as if they were not compressed
+
+    :param filepath: Filepath to read from
+    :return: Depending on the ext it may be a pickled obj / str
     '''
-    ext = os.path.splitext(fp)[1]
+    ext = os.path.splitext(filepath)[1]
     if ext == '.txt':
-        return open(fp, 'r').read()
+        return open(filepath, 'r').read()
     elif ext == '.pickle':
-        return pickle.load(open(fp, 'rb'))
+        return pickle.load(open(filepath, 'rb'))
     elif ext == '.bz':
-        return load(os.path.splitext(fp)[0], 'bz2')
+        return load(os.path.splitext(filepath)[0], 'bz2')
     else:
         raise NotImplementedError()
 
@@ -81,10 +101,9 @@ def get_file_content(fp):
 def get_metadata(source='goodreads'):
     '''
 
-    :param data_dir:
-    :kwarg source:
-    :return:
-    :rtype:
+    :kwarg source: The type of source to get metadata from
+    :return: All metadata related to whatever books you're looking for
+    :rtype: list
     '''
     data = []
     if source == 'goodreads':
@@ -111,7 +130,7 @@ def get_metadata(source='goodreads'):
                 tmp['original_filename'] = real_filename
                 data.append(tmp)
             except Exception as ex:
-                print('Problematic file: %s' % (filename))
+                print('Problematic file: %s %s' % (filename, ex))
     elif source == 'local_text':
         data_dir = TEXT_PATH
 
@@ -124,11 +143,8 @@ def get_metadata(source='goodreads'):
                     'original_filename': os.path.join(data_dir, filename)
                 }
             )
-
-
     else:
         raise Exception('No source named %s' % (source))
-
 
     return data
 
