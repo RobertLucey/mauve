@@ -108,6 +108,16 @@ def process_filename(book_filename):
         pass  # Check these out at some point
 
 
+def process_filenames(num_processes=4):
+    files = os.listdir(EPUB_PATH)
+    pool = Pool(processes=num_processes)
+    for _ in tqdm.tqdm(
+        pool.imap_unordered(process_filename, files),
+        total=len(files)
+    ):
+        pass
+
+
 def main():
 
     parser = argparse.ArgumentParser()
@@ -119,13 +129,7 @@ def main():
     )
     args = parser.parse_args()
 
-    files = os.listdir(EPUB_PATH)
-    pool = Pool(processes=args.num_processes)
-    for _ in tqdm.tqdm(
-        pool.imap_unordered(process_filename, files),
-        total=len(files)
-    ):
-        pass
+    process_filenames(num_processes=args.num_processes)
 
 
 if __name__ == '__main__':
