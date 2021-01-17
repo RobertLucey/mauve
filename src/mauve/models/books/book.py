@@ -7,8 +7,6 @@ from cached_property import cached_property
 
 import textstat
 import nltk
-import gender_guesser.detector as gender
-from langdetect import detect as langdetect
 from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
 
 from mauve.decorators import kwarg_validator
