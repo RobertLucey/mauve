@@ -85,7 +85,7 @@ class Speech():
         if paras is not None and paras is not []:
             types = list(set([type(p) for p in paras]))
             assert(len(types) == 1)
-            assert(isinstance(types[0], Para))
+            assert(types[0] == Para)
 
         self.paras = paras if paras else []
 
