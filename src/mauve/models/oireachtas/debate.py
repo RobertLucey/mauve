@@ -35,7 +35,7 @@ class Para(Text):
 
     @cached_property
     def tokens(self):
-        return nltk.pos_tag(self.words)
+        return self.pos_tag(self.words)
 
     def serialize(self):
         return {

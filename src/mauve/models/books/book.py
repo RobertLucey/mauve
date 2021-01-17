@@ -7,8 +7,6 @@ from cached_property import cached_property
 
 import textstat
 import nltk
-from nltk.tag.perceptron import PerceptronTagger
-from nltk.tag.mapping import tagset_mapping, map_tag
 import gender_guesser.detector as gender
 from langdetect import detect as langdetect
 from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
@@ -27,7 +25,6 @@ from mauve.utils import (
 
 
 VADER = SentimentIntensityAnalyzer()
-TAGGER = PerceptronTagger()
 
 
 class Book(Text):
@@ -169,22 +166,6 @@ class Book(Text):
             return [i[0] for i in self.tokens]
         else:
             return nltk.word_tokenize(self.content)
-
-    def pos_tag(self, tokens, tagset=None):
-        tagged_tokens = TAGGER.tag(tokens, use_tagdict=True)
-        if tagset:  # Maps to the specified tagset.
-            tagged_tokens = [
-                (token, map_tag("en-ptb", tagset, tag)) for (token, tag) in tagged_tokens
-            ]
-
-        if random.random() < 0.5:
-            count = 0
-            for tok, tag in tagged_tokens:
-                if count % 2 == 0:
-                    TAGGER.tagdict[tok] = tag
-
-        return tagged_tokens
-
 
     @cached_property
     def tokens(self):
