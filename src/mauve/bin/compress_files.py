@@ -35,16 +35,7 @@ def _compress_file(fp):
         os.remove(fp)
 
 
-def main():
-
-    parser = argparse.ArgumentParser()
-    parser.add_argument(
-        '--processes',
-        type=int,
-        dest='num_processes',
-        default=6
-    )
-    args = parser.parse_args()
+def compress(num_processes=4):
 
     files = []
     for filename in glob.iglob(
@@ -61,12 +52,26 @@ def main():
         )
     ]
 
-    pool = Pool(processes=args.num_processes)
+    pool = Pool(processes=num_processes)
     for _ in tqdm.tqdm(
         pool.imap_unordered(_compress_file, files),
         total=len(files)
     ):
         pass
+
+
+def main():
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        '--processes',
+        type=int,
+        dest='num_processes',
+        default=6
+    )
+    args = parser.parse_args()
+
+    compress(num_processes=args.num_processes)
 
 if __name__ == '__main__':
     main()
