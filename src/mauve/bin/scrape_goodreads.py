@@ -161,27 +161,21 @@ def scrape_book(book_id):
         pass
 
 
-def main():
-    parser = argparse.ArgumentParser()
-    parser.add_argument(
-        '--threads',
-        type=int,
-        default=20,
-        dest='num_threads',
-        help='num concurrent threads'
+def get_title_id_cache():
+    title_id_file = os.path.join(
+        GOODREADS_METADATA_PATH,
+        'title_id_map.json'
     )
-    args = parser.parse_args()
 
-    title_id_dir = os.path.join(GOODREADS_METADATA_PATH, 'title_id_map.json')
+    if os.path.exists(title_id_file):
+        f = open(title_id_file, 'r')
+        return json.loads(f.read())
 
-    if os.path.exists(title_id_dir):
-        f = open(title_id_dir, 'r')
-        title_id_cache = json.loads(f.read())
-    else:
-        title_id_cache = {}
+    return {}
 
-    files = os.listdir(TEXT_PATH)
-    random.shuffle(files)
+
+
+def get_request_chunk_items(files, title_id_cache):
     titles = []
     count = 0
     for f in files:
@@ -206,56 +200,20 @@ def main():
                 count += 1
                 if count == 50:  # We brake here to batch in case connections drop. Write your own script around this if you like
                     break
+    return titles
 
-    print('Books to get: %s' % (len(titles)))
-
-    bs = [
-        {
-            'isbn': t['isbn'],
-            'title': t['title'],
-            'original_filename': t['original_filename']
-        } for t in titles
-    ]
-
-    res = []
-    with ThreadPool(processes=args.num_threads) as pool:
-        res.extend(
-            pool.map(
-                get_id_from_isbn,
-                bs
-            )
-        )
-    res = [i for i in res if i is not None]
-
-    book_title_id_map = {}
-    book_ids = []
-    for filename_title, original_filename, book_id in res:
-        book_title_id_map[book_id] = original_filename
-        book_ids.append(book_id)
-
-    title_id_cache.update(book_title_id_map)
-
-    books_already_scraped = [
-        file_name.replace('.json', '') for file_name in os.listdir(GOODREADS_METADATA_PATH) if all([
-            file_name.endswith('.json')
-        ])
-    ]
-    books_to_scrape = [book_id for book_id in book_ids if book_id not in books_already_scraped]
-
-    results = []
-    with ThreadPool(processes=args.num_threads) as pool:
-        results.extend(
-            pool.map(
-                scrape_book,
-                books_to_scrape
-            )
-        )
-
-    f = open(title_id_dir, 'w')
+def write_title_id_cache(title_id_cache):
+    title_id_file = os.path.join(
+        GOODREADS_METADATA_PATH,
+        'title_id_map.json'
+    )
+    f = open(title_id_file, 'w')
     f.write(json.dumps(title_id_cache))
     f.close()
 
-    for scrape_result in results:
+
+def write_book_metadata(metadata_results):
+    for scrape_result in metadata_results:
         if scrape_result is not None:
             json.dump(
                 scrape_result,
@@ -264,6 +222,65 @@ def main():
                     'w'
                 )
             )
+
+
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        '--threads',
+        type=int,
+        default=20,
+        dest='num_threads',
+        help='num concurrent threads'
+    )
+    args = parser.parse_args()
+
+    title_id_cache = get_title_id_cache()
+
+    files = os.listdir(TEXT_PATH)
+    random.shuffle(files)
+
+    request_items = get_request_chunk_items(files, title_id_cache)
+
+    print('Books to get: %s' % (len(request_items)))
+
+    get_id_responses = []
+    with ThreadPool(processes=args.num_threads) as pool:
+        get_id_responses.extend(
+            pool.map(
+                get_id_from_isbn,
+                request_items
+            )
+        )
+
+    get_id_responses = [i for i in get_id_responses if i is not None]
+
+    book_title_id_map = {}
+    book_ids = []
+    for _, original_filename, book_id in get_id_responses:
+        book_title_id_map[book_id] = original_filename
+        book_ids.append(book_id)
+
+    title_id_cache.update(book_title_id_map)
+
+    books_already_scraped = [
+        file_name.replace('.json', '') for file_name in os.listdir(GOODREADS_METADATA_PATH) if file_name.endswith('.json')
+    ]
+    books_to_scrape = [
+        book_id for book_id in book_ids if book_id not in books_already_scraped
+    ]
+
+    metadata_results = []
+    with ThreadPool(processes=args.num_threads) as pool:
+        metadata_results.extend(
+            pool.map(
+                scrape_book,
+                books_to_scrape
+            )
+        )
+
+    write_title_id_cache(title_id_cache)
+    write_book_metadata(metadata_results)
 
 
 if __name__ == '__main__':
