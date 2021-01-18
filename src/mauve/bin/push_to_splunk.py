@@ -40,7 +40,7 @@ def process_files(num_processes=4):
             pass
 
 
-def main():
+def main():  # pragma: nocover
 
     parser = argparse.ArgumentParser()
     parser.add_argument(
@@ -54,5 +54,5 @@ def main():
     process_files(num_processes=args.num_processes)
 
 
-if __name__ == '__main__':
+if __name__ == '__main__':  # pragma: nocover
     main()

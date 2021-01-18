@@ -39,10 +39,10 @@ def clean_isbn(isbn):
 
 def process_filename(book_filename):
 
-    if '.epub' not in book_filename:
-        return
-
-    if '___' in book_filename:
+    if any([
+        '.epub' not in book_filename,
+        '___' in book_filename
+    ]):
         return
 
     try:
@@ -62,7 +62,6 @@ def process_filename(book_filename):
         try:
             isbn_source = book.metadata['http://purl.org/dc/elements/1.1/']['source'][0][0]
             isbn = clean_isbn(isbn_source)
-
             if len(isbn_source) == 13:
                 real_isbn = isbn_source
         except:
@@ -70,7 +69,6 @@ def process_filename(book_filename):
 
         try:
             isbn_identifier = book.metadata['http://purl.org/dc/elements/1.1/']['identifier'][0][1]['id'].replace('p', '')
-
             if len(isbn_identifier) == 13:
                 real_isbn = isbn_identifier
         except:
@@ -78,7 +76,6 @@ def process_filename(book_filename):
 
         try:
             isbn_identifier_2 = book.metadata['http://purl.org/dc/elements/1.1/']['identifier'][1][0]
-
             if len(isbn_identifier_2) == 13:
                 real_isbn = isbn_identifier_2
         except:
@@ -122,7 +119,7 @@ def process_filenames(num_processes=4):
             pass
 
 
-def main():
+def main():  # pragma: nocover
 
     parser = argparse.ArgumentParser()
     parser.add_argument(
@@ -136,5 +133,5 @@ def main():
     process_filenames(num_processes=args.num_processes)
 
 
-if __name__ == '__main__':
+if __name__ == '__main__':  # pragma: nocover
     main()
