@@ -31,7 +31,7 @@ def process_files(num_processes=4):
     if num_processes == 1:
         for f in files:
             push_to_splunk(f)
-    else:
+    else:  # pragma: nocover
         pool = Pool(processes=num_processes)
         for _ in tqdm.tqdm(
             pool.imap_unordered(push_to_splunk, files),

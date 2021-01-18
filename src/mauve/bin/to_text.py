@@ -76,12 +76,16 @@ def process(book_path):
 
 def process_files(num_processes=4):
     files = os.listdir(CLEAN_EPUB_PATH)
-    pool = Pool(processes=num_processes)
-    for _ in tqdm.tqdm(
-        pool.imap_unordered(process, files),
-        total=len(files)
-    ):
-        pass
+    if num_processes == 1:
+        for f in files:
+            process(f)
+    else:  # pragma: nocover
+        pool = Pool(processes=num_processes)
+        for _ in tqdm.tqdm(
+            pool.imap_unordered(process, files),
+            total=len(files)
+        ):
+            pass
 
 
 def main():  # pragma: nocover

@@ -55,7 +55,7 @@ def compress(num_processes=4):
     if num_processes == 1:
         for f in files:
             _compress_file(f)
-    else:
+    else:  # pragma: nocover
         pool = Pool(processes=num_processes)
         for _ in tqdm.tqdm(
             pool.imap_unordered(_compress_file, files),
