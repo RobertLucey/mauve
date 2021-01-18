@@ -176,8 +176,11 @@ class Text(GenericObject):
             tourcetype='books'
         )
 
+    @cached_property
+    def sentiment(self):
+        return VADER.polarity_scores([a for a in self.sentences if random.random() < 0.05])  # Need more power but this may be an indication
+
     def serialize_stats(self):
-        vader_stats = VADER.polarity_scores([a for a in self.sentences if random.random() < 0.05])  # Need more power but this may be an indication
         return {
             'analysis_version': '7',
             'author': getattr(self, 'author', None),
@@ -196,10 +199,10 @@ class Text(GenericObject):
             'top_verbs': self.get_top_verbs(10),
             'flesch_reading_ease_score': textstat.flesch_reading_ease(self.content),
             'crawford_score': textstat.crawford(self.content),
-            'vader_pos': vader_stats['pos'],
-            'vader_neg': vader_stats['neg'],
-            'vader_neu': vader_stats['neu'],
-            'vader_compound': vader_stats['compound'],
+            'vader_pos': self.sentiment['pos'],
+            'vader_neg': self.sentiment['neg'],
+            'vader_neu': self.sentiment['neu'],
+            'vader_compound': self.sentiment['compound'],
         }
 
     def __del__(self):
@@ -307,3 +310,7 @@ class Text(GenericObject):
     @property
     def reading_age(self):
         raise NotImplementedError()
+
+    @property
+    def word_count(self):
+        return len(self.words)

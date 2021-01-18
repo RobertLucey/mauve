@@ -36,7 +36,8 @@ class TestDebate(TestCase):
             {
                 'title': 'title one',
                 'eid': None,
-                'content': 'one one one'
+                'content': 'one one one',
+                'word_count': 3
             }
         )
 
@@ -60,7 +61,8 @@ class TestDebate(TestCase):
                     {
                         'content': 'one one one',
                         'eid': None,
-                        'title': 'title one'
+                        'title': 'title one',
+                        'word_count': 3
                     }
                 ]
             }

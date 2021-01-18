@@ -6,8 +6,8 @@ import pickle
 import requests
 
 from cached_property import cached_property
-import nltk
 import bs4
+import nltk
 
 from mauve.utils import get_file_content
 from mauve.constants import OIREACHTAS_DIR
@@ -64,7 +64,8 @@ class Para(Text):
         return {
             'title': self.title,
             'eid': self.eid,
-            'content': self.content
+            'content': self.content,
+            'word_count': self.word_count
         }
 
 
