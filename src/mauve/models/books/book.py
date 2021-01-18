@@ -65,6 +65,9 @@ class Book(Text):
 
         self.content_path = None
 
+        self.source = 'books'
+        self.sourcetype = 'books'
+
         super(Book, self).__init__()
 
     def is_genre(self, genre_name):

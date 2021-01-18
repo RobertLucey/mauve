@@ -172,8 +172,8 @@ class Text(GenericObject):
         StreamSubmit().submit(
             'books',
             self.serialize(),
-            source='books',
-            tourcetype='books'
+            source=self.source,
+            sourcetype=self.sourcetype
         )
 
     @cached_property

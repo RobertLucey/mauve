@@ -42,6 +42,9 @@ class Para(Text):
         self.title = title
         self.eid = eid
         self.content = content
+
+        self.source = 'oireachtas'
+        self.sourcetype = 'debate'
         super(Para, self).__init__()
 
     @cached_property
