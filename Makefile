@@ -3,7 +3,7 @@ PYTHON=python3.6
 ENV_DIR=.env_$(PYTHON)
 IN_ENV=. $(ENV_DIR)/bin/activate &&
 
-TEST_CONTEXT=export TEST_ENV=True &&
+TEST_CONTEXT=export TEST_ENV=True && export BOTO_CONFIG=/dev/null &&
 
 MKFILE_DIR_PATH := $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
 
