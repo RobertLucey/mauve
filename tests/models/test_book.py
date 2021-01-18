@@ -5,6 +5,7 @@ import glob
 import os
 
 from mauve.models.books.book import Book
+from mauve.models.books.review import Reviews, Review
 from mauve.models.books.tag import Tags, Tag
 from mauve import constants
 
@@ -155,6 +156,31 @@ class TestBook(TestCase):
 
         book = Book(title='t', author=None, year_published=2020, num_ratings=100)
         self.assertEqual(book.author_gender, None)
+
+    def test_set_reviews(self):
+        book = Book(
+            title='t',
+            author='Arthur',
+            year_published=2020,
+            num_ratings=100,
+            reviews=Reviews(
+                data=[
+                    Review(
+                        user='mr_review',
+                        score=5
+                    )
+                ]
+            )
+        )
+        self.assertEqual(
+            book.reviews.serialize(),
+            [
+                {
+                    'score': 5,
+                    'user': 'mr_review'
+                }
+            ]
+        )
 
     @mock.patch('mauve.models.books.book.Book.content', 'It is blue')
     def test_serialize(self):
