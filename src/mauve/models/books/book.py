@@ -15,7 +15,10 @@ from mauve.models.books.tag import Tags
 from mauve.models.books.review import Reviews
 from mauve.splunk_push import StreamSubmit
 from mauve.models.text import Text
-from mauve.constants import TOKEN_VERSION
+from mauve.constants import (
+    TOKEN_VERSION,
+    ANALYSIS_VERSION
+)
 from mauve.utils import (
     get_file_content,
     get_loose_filepath
@@ -84,7 +87,7 @@ class Book(Text):
     def serialize(self):
         vader_stats = VADER.polarity_scores([a for a in self.sentences if random.random() < 0.05])  # Need more power but this may be an indication
         return {
-            'analysis_version': '7',
+            'analysis_version': int(ANALYSIS_VERSION),
             'author_similarity': self.author_similarity,
             'title': self.title,
             'author': self.author,
@@ -94,8 +97,8 @@ class Book(Text):
             'isbn': self.isbn,
             'isbn13': self.isbn13,
             'subtitle': self.subtitle,
-            'avg_rating': float(self.avg_rating),
-            'num_ratings': int(self.num_ratings),
+            'avg_rating': float(self.avg_rating) if self.avg_rating else None,
+            'num_ratings': int(self.num_ratings) if self.num_ratings else None,
             'tags': self.tags.serialize(),
             'reviews': self.reviews.serialize(),
             'word_count': len(self.words),

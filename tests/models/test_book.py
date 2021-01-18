@@ -6,6 +6,7 @@ import os
 
 from mauve.models.books.book import Book
 from mauve.models.books.tag import Tags, Tag
+from mauve import constants
 
 
 class TestBook(TestCase):
@@ -154,3 +155,47 @@ class TestBook(TestCase):
 
         book = Book(title='t', author=None, year_published=2020, num_ratings=100)
         self.assertEqual(book.author_gender, None)
+
+    @mock.patch('mauve.models.books.book.Book.content', 'It is blue')
+    def test_serialize(self):
+        # NOTE: This will probably change a fair bit over time but just
+        #       want to be aware if it changes
+        book = Book(title='t', author='Arthur', year_published=2020, num_ratings=100)
+        book.set_content_location('/tmp/mauve_tok/NOPE___AUTHOR___TITLE.txt')
+        self.assertEqual(
+            book.serialize(),
+            {
+                'analysis_version': int(constants.ANALYSIS_VERSION),
+                'author_similarity': False,
+                'title': 't',
+                'author': 'Arthur',
+                'author_gender': 'male',
+                'year_published': 2020,
+                'publisher': None,
+                'isbn': None,
+                'isbn13': None,
+                'subtitle': None,
+                'avg_rating': None,
+                'num_ratings': 100,
+                'tags': [],
+                'reviews': [],
+                'word_count': 3,
+                'lexical_diversity': 1.0,
+                'avg_word_len': 2.6666666666666665,
+                'profanity_score': 0,
+                'avg_sentence_word_len': 3,
+                'avg_sentence_char_len': 10,
+                'adverb_score': 0.0,
+                'interjection_score': 0.0,
+                'adjective_score': 3333.3333333333335,
+                'top_adjectives': {'blue': 1},
+                'top_nouns': {},
+                'top_verbs': {'is': 1},
+                'flesch_reading_ease_score': 119.19,
+                'crawford_score': -5.4,
+                'vader_pos': 0.0,
+                'vader_neg': 0.0,
+                'vader_neu': 0.0,
+                'vader_compound': 0.0
+            }
+        )

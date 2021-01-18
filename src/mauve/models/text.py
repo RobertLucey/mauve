@@ -21,7 +21,9 @@ from mauve.decorators import kwarg_validator
 from mauve.constants import (
     ENG_WORDS,
     PROFANITY_LIST,
-    SENTENCE_TERMINATORS
+    SENTENCE_TERMINATORS,
+    SIMPLE_TOKEN_MAP,
+    ANALYSIS_VERSION
 )
 
 from mauve.models.generic import (
@@ -36,7 +38,6 @@ from mauve.bst import (
     search
 )
 
-from mauve.constants import SIMPLE_TOKEN_MAP
 from mauve.splunk_push import StreamSubmit
 
 
@@ -182,7 +183,7 @@ class Text(GenericObject):
 
     def serialize_stats(self):
         return {
-            'analysis_version': '7',
+            'analysis_version': int(ANALYSIS_VERSION),
             'author': getattr(self, 'author', None),
             'author_gender': self.author_gender,
             'word_count': len(self.words),

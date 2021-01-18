@@ -104,6 +104,7 @@ SIMPLE_TOKEN_MAP = {
 }
 
 
+ANALYSIS_VERSION = '7'
 TOKEN_VERSION = '2'
 BASE_DATA_PATH = '/opt/mauve/' if os.getenv('TEST_ENV', 'False') == 'False' else '/tmp/mauve'
 GOODREADS_METADATA_PATH = os.path.join(BASE_DATA_PATH, 'metadata')
