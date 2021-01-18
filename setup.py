@@ -20,7 +20,8 @@ INSTALL_REQUIRES = [
     'textstat',
     'vaderSentiment',
     'mobi',
-    'EbookLib'
+    'EbookLib',
+    'tika'
 ]
 
 setup(

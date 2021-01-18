@@ -15,3 +15,4 @@ textstat
 vaderSentiment
 mobi
 EbookLib
+tika
