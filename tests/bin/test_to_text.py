@@ -81,12 +81,39 @@ class TestCompressFiles(TestCase):
             fp=self.clean_epub_1
         )
 
-    @mock.patch('mauve.models.books.book.Book.push_to_splunk')
-    def test_to_text(self, push_to_splunk_mock):
+    def test_to_text_creation(self):
         process_files(num_processes=1)
 
         self.assertTrue(
             os.path.exists(
                 os.path.join(TEXT_PATH, '9783161484102___Author A. Author___Another Great Title.txt')
             )
+        )
+
+    def test_to_text_content(self):
+        process_files(num_processes=1)
+
+        content = get_file_content(os.path.join(TEXT_PATH, '9783161484102___Author A. Author___Another Great Title.txt'))
+        self.assertEquals(
+            content,
+            '''Intro heading 
+ blah blah blah 
+ 
+
+ Another Great Title 
+ 
+ 
+ Introduction 
+ 
+ 
+ Simple book 
+ 
+ 
+ Intro 
+ 
+ 
+ 
+ 
+ 
+ '''
         )
