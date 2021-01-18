@@ -61,6 +61,30 @@ class TestBook(TestCase):
         book.set_content_location('/tmp/mauve_tok')
         self.assertEquals(1/3., book.get_lexical_diversity())
 
+    @mock.patch('mauve.models.books.book.Book.content', 'one one asdasd')
+    def test_get_lexical_diversity_dictionary(self):
+        book = Book(title='t', author='a', year_published=1)
+        book.set_content_location('/tmp/mauve_tok')
+        self.assertEquals(1/2., book.get_lexical_diversity(only_dictionary_words=True))
+
+    @mock.patch('mauve.models.books.book.Book.content', 'go go run')
+    def test_get_top_verbs(self):
+        book = Book(title='t', author='a', year_published=1)
+        book.set_content_location('/tmp/mauve_tok')
+        self.assertEquals(book.get_top_verbs(10), {'go': 2, 'run': 1})
+
+    @mock.patch('mauve.models.books.book.Book.content', 'big ball happy happy')
+    def test_get_top_adjectives(self):
+        book = Book(title='t', author='a', year_published=1)
+        book.set_content_location('/tmp/mauve_tok')
+        self.assertEquals(book.get_top_adjectives(10), {'happy': 2, 'big': 1})
+
+    @mock.patch('mauve.models.books.book.Book.content', 'pencil and pencil house')
+    def test_get_top_nouns(self):
+        book = Book(title='t', author='a', year_published=1)
+        book.set_content_location('/tmp/mauve_tok')
+        self.assertEquals(book.get_top_nouns(10), {'pencil': 2, 'house': 1})
+
     def test_author_similarity(self):
         book = Book(title='t', author='Author', year_published=1)
         book.set_content_location('/tmp/mauve/isbn___Author___title.txt')
