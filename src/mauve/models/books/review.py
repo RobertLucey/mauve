@@ -13,7 +13,7 @@ class Review(GenericObject):
 
     def serialize(self):
         return {
-            'user': self.user.serialize(),
+            'user': self.user,
             'score': self.score
         }
 
