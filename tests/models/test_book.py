@@ -85,6 +85,32 @@ class TestBook(TestCase):
         book.set_content_location('/tmp/mauve_tok')
         self.assertEquals(book.get_top_nouns(10), {'pencil': 2, 'house': 1})
 
+    @mock.patch('mauve.models.books.book.Book.content', 'I\'m a little teapot. Really, I am! Right?')
+    def test_sentences_tokens(self):
+        book = Book(title='t', author='a', year_published=1)
+        book.set_content_location('/tmp/mauve_tok')
+        self.assertEquals(
+            book.sentences_tokens,
+            [
+                [('I', 'PRP'), ("'m", 'VBP'), ('a', 'DT'), ('little', 'JJ'), ('teapot', 'NN'), ('.', '.')],
+                [('Really', 'RB'), (',', ','), ('I', 'PRP'), ('am', 'VBP'), ('!', '.')],
+                [('Right', 'NNP'), ('?', '.')]
+            ]
+        )
+
+    @mock.patch('mauve.models.books.book.Book.content', 'Do it quietly')
+    def test_adverbs(self):
+        book = Book(title='t', author='a', year_published=1)
+        book.set_content_location('/tmp/mauve_tok')
+        self.assertEquals(book.adverbs, ['quietly'])
+
+    @mock.patch('mauve.models.books.book.Book.content', 'It is blue')
+    def test_adjectives(self):
+        book = Book(title='t', author='a', year_published=1)
+        book.set_content_location('/tmp/mauve_tok')
+        self.assertEquals(book.adjectives, ['blue'])
+
+
     def test_author_similarity(self):
         book = Book(title='t', author='Author', year_published=1)
         book.set_content_location('/tmp/mauve/isbn___Author___title.txt')
@@ -118,3 +144,13 @@ class TestBook(TestCase):
         book = Book(title='t', author='Arthur', year_published=2020, num_ratings=100)
         book.set_content_location('/tmp/mauve/isbn___Something Author___title.txt')
         self.assertFalse(book.safe_to_use)
+
+    def test_author_gender(self):
+        book = Book(title='t', author='Arthur', year_published=2020, num_ratings=100)
+        self.assertEqual(book.author_gender, 'male')
+
+        book = Book(title='t', author='Alice McArthur', year_published=2020, num_ratings=100)
+        self.assertEqual(book.author_gender, 'female')
+
+        book = Book(title='t', author=None, year_published=2020, num_ratings=100)
+        self.assertEqual(book.author_gender, None)
