@@ -181,12 +181,26 @@ class TestUtils(TestCase):
         metadata = sorted(metadata, key=lambda i: i['original_filename'])
         expected = sorted(expected, key=lambda i: i['original_filename'])
 
-        print(metadata)
-        print(expected)
-
         self.assertEqual(metadata, expected)
+
+        with self.assertRaises(Exception):
+            get_metadata(source='blahblah')
+
 
     def test_iter_books_goodreads(self):
         books = [b for b in iter_books()]
         self.assertEqual(len(books), 3)
         self.assertEqual(sorted([b.title for b in books]), ['Title 1', 'Title 2', 'Title 3'])
+
+    def test_get_loose_filepath(self):
+        self.assertEqual(
+            get_loose_filepath(os.path.join(EPUB_PATH, 'Another Great Title.epub')),
+            '/tmp/mauve/epub/Another Great Title.epub'
+        )
+
+        Path('/tmp/mauve/txt/Another Great Title.txt').touch()
+
+        self.assertEqual(
+            get_loose_filepath(os.path.join(TEXT_PATH, 'Another Great Title.txt.bz')),
+            '/tmp/mauve/txt/Another Great Title.txt'
+        )

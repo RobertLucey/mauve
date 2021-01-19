@@ -55,7 +55,7 @@ class TestConvertFilenames(TestCase):
 
         self.dirty_epub_1 = os.path.join(EPUB_PATH, 'Title Title.epub')
         self.dirty_epub_2 = os.path.join(EPUB_PATH, 'Another Great Title.epub')
-        self.clean_epub_1 = os.path.join(CLEAN_EPUB_PATH, '9783161484102___Author A. Author___Another Great Title.epub')
+        self.clean_epub_1 = os.path.join(CLEAN_EPUB_PATH, '9783161484101___Author A. Author___Another Great Title.epub')
 
         # a dirty epub
         create_epub(
@@ -84,14 +84,36 @@ class TestConvertFilenames(TestCase):
             fp=self.clean_epub_1
         )
 
+        create_epub(  # with no / bad isbn
+            isbn='1',
+            title='Another Great Title',
+            author='Author A. Author',
+            content='blah blah blah',
+            fp=os.path.join(EPUB_PATH, 'something.epub')
+        )
+
+        create_epub(  # to make sure it's skipped
+            isbn='0',
+            title='1',
+            author='2',
+            content='blah blah blah',
+            fp=os.path.join(EPUB_PATH, 'something.txt')
+        )
+
 
     def test_clean_isbn(self):
         self.assertFalse(os.path.exists(os.path.join(CLEAN_EPUB_PATH, '9783161484100___Author A. Author___Title title.epub')))
-        self.assertFalse(os.path.exists(os.path.join(CLEAN_EPUB_PATH, '9783161484101___Author A. Author___Another Great Title.epub')))
-        self.assertTrue(os.path.exists(os.path.join(CLEAN_EPUB_PATH, '9783161484102___Author A. Author___Another Great Title.epub')))
+        self.assertTrue(os.path.exists(os.path.join(CLEAN_EPUB_PATH, '9783161484101___Author A. Author___Another Great Title.epub')))
+        self.assertTrue(os.path.exists(os.path.join(CLEAN_EPUB_PATH, '9783161484101___Author A. Author___Another Great Title.epub')))
 
         process_filenames(num_processes=1)
 
         self.assertTrue(os.path.exists(os.path.join(CLEAN_EPUB_PATH, '9783161484100___Author A. Author___Title title.epub')))
-        self.assertTrue(os.path.exists(os.path.join(CLEAN_EPUB_PATH, '9783161484101___Author A. Author___Another Great Title.epub')))
-        self.assertTrue(os.path.exists(os.path.join(CLEAN_EPUB_PATH, '9783161484102___Author A. Author___Another Great Title.epub')))
+        self.assertFalse(os.path.exists(os.path.join(CLEAN_EPUB_PATH, '0___1___2.epub')))
+
+    def test_bad_epub_removed(self):
+        Path(os.path.join(EPUB_PATH, 'test_bad_epub_removed.epub')).touch()
+
+        process_filenames(num_processes=1)
+
+        self.assertFalse(os.path.exists(os.path.join(EPUB_PATH, 'test_bad_epub_removed.epub')))
