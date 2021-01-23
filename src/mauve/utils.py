@@ -1,7 +1,10 @@
 import os
 import random
 import pickle
+from functools import lru_cache
 
+from nltk.stem.wordnet import WordNetLemmatizer
+from nltk.stem import PorterStemmer
 import fast_json
 from compress_pickle import (
     dump,
@@ -17,6 +20,10 @@ from mauve.constants import (
     SIMPLE_TOKEN_MAP,
     TEXT_PATH
 )
+
+
+STEMMER = PorterStemmer()
+LEM = WordNetLemmatizer()
 
 
 def loose_exists(filepath):
@@ -188,3 +195,20 @@ def iter_books(source='goodreads'):
         book.set_content_location(content_path)
 
         yield book
+
+
+@lru_cache(maxsize=100000)
+def get_stem(word):
+    return STEMMER.stem(word)
+
+
+@lru_cache(maxsize=100000)
+def get_lem(word, pos=None):
+    return LEM.lemmatize(word, pos)
+
+
+def lower(x):
+    try:
+        return x.lower()
+    except:
+        pass

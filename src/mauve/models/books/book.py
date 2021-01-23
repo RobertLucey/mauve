@@ -145,21 +145,6 @@ class Book(Text):
                 pass
 
     @cached_property
-    def content(self):
-        '''
-        '''
-        try:
-            return open(
-                self.content_path,
-                'r',
-                encoding='latin1'
-            ).read()
-        except Exception as ex:
-            print('BAD FILE: %s' % (self.content_path))
-            print(ex)
-            return ''
-
-    @cached_property
     def words(self):
         # TODO: optional preprocess to make it's it is and all that
 
