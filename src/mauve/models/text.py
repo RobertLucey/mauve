@@ -1,5 +1,8 @@
 from collections import defaultdict
 from collections import Counter
+
+from nltk.corpus import wordnet
+from nltk.corpus import stopwords
 import pickle
 import difflib
 import statistics
@@ -17,8 +20,11 @@ import nltk
 from nltk.tag.perceptron import PerceptronTagger
 from nltk.tag.mapping import tagset_mapping, map_tag
 
+from mauve.idioms import replace_idioms
+from mauve.utils import get_stem, get_lem, lower
 from mauve.decorators import kwarg_validator
 from mauve.constants import (
+    LIKELY_WORD_TOKENS,
     ENG_WORDS,
     PROFANITY_LIST,
     SENTENCE_TERMINATORS,
@@ -62,6 +68,21 @@ class Text(GenericObject):
                     TAGGER.tagdict[tok] = tag
 
         return tagged_tokens
+
+    @cached_property
+    def content(self):
+        '''
+        '''
+        try:
+            return open(
+                self.content_path,
+                'r',
+                encoding='latin1'
+            ).read()
+        except Exception as ex:
+            print('BAD FILE: %s' % (self.content_path))
+            print(ex)
+            return ''
 
     def set_content_location(self, content_path):
         '''
@@ -315,3 +336,125 @@ class Text(GenericObject):
     @property
     def word_count(self):
         return len(self.words)
+
+    def previous_current_next(self, iterable):
+        """Make an iterator that yields an (previous, current, next) tuple per element.
+
+        Returns None if the value does not make sense (i.e. previous before
+        first and next after last).
+        """
+        iterable = iter(iterable)
+        prv = None
+        cur = iterable.__next__()
+        try:
+            while True:
+                nxt = iterable.__next__()
+                yield (prv, cur, nxt)
+                prv = cur
+                cur = nxt
+        except StopIteration:
+            yield (prv, cur, None)
+
+    def get_wordnet_pos(self, tag):
+        """Map POS tag to first character lemmatize() accepts"""
+        tag = tag[0].upper()
+        tag_dict = {"J": wordnet.ADJ,
+                    "N": wordnet.NOUN,
+                    "V": wordnet.VERB,
+                    "R": wordnet.ADV}
+
+        return tag_dict.get(tag, wordnet.NOUN)
+
+    @cached_property
+    def phrases_content(self):
+        return replace_idioms(self.content)
+
+    @property
+    def assignments(self):
+
+        '''
+        x is (quite, very) y, factor in much like how 'Ham is very tasy' and 'Ham is not tasty' are exact opposites
+        '''
+
+        original_joining_words = ['does', 'is', 'are', 'am', 'was', 'were']
+        joining_words = original_joining_words + ['doe', 'be', 'be', 'be', 'wa', 'be']
+
+        mapping = defaultdict(lambda: defaultdict(lambda: defaultdict(int)))
+
+        stop_words = set(stopwords.words("english")) - set(joining_words) - set(['we', 'i', 'you', 'not', 'no'])
+        for s in nltk.tokenize.sent_tokenize(self.phrases_content):
+            words = [m for m in [w.lower().replace('—', '') for w in nltk.word_tokenize(s)] if m]
+
+            fin_words = []
+            for w in words:
+                if w.lower() not in stop_words:
+                    fin_words.append(w)
+            words = fin_words
+
+            # do toks here to not include stemmed
+
+            replace_back = defaultdict(str)
+            stemmed_words = []
+            for word in words:
+                stemd = get_stem(word)
+                stemmed_words.append([word, stemd])
+                replace_back[word] = stemd
+            words = stemmed_words
+
+            word_tokens = self.pos_tag([w[0] for w in words])
+
+            lem_words = []
+            for ow, w in words:
+                lemd = get_lem(w, self.get_wordnet_pos([m[1] for m in word_tokens if m[0] == ow][0]))
+                lem_words.append(lemd)
+                replace_back[ow] = lemd
+            words = lem_words
+  
+            final = []
+            for t in word_tokens:
+                final.append((t[0], t[1], replace_back[t[0]]))
+            word_tokens = final
+
+            interesting = False
+            interesting_map = defaultdict(lambda: defaultdict(lambda: defaultdict(int)))
+            for p, c, n in self.previous_current_next(word_tokens):
+
+                if not p or not c or not n:
+                    continue
+
+                ###
+                #if SIMPLE_TOKEN_MAP[p[1]] != 'noun':
+                #    continue
+
+                if p[1] not in LIKELY_WORD_TOKENS:
+                    continue
+
+                if n[1] not in LIKELY_WORD_TOKENS:
+                    continue
+
+                if n[0].lower() in ['to', 'a', 'also', 'in', 'its', 'the', 'at', 'now', 'not', 'very', 'of', 'sure', 'which', 'an', 'more', 'that', 'too', 'almost']:
+                    continue
+
+                if c[0].lower() in original_joining_words:
+
+                    if p[0].lower() in ['there', 'that']:  # too vague
+                        continue
+
+                    original_p = lower(p[0])
+                    original_n = lower(n[0])
+                    p = lower(p[2])
+                    n = lower(n[2])
+
+                    mapping[original_p][n][original_n] += 1
+                    interesting_map[p][n][original_n] += 1
+                    interesting += 1
+
+            if interesting:
+                print('\n----------')
+                print(s)
+                print(' '.join(words))
+                for k, v in interesting_map.items():
+                    for ivk, ivv in v.items():
+                        print(k + ': ' + ivk + ' ' + str(ivv))
+
+        return mapping
