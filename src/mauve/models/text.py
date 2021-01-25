@@ -51,6 +51,7 @@ from mauve.bst import (
     create,
     search
 )
+from mauve.models.synonym import Synonym
 
 from mauve.splunk_push import StreamSubmit
 
@@ -71,11 +72,7 @@ class Tagger():
         if tokens == ['']:
             return []
 
-        tagged_tokens = TAGGER.tag(tokens, use_tagdict=True)
-        if tagset:  # Maps to the specified tagset.
-            tagged_tokens = [
-                (token, map_tag("en-ptb", tagset, tag)) for (token, tag) in tagged_tokens
-            ]
+        tagged_tokens = TAGGER.tag(tokens)
 
         if random.random() < 0.5:
             count = 0
@@ -86,13 +83,14 @@ class Tagger():
         return tagged_tokens
 
 
-class Segment(Tagger):
+class Segment(Tagger, Synonym):
 
     def __init__(self, text, tag=None):
         if '___' in text:
             text = text.replace('___', ' ')
         self.text = text
         self._tag = tag
+        self.mod_word()
         WPS.update()
 
     def get_wordnet_pos(self, tag):
@@ -112,14 +110,14 @@ class Segment(Tagger):
         return False
 
     @property
-    def lem(self):
+    def lem_stem(self):
         if ' ' in self.text or self.is_entity:
             return self.text
 
-        return get_lem(
+        return get_stem(get_lem(
             self.text,
             self.get_wordnet_pos(self.tag)
-        )
+        ))
 
     @property
     def tag(self):
@@ -476,10 +474,10 @@ class Text(GenericObject, Tagger):
     def get_wordnet_pos(self, tag):
         """Map POS tag to first character lemmatize() accepts"""
         tag = tag[0].upper()
-        tag_dict = {"J": wordnet.ADJ,
-                    "N": wordnet.NOUN,
-                    "V": wordnet.VERB,
-                    "R": wordnet.ADV}
+        tag_dict = {'J': wordnet.ADJ,
+                    'N': wordnet.NOUN,
+                    'V': wordnet.VERB,
+                    'R': wordnet.ADV}
 
         return tag_dict.get(tag, wordnet.NOUN)
 
@@ -557,8 +555,8 @@ class Text(GenericObject, Tagger):
                     #if p.text.lower() in ['there', 'that']:  # too vague
                     #    continue
 
-                    p = lower(p.lem)#text)
-                    n = lower(n.lem)#text)
+                    p = lower(p.lem_stem)#text)
+                    n = lower(n.lem_stem)#text)
 
                     mapping[p][n][n] += 1
                     interesting_map[p][n][n] += 1

@@ -10,6 +10,8 @@ from mauve.models.books.review import Reviews, Review
 from mauve.models.books.tag import Tags, Tag
 from mauve import constants
 
+from mauve.models.synonym import Synonym
+
 
 class TestSentence(TestCase):
 
@@ -17,7 +19,7 @@ class TestSentence(TestCase):
         s = Sentence('This is a sentence.')
         self.assertEqual(
             [o.text for o in s.segments],
-            ['This', 'is', 'a', 'sentence', '.']
+            ['This', 'be', 'a', 'sentence', '.']
         )
 
         # since voluntary groups is a joining phrase
@@ -63,5 +65,18 @@ class TestSegment(TestCase):
         self.assertFalse(Segment('asd,').is_wordy)
         self.assertTrue(Segment('asd ').is_wordy)
 
-    def test_lem(self):
-        self.assertEqual(Segment('bats').lem, 'bat')
+    def test_lem_stem(self):
+        self.assertEqual(Segment('bats').lem_stem, 'bat')
+
+
+class Syn(Synonym):
+
+    def __init__(self, t):
+        self.text = t
+        self.mod_word()
+
+
+class TestSynonym(TestCase):
+
+    def test_synonym(self):
+        self.assertEqual(Syn('large').text, 'big')
