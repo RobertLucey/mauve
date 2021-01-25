@@ -69,14 +69,10 @@ class TestSegment(TestCase):
         self.assertEqual(Segment('bats').lem_stem, 'bat')
 
 
-class Syn(Synonym):
-
-    def __init__(self, t):
-        self.text = t
-        self.mod_word()
-
-
 class TestSynonym(TestCase):
 
     def test_synonym(self):
-        self.assertEqual(Syn('large').text, 'big')
+
+        s = Synonym()
+        self.assertEqual(s.get_word('large'), 'big')
+        self.assertEqual(s.get_word('asdasdasd'), 'asdasdasd')

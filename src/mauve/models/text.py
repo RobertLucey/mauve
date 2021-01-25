@@ -63,12 +63,12 @@ ENCORE = spacy.load('en_core_web_sm')
 
 WPS = WPS(print_rate=10000)
 
-
+SYNONYM = Synonym()
 
 
 class Tagger():
 
-    def pos_tag(self, tokens, tagset=None):
+    def pos_tag(self, tokens):
         if tokens == ['']:
             return []
 
@@ -83,14 +83,13 @@ class Tagger():
         return tagged_tokens
 
 
-class Segment(Tagger, Synonym):
+class Segment(Tagger):
 
     def __init__(self, text, tag=None):
         if '___' in text:
             text = text.replace('___', ' ')
-        self.text = text
+        self.text = SYNONYM.get_word(text)
         self._tag = tag
-        self.mod_word()
         WPS.update()
 
     def get_wordnet_pos(self, tag):
