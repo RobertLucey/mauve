@@ -126,11 +126,12 @@ class TestSentence(TestCase):
             ['I', 'want', 'to', 'talk', 'to', 'mr jones']
         )
 
-        #s = Sentence('I want to talk to Tom Jones')
-        #self.assertEqual(
-        #    [o.text for o in s.segments],
-        #    ['I', 'want', 'to', 'talk', 'to', 'Tom Jones']
-        #)
+        s = Sentence('I want to talk to Tom Jones right now')
+        self.assertEqual(s.people, ['Tom Jones'])
+        self.assertEqual(
+            [o.text for o in s.segments],
+            ['I', 'want', 'to', 'talk', 'to', 'Tom Jones', 'right', 'now']
+        )
 
     def test_segments(self):
         s = Sentence('This is a sentence.')

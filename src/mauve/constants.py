@@ -1,6 +1,7 @@
 import os
 
 from mauve.profanity import PROFANITY_LIST
+from mauve.names import NAMES
 
 import nltk
 

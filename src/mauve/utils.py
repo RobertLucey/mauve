@@ -212,3 +212,19 @@ def lower(x):
         return x.lower()
     except:
         pass
+
+
+def find_sub_idx(test_list, repl_list, start=0):
+    length = len(repl_list)
+    for idx in range(start, len(test_list)):
+        if test_list[idx:idx + length] == repl_list:
+            return idx, idx + length
+
+
+def replace_sub(test_list, repl_list, new_list):
+    length = len(new_list)
+    idx = 0
+    for start, end in iter(lambda: find_sub_idx(test_list, repl_list, idx), None):
+        test_list[start:end] = new_list
+        idx = start + length
+    return test_list

@@ -29,9 +29,10 @@ from nltk.tag.mapping import tagset_mapping, map_tag
 from mauve.wps import WPS
 from mauve.idioms import replace_idioms
 from mauve.phrases import replace_phrases
-from mauve.utils import get_stem, get_lem, lower
+from mauve.utils import get_stem, get_lem, lower, replace_sub
 from mauve.decorators import kwarg_validator
 from mauve.constants import (
+    NAMES,
     LIKELY_PERSON_PREFIXES,
     LIKELY_WORD_TOKENS,
     ENG_WORDS,
@@ -97,6 +98,10 @@ class Segment(Tagger):
         self._text = SYNONYM.get_word(text.replace(' ', '_'))
         self._tag = tag
         WPS.update()
+
+    def __eq__(self, other):
+        """Overrides the default implementation"""
+        return self.text == other.text
 
     def get_wordnet_pos(self, tag):
         """Map POS tag to first character lemmatize() accepts"""
@@ -183,15 +188,27 @@ class Sentence():
     def people(self):
         people = []
 
-        for segment in self.segments:
-            print(segment.tag)
-            print(segment.text)
+        prev_was_first = False
+        for segment in self.base_segments:
             if segment.tag == 'PERSON' or (
                 segment.tag == 'dunno' and (
                     any([segment.text.lower().startswith(prefix) for prefix in LIKELY_PERSON_PREFIXES])
                 )
             ):
                 people.append(segment.text)
+            else:
+
+                # do some stuff around caital letters
+
+                # or if already a segment and not a name see the split of ' '
+                if segment.text in NAMES:
+                    if not prev_was_first:
+                        prev_was_first = True
+                        people.append(segment.text)
+                    else:
+                        people[-1] += ' ' + segment.text
+                else:
+                    prev_was_first = False
 
         # also look for names
         return people
@@ -225,8 +242,9 @@ class Sentence():
     def preprocess_text(self, text):
         return ' '.join([SYNONYM.get_word(t.replace(' ', '_')) for t in nltk.word_tokenize(text)])
 
+
     @cached_property
-    def segments(self):
+    def base_segments(self):
         self.text = self.preprocess_text(self.text)
 
         sentence = ENCORE(self.text.lower())
@@ -234,39 +252,28 @@ class Sentence():
         mod_text = self.text
         mapping = {}
 
-        texty = True
-        if texty:
-            for e in sentence.ents:
-                to_put = e.text.replace(' ', '___')
-                mod_text = mod_text.replace(e.text, to_put)
-                mapping[e.text.lower()] = e.label_
+        for e in sentence.ents:
+            to_put = e.text.replace(' ', '___')
+            mod_text = mod_text.replace(e.text, to_put)
+            mapping[e.text.lower()] = e.label_
 
-            try:
-                doc = textacy.make_spacy_doc(mod_text.lower())
-            except Exception as ex:
-                print(ex)
-            else:
-                things = [
-                    k[0] for k in textacy.ke.textrank(
-                        doc,
-                        normalize='lemma',
-                        topn=10
-                    ) if ' ' in k[0]  # only really care about multi word phrases
-                ]
-
-                for t in things:
-                    to_put = t.replace(' ', '___')
-                    mod_text = mod_text.replace(t, to_put)
-                    mapping[t] = 'SOMETHING'
-
+        try:
+            doc = textacy.make_spacy_doc(mod_text.lower())
+        except Exception as ex:
+            print(ex)
         else:
+            things = [
+                k[0] for k in textacy.ke.textrank(
+                    doc,
+                    normalize='lemma',
+                    topn=10
+                ) if ' ' in k[0]  # only really care about multi word phrases
+            ]
 
-            for e in sentence.ents:
-                to_put = e.text.replace(' ', '___')
-                mod_text.replace(e.text, to_put)
-                mapping[e.text] = e.label_
-
-        # get mr dr mrs miss etc
+            for t in things:
+                to_put = t.replace(' ', '___')
+                mod_text = mod_text.replace(t, to_put)
+                mapping[t] = 'SOMETHING'
 
         return [
             Segment(
@@ -275,6 +282,15 @@ class Sentence():
             ) for t in nltk.word_tokenize(mod_text)
         ]
 
+    @cached_property
+    def segments(self):
+        people = self.people
+        segments = self.base_segments
+
+        for person in people:
+            segments = replace_sub(segments, [Segment(p) for p in person.split(' ')], [Segment(person)])
+
+        return segments
 
 
 
