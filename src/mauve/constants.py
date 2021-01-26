@@ -163,3 +163,12 @@ OIREACHTAS_DIR = os.path.join(BASE_DATA_PATH, 'oireachtas')
 
 
 SENTENCE_TERMINATORS = set(['.', '?', '!'])
+
+
+LIKELY_PERSON_PREFIXES = [
+    'dr ',
+    'mr ',
+    'ms ',
+    'mrs ',
+    'miss '
+]

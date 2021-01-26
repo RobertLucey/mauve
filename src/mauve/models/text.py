@@ -32,6 +32,7 @@ from mauve.phrases import replace_phrases
 from mauve.utils import get_stem, get_lem, lower
 from mauve.decorators import kwarg_validator
 from mauve.constants import (
+    LIKELY_PERSON_PREFIXES,
     LIKELY_WORD_TOKENS,
     ENG_WORDS,
     PROFANITY_LIST,
@@ -119,12 +120,7 @@ class Segment(Tagger):
 
     @property
     def is_titled_noun(self):
-        return any([
-            self.text.startswith('mr '),
-            self.text.startswith('mrs '),
-            self.text.startswith('dr '),
-            self.text.startswith('ms ')
-        ])
+        return any([self.text.lower().startswith(prefix) for prefix in LIKELY_PERSON_PREFIXES])
 
     @property
     def is_noun(self):
@@ -192,31 +188,13 @@ class Sentence():
             print(segment.text)
             if segment.tag == 'PERSON' or (
                 segment.tag == 'dunno' and (
-                    segment.text.lower().startswith('dr ') or
-                    segment.text.lower().startswith('mr ') or
-                    segment.text.lower().startswith('ms ') or
-                    segment.text.lower().startswith('mrs ') or
-                    segment.text.lower().startswith('miss ')
+                    any([segment.text.lower().startswith(prefix) for prefix in LIKELY_PERSON_PREFIXES])
                 )
             ):
                 people.append(segment.text)
 
-        #if any([
-        #    'mr ' in self.text,
-        #    'mrs ' in self.text,
-        #    'dr ' in self.text,
-        #    'miss ' in self.text,
-        #    'minister for ' in self.text,
-        #    'deputy of' in self.text,
-        #]):
-        #    # It is interesting
-
-
         # also look for names
-
         return people
-
-        # get people by name, title, mr / dr / the minister for x
 
     @property
     def is_question(self):

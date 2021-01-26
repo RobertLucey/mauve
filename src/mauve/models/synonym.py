@@ -1,18 +1,13 @@
 from functools import lru_cache
+from collections import defaultdict
 import operator
 
 import spacy
-#from PyDictionary import PyDictionary
 
 from spacy_wordnet.wordnet_annotator import WordnetAnnotator
 
 from cached_property import cached_property
 
-from collections import defaultdict
-
-#DICTIONARY = PyDictionary()
-
-cache = defaultdict(list)
 
 ALL = defaultdict(int)
 
@@ -1311,13 +1306,8 @@ class Synonym():
         # if there aren't enugh words already processed then don't trust the ALL since it is cold
         return self._get_word(text)
 
-    def get_synonyms(self, word):
-        use_dict = False
-        if use_dict:
-            options = {word: ALL[word]}
-            for name in DICTIONARY.synonym(word):
-                options[name] = ALL.get(name, 0)
-        else:
+    def get_synonyms(self, word, method='wordnet'):
+        if method == 'wordnet':
             token = self.nlp(word)[0]
 
             token._.wordnet.synsets()
@@ -1330,9 +1320,10 @@ class Synonym():
             for domain in token._.wordnet.wordnet_synsets_for_domain(domains):
                 for name in domain.lemma_names():
                     options[name] = ALL.get(name, 0)
+        else:
+            raise Exception()
 
         return options
-
 
     @lru_cache(maxsize=100000)
     def _get_word(self, text):
@@ -1346,27 +1337,20 @@ class Synonym():
             return text
         else:
             try:
-
                 options = self.get_synonyms(text)
-                #print('text: %s' % (text))
-                #print(options)
                 try:
                     word = max(options.items(), key=operator.itemgetter(1))[0]
-
-                    #print('word: %s' % (word))
 
                     if text.islower() and not word.islower():
                         word = word.lower()
 
-                    if word != text:
-                        print('%s %s' % (text, word))
+                    #if word != text:
+                    #    print('%s %s' % (text, word))
 
                     return word.replace('_', ' ')
-                except Exception as ex:
-                    print(ex)
+                except:
                     return text
-            except Exception as ex:
-                print(ex)
+            except:
                 return text
 
     @cached_property
