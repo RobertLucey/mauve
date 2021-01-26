@@ -1,11 +1,21 @@
-from nltk.corpus import stopwords
-
-from mauve.utils import get_stem, get_lem, lower, previous_current_next
+from mauve.utils import (
+    lower,
+    previous_current_next
+)
 
 
 class Assignment():
 
     def __init__(self, sentence, p, n, c, extra):
+        '''
+
+        :param sentence: The full sentence object for some context
+        :param p: previous phrase (this)
+        :param n: next phrase (silly)
+        :param c: current phrase (is)
+        :param extra: the text after the next phrase. Not super
+        useful, prob goint to remove
+        '''
         self.sentence = sentence
         self.p = p
         self.n = n
@@ -23,18 +33,24 @@ class Assignment():
 
 
 def extract_assignments(sentence):
+    '''
+    Given a sentence, pull out the assignments made in the sentence
+
+    :param sentence: Sentence object
+    :return:
+    '''
     original_joining_words = ['is', 'are', 'am', 'was', 'were', 'be']
     joining_words = original_joining_words
     assignments = []
 
     good = False
-    for w in joining_words:
-        if ' ' + w + ' ' in sentence.text:
+    for joining_word in joining_words:
+        if ' ' + joining_word + ' ' in sentence.text:
             good = True
             break
 
     if not good:
-        return {}
+        return []
 
     cleaned_segments = []
     for s in sentence.segments:
@@ -43,15 +59,17 @@ def extract_assignments(sentence):
 
     for idx, (p, c, n) in enumerate(previous_current_next(cleaned_segments)):
 
-        if not p or not c or not n:
-            continue
-
-        if not p.is_wordy or not n.is_wordy:
+        if any([
+            not p, not c, not n,
+            not getattr(p, 'is_wordy', None), not getattr(n, 'is_wordy', None)
+        ]):
             continue
 
         if c.text.lower() in original_joining_words:
 
-            if (not p.is_noun and not p.is_prp) and not p.text in sentence.people:
+            if (
+                not p.is_noun and not p.is_prp
+            ) and p.text not in sentence.people:
                 continue
 
             n_text = n.text
@@ -66,7 +84,7 @@ def extract_assignments(sentence):
                 except:
                     pass
 
-                if n.text in ['not', 'no', 'a', 'why', 'by', 'quite', 'very', 'well', 'really']:
+                if n.text in ['not', 'no', 'a', 'why', 'by', 'quite', 'very', 'well', 'really'] or is_ly:
                     n._text = n._text + ' ' + lower(cleaned_segments[idx + 2].text)
                     extra_index = idx + 3
 
