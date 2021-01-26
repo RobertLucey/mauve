@@ -66,6 +66,9 @@ WPS = WPS(print_rate=10000)
 SYNONYM = Synonym()
 
 
+ALL = defaultdict(int)
+
+
 class Tagger():
 
     def pos_tag(self, tokens):
@@ -88,17 +91,20 @@ class Segment(Tagger):
     def __init__(self, text, tag=None):
         if '___' in text:
             text = text.replace('___', ' ')
-        self.text = SYNONYM.get_word(text)
+        ALL[text] += 1
+        self._text = SYNONYM.get_word(text.replace(' ', '_'))
         self._tag = tag
         WPS.update()
 
     def get_wordnet_pos(self, tag):
         """Map POS tag to first character lemmatize() accepts"""
         tag = tag[0].upper()
-        tag_dict = {"J": wordnet.ADJ,
-                    "N": wordnet.NOUN,
-                    "V": wordnet.VERB,
-                    "R": wordnet.ADV}
+        tag_dict = {
+            'J': wordnet.ADJ,
+            'N': wordnet.NOUN,
+            'V': wordnet.VERB,
+            'R': wordnet.ADV
+        }
 
         return tag_dict.get(tag, wordnet.NOUN)
 
@@ -107,6 +113,10 @@ class Segment(Tagger):
         if self.tag in ['CARDINAL', 'DATE', 'EVENT', 'FAC', 'GPE', 'LANGUAGE', 'LAW', 'LOC', 'MONEY', 'NORP', 'ORDINAL', 'ORG', 'PERCENT', 'PERSON', 'PRODUCT', 'QUANTITY', 'TIME', 'WORK_OF_ART']:
             return True
         return False
+
+    @property
+    def text(self):
+        return self._text.replace('_', ' ')
 
     @property
     def lem_stem(self):
@@ -123,20 +133,102 @@ class Segment(Tagger):
         if self._tag is not None:
             return self._tag
 
-        if ' ' in self.text:
+        if ' ' in self.text or '_' in self.text:
             return 'dunno'
         else:
             return self.pos_tag([self.text])[0][1]
 
     @property
     def is_wordy(self):
-        return self.text.replace(' ', '').isalpha()
+        return self.text.replace(' ', '').replace('_', '').isalpha()
 
 
 class Sentence():
 
     def __init__(self, text):
         self.text = text
+
+    @property
+    def assignments(self):
+        original_joining_words = ['is', 'are', 'am', 'was', 'were']
+        joining_words = original_joining_words + ['doe', 'be', 'be', 'be', 'wa', 'be']
+        assignment_mapping = []
+        stop_words = set(stopwords.words("english")) - set(joining_words) - set(['we', 'i', 'you', 'not', 'no', 'in', 'by', 'and', 'that'])
+
+        good = False
+        for w in joining_words:
+            if ' ' + w + ' ' in self.text:
+                good = True
+                break
+
+        if not good:
+            return {}
+
+        smaller_sentence = []
+        for w in self.segments:
+            if w.text.lower() not in stop_words:
+                smaller_sentence.append(w)
+
+        for idx, (p, c, n) in enumerate(self.previous_current_next(smaller_sentence)):
+
+            if not p or not c or not n:
+                continue
+
+            if not p.is_wordy or not n.is_wordy:
+                continue
+
+            #if n.text.lower() in ['to', 'a', 'also', 'in', 'its', 'the', 'at', 'now', 'not', 'very', 'of', 'sure', 'which', 'an', 'more', 'that', 'too', 'almost']:
+            #    continue
+
+            if c.text.lower() in original_joining_words:
+
+                p = lower(p.lem_stem)
+                n = lower(n.lem_stem)
+
+                extra = None
+                try:
+                    if any([
+                        lower(smaller_sentence[idx + 2].lem_stem) == 'that',
+                        lower(smaller_sentence[idx + 2].lem_stem) == 'about',
+                        lower(smaller_sentence[idx + 2].lem_stem) == 'over',
+                        lower(smaller_sentence[idx + 2].lem_stem) == 'in',
+                        lower(smaller_sentence[idx + 2].lem_stem) == 'about',
+                        lower(smaller_sentence[idx + 2].lem_stem) == 'by'
+                    ]):
+                        extra = ' '.join([i.lem_stem for i in smaller_sentence[idx + 2:]])
+
+                    if n == 'not':
+                        n = 'not ' + lower(smaller_sentence[idx + 2].lem_stem)
+                except:
+                    pass
+
+                assignment_mapping.append(
+                    {
+                        'left': p,
+                        'right': n,
+                        'extra': extra
+                    }
+                )
+
+        return assignment_mapping
+
+    def previous_current_next(self, iterable):
+        """Make an iterator that yields an (previous, current, next) tuple per element.
+
+        Returns None if the value does not make sense (i.e. previous before
+        first and next after last).
+        """
+        iterable = iter(iterable)
+        prv = None
+        cur = iterable.__next__()
+        try:
+            while True:
+                nxt = iterable.__next__()
+                yield (prv, cur, nxt)
+                prv = cur
+                cur = nxt
+        except StopIteration:
+            yield (prv, cur, None)
 
     @property
     def segments(self):
@@ -177,7 +269,12 @@ class Sentence():
                 mod_text.replace(e.text, to_put)
                 mapping[e.text] = e.label_
 
-        return [Segment(t, tag=mapping.get(t.lower(), None)) for t in nltk.word_tokenize(mod_text)]
+        return [
+            Segment(
+                t,
+                tag=mapping.get(t.lower(), None)
+            ) for t in nltk.word_tokenize(mod_text)
+        ]
 
 
 
@@ -493,12 +590,7 @@ class Text(GenericObject, Tagger):
         x is (quite, very) y, factor in much like how 'Ham is very tasy' and 'Ham is not tasty' are exact opposites
         '''
 
-        original_joining_words = ['does', 'is', 'are', 'am', 'was', 'were']
-        joining_words = original_joining_words + ['doe', 'be', 'be', 'be', 'wa', 'be']
-
         mapping = defaultdict(lambda: defaultdict(lambda: defaultdict(int)))
-
-        stop_words = set(stopwords.words("english")) - set(joining_words) - set(['we', 'i', 'you', 'not', 'no'])
 
         phrases_content = self.phrases_content
         if phrases_content is None:
@@ -507,67 +599,8 @@ class Text(GenericObject, Tagger):
         for s in nltk.tokenize.sent_tokenize(phrases_content):
 
             sentence = Sentence(s)
+            assignments = sentence.assignments
 
-            good = False
-            for w in joining_words:
-                if ' ' + w + ' ' in sentence.text:
-                    good = True
-                    break
-
-            if not good:
-                continue
-
-            smaller_sentence = []
-            for w in sentence.segments:
-                if w.text.lower() not in stop_words:
-                    smaller_sentence.append(w)
-
-            # do toks here to not include stemmed
-
-            interesting = False
-            interesting_map = defaultdict(lambda: defaultdict(lambda: defaultdict(int)))
-            for p, c, n in self.previous_current_next(smaller_sentence):
-
-                if not p or not c or not n:
-                    continue
-
-                if not p.is_wordy or not n.is_wordy:
-                    continue
-
-                ###
-                #if SIMPLE_TOKEN_MAP[p[1]] != 'noun':
-                #    continue
-
-                #if p[1] not in LIKELY_WORD_TOKENS:
-                #    continue
-
-                #if n[1] not in LIKELY_WORD_TOKENS:
-                #    continue
-
-                if n.text.lower() in ['to', 'a', 'also', 'in', 'its', 'the', 'at', 'now', 'not', 'very', 'of', 'sure', 'which', 'an', 'more', 'that', 'too', 'almost']:
-                    continue
-
-                if c.text.lower() in original_joining_words:
-
-                    #import pdb; pdb.set_trace()
-
-                    #if p.text.lower() in ['there', 'that']:  # too vague
-                    #    continue
-
-                    p = lower(p.lem_stem)#text)
-                    n = lower(n.lem_stem)#text)
-
-                    mapping[p][n][n] += 1
-                    interesting_map[p][n][n] += 1
-                    interesting += 1
-
-            #if interesting:
-            #    print('\n----------')
-            #    print(s)
-            #    print([s.text for s in smaller_sentence])
-            #    #print(' '.join(words))
-            #    #for k, v in interesting_map.items():
-            #    #    for ivk, ivv in v.items():
-            #    #        print(k + ': ' + ivk + ' ' + str(ivv))
-
+            for x in assignments:
+                print('%s=%s  %s' % (x['left'], x['right'], x['extra']))
         return mapping

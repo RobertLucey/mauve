@@ -6,6 +6,8 @@ m_tool = Matcher(nlp.vocab)
 
 
 other_replacements = {
+    'reap the benefit': 'benefit',
+    'much longer': 'much_longer',
     'a great help': 'helpful',
     'absolutely necessary': 'necessary',
     'in regard to': 'regarding',

@@ -15,11 +15,37 @@ from mauve.models.synonym import Synonym
 
 class TestSentence(TestCase):
 
+
+    def test_get_assignments(self):
+        s = Sentence('Sports are fun')
+        self.assertEqual(
+            s.assignments,
+            [
+                {
+                    'left': 'sport',
+                    'right': 'fun',
+                    'extra': None
+                }
+            ]
+        )
+
+        s = Sentence('Sports are not fun')
+        self.assertEqual(
+            s.assignments,
+            [
+                {
+                    'left': 'sport',
+                    'right': 'not fun',
+                    'extra': None
+                }
+            ]
+        )
+
     def test_segments(self):
         s = Sentence('This is a sentence.')
         self.assertEqual(
             [o.text for o in s.segments],
-            ['This', 'be', 'a', 'sentence', '.']
+            ['This', 'is', 'a', 'sentence', '.']
         )
 
         # since voluntary groups is a joining phrase
@@ -51,6 +77,8 @@ class TestSegment(TestCase):
             Segment('I').tag,
             'PRP'
         )
+        print(Segment('a phrase').text)
+        print(Segment('a phrase').tag)
         self.assertEqual(
             Segment('a phrase').tag,
             'dunno'
