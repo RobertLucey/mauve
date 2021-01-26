@@ -18,13 +18,13 @@ class Synonym():
     CUSTOM = {
 
         'mr.': 'mr',
-        'Mr.': 'mr',
+        'Mr.': 'Mr',
         'dr.': 'dr',
-        'Dr.': 'dr',
+        'Dr.': 'Dr',
         'mrs.': 'mrs',
-        'Mrs.': 'mrs',
+        'Mrs.': 'Mrs',
         'ms.': 'ms',
-        'Ms.': 'ms',
+        'Ms.': 'Ms',
 
         'quite': 'very',
         'extremely': 'very',

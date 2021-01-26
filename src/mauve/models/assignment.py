@@ -5,17 +5,20 @@ from mauve.utils import get_stem, get_lem, lower
 
 class Assignment():
 
-    def __init__(self, source, left, right, extra):
-        self.source = source
-        self.left = left
-        self.right = right
+    def __init__(self, sentence, p, n, c, extra):
+        self.sentence = sentence
+        self.p = p
+        self.n = n
+        self.c = c
         self.extra = extra
 
     def serialize(self):
         return {
-            'left': self.left,
-            'right': self.right,
-            'extra': self.extra
+            'p': self.p.serialize(),
+            'n': self.n.serialize(),
+            'c': self.c.serialize(),
+            'extra': self.extra,
+            'sentence': self.sentence.serialize()
         }
 
 
@@ -51,7 +54,6 @@ def extract_assignments(sentence):
             if (not p.is_noun and not p.is_prp) and not p.text in sentence.people:
                 continue
 
-            p_text = p.text
             n_text = n.text
 
             extra = None
@@ -65,7 +67,7 @@ def extract_assignments(sentence):
                     pass
 
                 if n.text in ['not', 'no', 'a', 'why', 'by', 'quite', 'very', 'well', 'really']:
-                    n_text = n_text + ' ' + lower(cleaned_segments[idx + 2].text)
+                    n._text = n._text + ' ' + lower(cleaned_segments[idx + 2].text)
                     extra_index = idx + 3
 
                 try:
@@ -85,9 +87,10 @@ def extract_assignments(sentence):
 
             assignments.append(
                 Assignment(
-                    sentence.text,
-                    p_text,
-                    n_text,
+                    sentence,
+                    p,
+                    n,
+                    c,
                     extra
                 )
             )

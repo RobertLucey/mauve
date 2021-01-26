@@ -19,112 +19,85 @@ class TestSentence(TestCase):
     def test_get_assignments(self):
 
         s = Sentence('Tom Jones is happy')
-        self.assertEqual(
-            [i.serialize() for i in s.assignments],
-            [
-                {
-                    'left': 'Tom Jones',
-                    'right': 'happy',
-                    'extra': None
-                }
-            ]
-        )
+        assignments = s.assignments
+        self.assertEqual(len(assignments), 1)
+        self.assertEqual(assignments[0].p.text, 'Tom Jones')
+        self.assertEqual(assignments[0].n.text, 'happy')
+        self.assertEqual(assignments[0].c.text, 'is')
+        self.assertEqual(assignments[0].extra, None)
+        self.assertEqual(assignments[0].sentence.text, 'Tom_Jones is happy')
 
         s = Sentence('Tom Jones is happy about it')
-        self.assertEqual(
-            [i.serialize() for i in s.assignments],
-            [
-                {
-                    'left': 'Tom Jones',
-                    'right': 'happy',
-                    'extra': 'about it'
-                }
-            ]
-        )
+        assignments = s.assignments
+        self.assertEqual(len(assignments), 1)
+        self.assertEqual(assignments[0].p.text, 'Tom Jones')
+        self.assertEqual(assignments[0].n.text, 'happy')
+        self.assertEqual(assignments[0].c.text, 'is')
+        self.assertEqual(assignments[0].extra, 'about it')
+        self.assertEqual(assignments[0].sentence.text, 'Tom_Jones is happy about it')
 
         s = Sentence('Sports are fun')
-        self.assertEqual(
-            [i.serialize() for i in s.assignments],
-            [
-                {
-                    'left': 'Sports',
-                    'right': 'fun',
-                    'extra': None
-                }
-            ]
-        )
+        assignments = s.assignments
+        self.assertEqual(len(assignments), 1)
+        self.assertEqual(assignments[0].p.text, 'Sports')
+        self.assertEqual(assignments[0].n.text, 'fun')
+        self.assertEqual(assignments[0].c.text, 'are')
+        self.assertEqual(assignments[0].extra, None)
+        self.assertEqual(assignments[0].sentence.text, 'Sports are fun')
 
         s = Sentence('Sports are not fun')
-        self.assertEqual(
-            [i.serialize() for i in s.assignments],
-            [
-                {
-                    'left': 'Sports',
-                    'right': 'not fun',
-                    'extra': None
-                }
-            ]
-        )
+        assignments = s.assignments
+        self.assertEqual(len(assignments), 1)
+        self.assertEqual(assignments[0].p.text, 'Sports')
+        self.assertEqual(assignments[0].n.text, 'not fun')
+        self.assertEqual(assignments[0].c.text, 'are')
+        self.assertEqual(assignments[0].extra, None)
+        self.assertEqual(assignments[0].sentence.text, 'Sports are not fun')
 
         s = Sentence('Peter is a spider on my shoe')
-        self.assertEqual(
-            [i.serialize() for i in s.assignments],
-            [
-                {
-                    'left': 'Peter',
-                    'right': 'spider',
-                    'extra': 'on my shoe'
-                }
-            ]
-        )
+        assignments = s.assignments
+        self.assertEqual(len(assignments), 1)
+        self.assertEqual(assignments[0].p.text, 'Peter')
+        self.assertEqual(assignments[0].n.text, 'spider')
+        self.assertEqual(assignments[0].c.text, 'is')
+        self.assertEqual(assignments[0].extra, 'on my shoe')
+        self.assertEqual(assignments[0].sentence.text, 'Peter is a spider on my shoe')
 
         s = Sentence('currently, the board is drafting its 1998 annual report')
-        self.assertEqual(
-            [i.serialize() for i in s.assignments],
-            [
-                {
-                    'extra': 'its 1998 annual report',
-                    'left': 'board',
-                    'right': 'drafting'
-                }
-            ]
-        )
+        assignments = s.assignments
+        self.assertEqual(len(assignments), 1)
+        self.assertEqual(assignments[0].p.text, 'board')
+        self.assertEqual(assignments[0].n.text, 'drafting')
+        self.assertEqual(assignments[0].c.text, 'is')
+        self.assertEqual(assignments[0].extra, 'its 1998 annual report')
+        self.assertEqual(assignments[0].sentence.text, 'currently , the board is drafting its 1998 annual report')
 
         s = Sentence('food is pretty tasty')
-        self.assertEqual(
-            [i.serialize() for i in s.assignments],
-            [
-                {
-                    'extra': None,
-                    'left': 'food',
-                    'right': 'beautiful'
-                }
-            ]
-        )
+        assignments = s.assignments
+        self.assertEqual(len(assignments), 1)
+        self.assertEqual(assignments[0].p.text, 'food')
+        self.assertEqual(assignments[0].n.text, 'beautiful')
+        self.assertEqual(assignments[0].c.text, 'is')
+        self.assertEqual(assignments[0].extra, None)
+        self.assertEqual(assignments[0].sentence.text, 'food is beautiful tasty')
 
         s = Sentence('I am really sorry')
-        self.assertEqual(
-            [i.serialize() for i in s.assignments],
-            [
-                {
-                    'extra': None,
-                    'left': 'I',
-                    'right': 'really sorry'
-                }
-            ]
-        )
+        assignments = s.assignments
+        self.assertEqual(len(assignments), 1)
+        self.assertEqual(assignments[0].p.text, 'I')
+        self.assertEqual(assignments[0].n.text, 'really sorry')
+        self.assertEqual(assignments[0].c.text, 'am')
+        self.assertEqual(assignments[0].extra, None)
+        self.assertEqual(assignments[0].sentence.text, 'I am really sorry')
 
         s = Sentence('I think Dr. jones is a tool')
-        self.assertEqual(
-            [i.serialize() for i in s.assignments],
-            [
-                {
-                    'extra': None,
-                    'left': 'dr jones',
-                    'right': 'tool'
-                }
-            ]
-        )
+        assignments = s.assignments
+        self.assertEqual(len(assignments), 1)
+        self.assertEqual(assignments[0].p.text, 'Dr jones')
+        self.assertEqual(assignments[0].n.text, 'tool')
+        self.assertEqual(assignments[0].c.text, 'is')
+        self.assertEqual(assignments[0].extra, None)
+        self.assertEqual(assignments[0].sentence.text, 'I think Dr jones is a tool')
 
     def test_person_extract(self):
         s = Sentence('I want to talk to dr. jones')
@@ -165,16 +138,14 @@ class TestSentence(TestCase):
             [o.text for o in s.segments],
             ['The', 'minister for transport', 'is', 'a', 'tit']
         )
-        self.assertEqual(
-            [i.serialize() for i in s.assignments],
-            [
-                {
-                    'extra': None,
-                    'left': 'minister for transport',
-                    'right': 'tit'
-                }
-            ]
-        )
+        assignments = s.assignments
+
+        self.assertEqual(len(assignments), 1)
+        self.assertEqual(assignments[0].p.text, 'minister for transport')
+        self.assertEqual(assignments[0].n.text, 'tit')
+        self.assertEqual(assignments[0].c.text, 'is')
+        self.assertEqual(assignments[0].extra, None)
+        self.assertEqual(assignments[0].sentence.text, 'The minister_for_transport is a tit')
 
     def test_minister_person_parse(self):
         s = Sentence('The minister for transport something something')

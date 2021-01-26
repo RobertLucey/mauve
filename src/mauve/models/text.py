@@ -99,8 +99,14 @@ class Segment(Tagger):
         self._tag = tag
         WPS.update()
 
+    def serialize(self):
+        return {
+            'text': self.text,
+            'tag': self.tag,
+            'lem_stem': self.lem_stem
+        }
+
     def __eq__(self, other):
-        """Overrides the default implementation"""
         return self.text == other.text
 
     def get_wordnet_pos(self, tag):
@@ -136,7 +142,8 @@ class Segment(Tagger):
         return any([
             (self.tag[0] == 'N' and not self.is_entity),
             self.tag in ['EVENT', 'ORG', 'PERSON', 'PRODUCT', 'NORP', 'FAC', 'GPE', 'LOC', 'WORK_OF_ART', 'LANGUAGE'],
-            self.is_titled_noun
+            self.is_titled_noun,
+            self.is_person
         ])
 
     @property
@@ -175,7 +182,6 @@ class Segment(Tagger):
         if ' ' in self.text or '_' in self.text:
             return 'dunno'
 
-
         return self.pos_tag([self.text])[0][1]
 
     @property
@@ -187,6 +193,12 @@ class Sentence():
 
     def __init__(self, text):
         self.text = text
+
+    def serialize(self):
+        return {
+            'text': self.text,
+            'people': self.people
+        }
 
     @cached_property
     def people(self):
@@ -286,12 +298,8 @@ class Sentence():
 
             for t in things:
                 to_put = t.replace(' ', '___')
-                print('replace "%s" with "%s"' % (t, to_put))
                 mod_text = mod_text.replace(t, to_put)
                 mapping[t] = 'SOMETHING'
-
-            print('the mod')
-            print(mod_text)
 
         return [
             Segment(
@@ -622,25 +630,11 @@ class Text(GenericObject, Tagger):
 
     @property
     def assignments(self):
-        '''
-        x is (quite, very) y, factor in much like how 'Ham is very tasy' and 'Ham is not tasty' are exact opposites
-        '''
-
-        mapping = defaultdict(lambda: defaultdict(lambda: defaultdict(int)))
-
         phrases_content = self.preprocess_text(self.phrases_content)
 
         if phrases_content is None:
             return {}
 
-        for s in nltk.tokenize.sent_tokenize(phrases_content):
-
-            print(s)
-            sentence = Sentence(s)
-            assignments = sentence.assignments
-
-            for x in assignments:
-                print(x.serialize())
-                #print(sentence.text)
-                #print('%s=%s    %s' % (x.left, x.right, x.extra))
-        return mapping
+        return [
+            Sentence(s).assignments for s in nltk.tokenize.sent_tokenize(phrases_content)
+        ]
