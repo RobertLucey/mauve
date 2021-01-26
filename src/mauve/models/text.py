@@ -190,19 +190,31 @@ class Sentence():
 
     @property
     def people(self):
+        self.text = replace_phrases(self.text)
+
         people = []
 
         prev_was_first = False
         for segment in self.base_segments:
-            if segment.tag == 'PERSON' or (
+            if any([
+                'minister for ' in segment.text.lower(),
+                'minister of ' in segment.text.lower()
+            ]):
+                people.append(segment.text)
+            elif segment.tag == 'PERSON' or (
                 segment.tag == 'dunno' and (
                     any([segment.text.lower().startswith(prefix) for prefix in LIKELY_PERSON_PREFIXES])
                 )
             ):
                 people.append(segment.text)
             else:
-
                 # do some stuff around caital letters
+
+                if ' ' in segment.text:
+                    if all([i in NAMES for i in segment.text.split(' ')]):
+                        people.append(segment.text)
+                        continue
+
 
                 # or if already a segment and not a name see the split of ' '
                 if segment.text in NAMES:
@@ -213,7 +225,6 @@ class Sentence():
                         people[-1] += ' ' + segment.text
                 else:
                     prev_was_first = False
-
         # also look for names
         return people
 
@@ -245,7 +256,6 @@ class Sentence():
 
     def preprocess_text(self, text):
         return ' '.join([SYNONYM.get_word(t.replace(' ', '_')) for t in nltk.word_tokenize(text)])
-
 
     @cached_property
     def base_segments(self):

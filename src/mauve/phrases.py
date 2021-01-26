@@ -95,7 +95,7 @@ for idiom in PHRASES:
 
 def replace_phrases(text):
 
-    sentence = nlp(text.lower())
+    sentence = nlp(text)
 
     phrase_matches = m_tool(sentence)
 

@@ -48,7 +48,7 @@ def extract_assignments(sentence):
 
         if c.text.lower() in original_joining_words:
 
-            if not p.is_noun and not p.is_prp:
+            if (not p.is_noun and not p.is_prp) and not p.text in sentence.people:
                 continue
 
             p_text = p.text

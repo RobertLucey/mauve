@@ -26,7 +26,6 @@ class Synonym():
         'ms.': 'ms',
         'Ms.': 'ms',
 
-
         'quite': 'very',
         'extremely': 'very',
 
@@ -1236,7 +1235,6 @@ class Synonym():
         'exertion': 'trouble',
         'effort': 'trouble',
         'accurate': 'true',
-        'right': 'true',
         'proper': 'true',
         'precise': 'true',
         'exact': 'true',
@@ -1347,7 +1345,7 @@ class Synonym():
                     #if word != text:
                     #    print('%s %s' % (text, word))
 
-                    return word.replace('_', ' ')
+                    return word
                 except:
                     return text
             except:
