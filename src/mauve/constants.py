@@ -1,6 +1,7 @@
 import os
 
 from mauve.profanity import PROFANITY_LIST
+from mauve.names import NAMES
 
 import nltk
 
@@ -163,3 +164,12 @@ OIREACHTAS_DIR = os.path.join(BASE_DATA_PATH, 'oireachtas')
 
 
 SENTENCE_TERMINATORS = set(['.', '?', '!'])
+
+
+LIKELY_PERSON_PREFIXES = [
+    'dr ',
+    'mr ',
+    'ms ',
+    'mrs ',
+    'miss '
+]

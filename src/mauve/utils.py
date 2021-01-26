@@ -2,6 +2,7 @@ import os
 import random
 import pickle
 from functools import lru_cache
+from nltk.corpus import wordnet
 
 from nltk.stem.wordnet import WordNetLemmatizer
 from nltk.stem import PorterStemmer
@@ -208,7 +209,61 @@ def get_lem(word, pos=None):
 
 
 def lower(x):
+    '''
+    Try to get the lower of something. Screw it if
+    not, just return the param
+    '''
     try:
         return x.lower()
     except:
-        pass
+        return x
+
+
+def find_sub_idx(original, repl_list, start=0):
+    length = len(repl_list)
+    for idx in range(start, len(original)):
+        if original[idx:idx + length] == repl_list:
+            return idx, idx + length
+
+
+def replace_sub(original, repl_list, new_list):
+    length = len(new_list)
+    idx = 0
+    for start, end in iter(lambda: find_sub_idx(original, repl_list, idx), None):
+        original[start:end] = new_list
+        idx = start + length
+    return original
+
+
+def previous_current_next(iterable):
+    '''
+    Make an iterator that yields an (previous, current, next) tuple per element.
+
+    Returns None if the value does not make sense (i.e. previous before
+    first and next after last).
+    '''
+    iterable = iter(iterable)
+    prv = None
+    cur = iterable.__next__()
+    try:
+        while True:
+            nxt = iterable.__next__()
+            yield (prv, cur, nxt)
+            prv = cur
+            cur = nxt
+    except StopIteration:
+        yield (prv, cur, None)
+
+
+def get_wordnet_pos(tag):
+    '''
+    Map POS tag to first character lemmatize() accepts
+    '''
+    tag = tag[0].upper()
+    tag_dict = {
+        'J': wordnet.ADJ,
+        'N': wordnet.NOUN,
+        'V': wordnet.VERB,
+        'R': wordnet.ADV
+    }
+    return tag_dict.get(tag, wordnet.NOUN)

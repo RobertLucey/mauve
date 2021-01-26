@@ -1,0 +1,218 @@
+from unittest import TestCase
+import mock
+
+import glob
+import os
+
+from mauve.models.text import Sentence, Segment
+from mauve.models.books.book import Book
+from mauve.models.books.review import Reviews, Review
+from mauve.models.books.tag import Tags, Tag
+from mauve import constants
+
+from mauve.models.synonym import Synonym
+
+
+class TestSentence(TestCase):
+
+
+    def test_get_assignments(self):
+
+        s = Sentence('Tom Jones is happy')
+        assignments = s.assignments
+        self.assertEqual(len(assignments), 1)
+        self.assertEqual(assignments[0].p.text, 'Tom Jones')
+        self.assertEqual(assignments[0].n.text, 'happy')
+        self.assertEqual(assignments[0].c.text, 'is')
+        self.assertEqual(assignments[0].extra, None)
+        self.assertEqual(assignments[0].sentence.text, 'Tom_Jones is happy')
+
+        s = Sentence('Tom Jones is happy about it')
+        assignments = s.assignments
+        self.assertEqual(len(assignments), 1)
+        self.assertEqual(assignments[0].p.text, 'Tom Jones')
+        self.assertEqual(assignments[0].n.text, 'happy')
+        self.assertEqual(assignments[0].c.text, 'is')
+        self.assertEqual(assignments[0].extra, 'about it')
+        self.assertEqual(assignments[0].sentence.text, 'Tom_Jones is happy about it')
+
+        s = Sentence('Sports are fun')
+        assignments = s.assignments
+        self.assertEqual(len(assignments), 1)
+        self.assertEqual(assignments[0].p.text, 'Sports')
+        self.assertEqual(assignments[0].n.text, 'fun')
+        self.assertEqual(assignments[0].c.text, 'are')
+        self.assertEqual(assignments[0].extra, None)
+        self.assertEqual(assignments[0].sentence.text, 'Sports are fun')
+
+        s = Sentence('Sports are not fun')
+        assignments = s.assignments
+        self.assertEqual(len(assignments), 1)
+        self.assertEqual(assignments[0].p.text, 'Sports')
+        self.assertEqual(assignments[0].n.text, 'not fun')
+        self.assertEqual(assignments[0].c.text, 'are')
+        self.assertEqual(assignments[0].extra, None)
+        self.assertEqual(assignments[0].sentence.text, 'Sports are not fun')
+
+        s = Sentence('Peter is a spider on my shoe')
+        assignments = s.assignments
+        self.assertEqual(len(assignments), 1)
+        self.assertEqual(assignments[0].p.text, 'Peter')
+        self.assertEqual(assignments[0].n.text, 'spider')
+        self.assertEqual(assignments[0].c.text, 'is')
+        self.assertEqual(assignments[0].extra, 'on my shoe')
+        self.assertEqual(assignments[0].sentence.text, 'Peter is a spider on my shoe')
+
+        s = Sentence('currently, the board is drafting its 1998 annual report')
+        assignments = s.assignments
+        self.assertEqual(len(assignments), 1)
+        self.assertEqual(assignments[0].p.text, 'board')
+        self.assertEqual(assignments[0].n.text, 'drafting')
+        self.assertEqual(assignments[0].c.text, 'is')
+        self.assertEqual(assignments[0].extra, 'its 1998 annual report')
+        self.assertEqual(assignments[0].sentence.text, 'currently , the board is drafting its 1998 annual report')
+
+        s = Sentence('food is pretty tasty')
+        assignments = s.assignments
+        self.assertEqual(len(assignments), 1)
+        self.assertEqual(assignments[0].p.text, 'food')
+        self.assertEqual(assignments[0].n.text, 'beautiful')
+        self.assertEqual(assignments[0].c.text, 'is')
+        self.assertEqual(assignments[0].extra, None)
+        self.assertEqual(assignments[0].sentence.text, 'food is beautiful tasty')
+
+        s = Sentence('I am really sorry')
+        assignments = s.assignments
+        self.assertEqual(len(assignments), 1)
+        self.assertEqual(assignments[0].p.text, 'I')
+        self.assertEqual(assignments[0].n.text, 'really sorry')
+        self.assertEqual(assignments[0].c.text, 'am')
+        self.assertEqual(assignments[0].extra, None)
+        self.assertEqual(assignments[0].sentence.text, 'I am really sorry')
+
+        s = Sentence('I think Dr. jones is a tool')
+        assignments = s.assignments
+        self.assertEqual(len(assignments), 1)
+        self.assertEqual(assignments[0].p.text, 'Dr jones')
+        self.assertEqual(assignments[0].n.text, 'tool')
+        self.assertEqual(assignments[0].c.text, 'is')
+        self.assertEqual(assignments[0].extra, None)
+        self.assertEqual(assignments[0].sentence.text, 'I think Dr jones is a tool')
+
+    def test_person_extract(self):
+        s = Sentence('I want to talk to dr. jones')
+        self.assertEqual(s.people, ['dr jones'])
+        self.assertEqual(
+            [o.text for o in s.segments],
+            ['I', 'want', 'to', 'talk', 'to', 'dr jones']
+        )
+        s = Sentence('I want to talk to dr jones')
+        self.assertEqual(
+            [o.text for o in s.segments],
+            ['I', 'want', 'to', 'talk', 'to', 'dr jones']
+        )
+
+        s = Sentence('I want to talk to mr jones')
+        self.assertEqual(s.people, ['mr jones'])
+        self.assertEqual(
+            [o.text for o in s.segments],
+            ['I', 'want', 'to', 'talk', 'to', 'mr jones']
+        )
+        s = Sentence('I want to talk to mr. jones')
+        self.assertEqual(
+            [o.text for o in s.segments],
+            ['I', 'want', 'to', 'talk', 'to', 'mr jones']
+        )
+
+        s = Sentence('I want to talk to Tom Jones right now')
+        self.assertEqual(s.people, ['Tom Jones'])
+        self.assertEqual(
+            [o.text for o in s.segments],
+            ['I', 'want', 'to', 'talk', 'to', 'Tom Jones', 'right', 'now']
+        )
+
+    def test_minister_assign(self):
+        s = Sentence('The minister for transport is a tit')
+        self.assertEqual(s.people, ['minister for transport'])
+        self.assertEqual(
+            [o.text for o in s.segments],
+            ['The', 'minister for transport', 'is', 'a', 'tit']
+        )
+        assignments = s.assignments
+
+        self.assertEqual(len(assignments), 1)
+        self.assertEqual(assignments[0].p.text, 'minister for transport')
+        self.assertEqual(assignments[0].n.text, 'tit')
+        self.assertEqual(assignments[0].c.text, 'is')
+        self.assertEqual(assignments[0].extra, None)
+        self.assertEqual(assignments[0].sentence.text, 'The minister_for_transport is a tit')
+
+    def test_minister_person_parse(self):
+        s = Sentence('The minister for transport something something')
+        self.assertEqual(s.people, ['minister for transport'])
+
+    def test_segments(self):
+        s = Sentence('This is a sentence.')
+        self.assertEqual(
+            [o.text for o in s.segments],
+            ['This', 'is', 'a', 'sentence', '.']
+        )
+
+        # since voluntary groups is a joining phrase
+        s = Sentence('Can you please do something about voluntary groups?')
+        self.assertEqual(
+            [o.text for o in s.segments],
+            ['Can', 'you', 'please', 'do', 'something', 'about', 'voluntary groups', '?']
+        )
+
+        s = Sentence('The first about dog food')
+        self.assertEqual(
+            [o.text for o in s.segments],
+            ['The', 'first', 'about', 'dog food']
+        )
+        self.assertEqual(
+            [o.tag for o in s.segments],
+            ['DT', 'ORDINAL', 'IN', 'dunno']
+        )
+
+
+
+
+class TestSegment(TestCase):
+
+    def test_tag(self):
+        self.assertEqual(
+            Segment('blah', tag='wooooo').tag,
+            'wooooo'
+        )
+        self.assertEqual(
+            Segment('I').tag,
+            'PRP'
+        )
+        print(Segment('a phrase').text)
+        print(Segment('a phrase').tag)
+        self.assertEqual(
+            Segment('a phrase').tag,
+            'dunno'
+        )
+
+    def test_is_entity(self):
+        self.assertTrue(Segment('asd.', tag='DATE').is_entity)
+        self.assertFalse(Segment('asd.', tag='NN').is_entity)
+
+    def test_is_word(self):
+        self.assertFalse(Segment('asd.').is_wordy)
+        self.assertFalse(Segment('asd,').is_wordy)
+        self.assertTrue(Segment('asd ').is_wordy)
+
+    def test_lem_stem(self):
+        self.assertEqual(Segment('bats').lem_stem, 'bat')
+
+
+class TestSynonym(TestCase):
+
+    def test_synonym(self):
+
+        s = Synonym()
+        self.assertEqual(s.get_word('large'), 'big')
+        self.assertEqual(s.get_word('asdasdasd'), 'asdasdasd')
