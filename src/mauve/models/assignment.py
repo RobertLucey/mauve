@@ -48,8 +48,6 @@ def extract_assignments(sentence):
 
         if c.text.lower() in original_joining_words:
 
-            #if not p.is_titled_noun:
-            #    continue
             if not p.is_noun and not p.is_prp:
                 continue
 
@@ -70,13 +68,16 @@ def extract_assignments(sentence):
                     n_text = n_text + ' ' + lower(cleaned_segments[idx + 2].text)
                     extra_index = idx + 3
 
-                after_word = lower(cleaned_segments[extra_index].text)
-                if any([
-                    n.is_verb or n.is_adj,
-                    after_word in ['that', 'about', 'over', 'in', 'about', 'to', 'it', 'by', 'of', 'at', 'its', 'as', 'on', 'a'],
-                    is_ly
-                ]):
-                    extra = ' '.join([i.text for i in cleaned_segments[extra_index:]]).split(' and ')[0].split(',')[0]
+                try:
+                    after_word = lower(cleaned_segments[extra_index].text)
+                    if any([
+                        n.is_verb or n.is_adj,
+                        after_word in ['that', 'about', 'over', 'in', 'about', 'to', 'it', 'by', 'of', 'at', 'its', 'as', 'on', 'a'],
+                        is_ly
+                    ]):
+                        extra = ' '.join([i.text for i in cleaned_segments[extra_index:]]).split(' and ')[0].split(',')[0]
+                except:
+                    pass
 
             except Exception as ex:
                 print(ex)

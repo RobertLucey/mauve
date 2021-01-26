@@ -124,6 +124,10 @@ class Segment(Tagger):
         return self.tag[0] == 'J' and not self.is_entity
 
     @property
+    def is_person(self):
+        return self.tag == 'PERSON' or self.is_titled_noun
+
+    @property
     def is_titled_noun(self):
         return any([self.text.lower().startswith(prefix) for prefix in LIKELY_PERSON_PREFIXES])
 

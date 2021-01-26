@@ -17,6 +17,31 @@ class TestSentence(TestCase):
 
 
     def test_get_assignments(self):
+
+        s = Sentence('Tom Jones is happy')
+        self.assertEqual(
+            [i.serialize() for i in s.assignments],
+            [
+                {
+                    'left': 'Tom Jones',
+                    'right': 'happy',
+                    'extra': None
+                }
+            ]
+        )
+
+        s = Sentence('Tom Jones is happy about it')
+        self.assertEqual(
+            [i.serialize() for i in s.assignments],
+            [
+                {
+                    'left': 'Tom Jones',
+                    'right': 'happy',
+                    'extra': 'about it'
+                }
+            ]
+        )
+
         s = Sentence('Sports are fun')
         self.assertEqual(
             [i.serialize() for i in s.assignments],
