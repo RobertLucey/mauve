@@ -2,12 +2,16 @@ from functools import lru_cache
 import operator
 
 import spacy
+#from PyDictionary import PyDictionary
 
 from spacy_wordnet.wordnet_annotator import WordnetAnnotator
 
 from cached_property import cached_property
 
 from collections import defaultdict
+
+#DICTIONARY = PyDictionary()
+
 cache = defaultdict(list)
 
 ALL = defaultdict(int)
@@ -17,6 +21,20 @@ class Synonym():
 
 
     CUSTOM = {
+
+        'mr.': 'mr',
+        'Mr.': 'mr',
+        'dr.': 'dr',
+        'Dr.': 'dr',
+        'mrs.': 'mrs',
+        'Mrs.': 'mrs',
+        'ms.': 'ms',
+        'Ms.': 'ms',
+
+
+        'quite': 'very',
+        'extremely': 'very',
+
         'cramped': 'small',
         'meager': 'small',
         'microscopic': 'small',
@@ -38,7 +56,6 @@ class Synonym():
         'sizable': 'big',
         'substantial': 'big',
         'vast': 'big',
-
 
         'incredible': 'amazing',
         'unbelievable': 'amazing',
@@ -327,8 +344,6 @@ class Synonym():
         'relate': 'describe',
         'recount': 'describe',
         'represent': 'describe',
-        'report': 'describe',
-        'record': 'describe',
         'ruin': 'destroy',
         'demolish': 'destroy',
         'raze': 'destroy',
@@ -506,7 +521,6 @@ class Synonym():
         'gather': 'get',
         'glean': 'get',
         'pick_up': 'get',
-        'accept': 'get',
         'come_by': 'get',
         'regain': 'get',
         'salvage': 'get',
@@ -576,7 +590,6 @@ class Synonym():
         'crude': 'gross',
         'vulgar': 'gross',
         'outrageous': 'gross',
-        'extreme': 'gross',
         'grievous': 'gross',
         'shameful': 'gross',
         'uncouth': 'gross',
@@ -1006,8 +1019,6 @@ class Synonym():
         'way': 'plan',
         'blueprint': 'plan',
         'well-liked': 'popular',
-        'approved': 'popular',
-        'accepted': 'popular',
         'favorite': 'popular',
         'celebrated': 'popular',
         'common': 'popular',
@@ -1073,15 +1084,9 @@ class Synonym():
         'divulge': 'tell',
         'declare': 'tell',
         'instruct': 'tell',
-        'direct': 'say/tell',
-        'converse': 'say/tell',
-        'speak': 'say/tell',
-        'affirm': 'say/tell',
-        'suppose': 'say/tell',
-        'utter': 'say/tell',
-        'negate': 'say/tell',
-        'express': 'say/tell',
-        'verbalize': 'say/tell',
+        'converse': 'tell',
+        'speak': 'tell',
+        'verbalize': 'tell',
         'mutter': 'tell',
         'mumble': 'tell',
         'whisper': 'tell',
@@ -1303,8 +1308,31 @@ class Synonym():
         if attempt is not None:
             return attempt
         ALL[text] += 1
-        return text
+        # if there aren't enugh words already processed then don't trust the ALL since it is cold
         return self._get_word(text)
+
+    def get_synonyms(self, word):
+        use_dict = False
+        if use_dict:
+            options = {word: ALL[word]}
+            for name in DICTIONARY.synonym(word):
+                options[name] = ALL.get(name, 0)
+        else:
+            token = self.nlp(word)[0]
+
+            token._.wordnet.synsets()
+            token._.wordnet.lemmas()
+            token._.wordnet.wordnet_domains()
+
+            domains = ['book_keeping', 'military', 'diplomacy', 'time_period', 'social_science', 'social', 'humanities', 'health', 'geology', 'economy', 'statistics', 'enterprise', 'agriculture', 'law', 'money', 'sport', 'school', 'environment', 'transport', 'politics', 'medicine', 'telecommunication', 'tourism', 'banking', 'town_planning', 'administration', 'insurance', 'finance', 'pharmacy', 'commerce', 'tax']
+
+            options = {word: ALL[word]}
+            for domain in token._.wordnet.wordnet_synsets_for_domain(domains):
+                for name in domain.lemma_names():
+                    options[name] = ALL.get(name, 0)
+
+        return options
+
 
     @lru_cache(maxsize=100000)
     def _get_word(self, text):
@@ -1319,29 +1347,26 @@ class Synonym():
         else:
             try:
 
-                token = self.nlp(text)[0]
-
-                token._.wordnet.synsets()
-                token._.wordnet.lemmas()
-                token._.wordnet.wordnet_domains()
-
-                domains = ['book_keeping', 'military', 'diplomacy', 'time_period', 'social_science', 'social', 'humanities', 'health', 'geology', 'economy', 'statistics', 'enterprise', 'agriculture', 'law', 'money', 'sport', 'school', 'environment', 'transport', 'politics', 'medicine', 'telecommunication', 'tourism', 'banking', 'town_planning', 'administration', 'insurance', 'finance', 'pharmacy', 'commerce', 'tax']
-
-                options = {text: ALL[text]}
-                for domain in token._.wordnet.wordnet_synsets_for_domain(domains):
-                    for name in domain.lemma_names():
-                        options[name] = ALL.get(name, 0)
-
+                options = self.get_synonyms(text)
+                #print('text: %s' % (text))
+                #print(options)
                 try:
                     word = max(options.items(), key=operator.itemgetter(1))[0]
+
+                    #print('word: %s' % (word))
 
                     if text.islower() and not word.islower():
                         word = word.lower()
 
+                    if word != text:
+                        print('%s %s' % (text, word))
+
                     return word.replace('_', ' ')
-                except:
+                except Exception as ex:
+                    print(ex)
                     return text
-            except:
+            except Exception as ex:
+                print(ex)
                 return text
 
     @cached_property

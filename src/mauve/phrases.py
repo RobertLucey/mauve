@@ -1,11 +1,13 @@
 import spacy
 from spacy.matcher import Matcher
 
-nlp = spacy.load('en_core_web_sm')
+nlp = spacy.load('en_core_web_lg')
 m_tool = Matcher(nlp.vocab)
 
 
 other_replacements = {
+    'in favour': 'in_favour',
+    'general election': 'general_election',
     'reap the benefit': 'benefit',
     'much longer': 'much_longer',
     'a great help': 'helpful',

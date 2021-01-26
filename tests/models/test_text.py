@@ -19,10 +19,10 @@ class TestSentence(TestCase):
     def test_get_assignments(self):
         s = Sentence('Sports are fun')
         self.assertEqual(
-            s.assignments,
+            [i.serialize() for i in s.assignments],
             [
                 {
-                    'left': 'sport',
+                    'left': 'Sports',
                     'right': 'fun',
                     'extra': None
                 }
@@ -31,15 +31,106 @@ class TestSentence(TestCase):
 
         s = Sentence('Sports are not fun')
         self.assertEqual(
-            s.assignments,
+            [i.serialize() for i in s.assignments],
             [
                 {
-                    'left': 'sport',
+                    'left': 'Sports',
                     'right': 'not fun',
                     'extra': None
                 }
             ]
         )
+
+        s = Sentence('Peter is a spider on my shoe')
+        self.assertEqual(
+            [i.serialize() for i in s.assignments],
+            [
+                {
+                    'left': 'Peter',
+                    'right': 'spider',
+                    'extra': 'on my shoe'
+                }
+            ]
+        )
+
+        s = Sentence('currently, the board is drafting its 1998 annual report')
+        self.assertEqual(
+            [i.serialize() for i in s.assignments],
+            [
+                {
+                    'extra': 'its 1998 annual report',
+                    'left': 'board',
+                    'right': 'drafting'
+                }
+            ]
+        )
+
+        s = Sentence('food is pretty tasty')
+        self.assertEqual(
+            [i.serialize() for i in s.assignments],
+            [
+                {
+                    'extra': None,
+                    'left': 'food',
+                    'right': 'beautiful'
+                }
+            ]
+        )
+
+        s = Sentence('I am really sorry')
+        self.assertEqual(
+            [i.serialize() for i in s.assignments],
+            [
+                {
+                    'extra': None,
+                    'left': 'I',
+                    'right': 'really sorry'
+                }
+            ]
+        )
+
+        s = Sentence('I think Dr. jones is a tool')
+        self.assertEqual(
+            [i.serialize() for i in s.assignments],
+            [
+                {
+                    'extra': None,
+                    'left': 'dr jones',
+                    'right': 'tool'
+                }
+            ]
+        )
+
+    def test_person_extract(self):
+        s = Sentence('I want to talk to dr. jones')
+        self.assertEqual(s.people, ['dr jones'])
+        self.assertEqual(
+            [o.text for o in s.segments],
+            ['I', 'want', 'to', 'talk', 'to', 'dr jones']
+        )
+        s = Sentence('I want to talk to dr jones')
+        self.assertEqual(
+            [o.text for o in s.segments],
+            ['I', 'want', 'to', 'talk', 'to', 'dr jones']
+        )
+
+        s = Sentence('I want to talk to mr jones')
+        self.assertEqual(s.people, ['mr jones'])
+        self.assertEqual(
+            [o.text for o in s.segments],
+            ['I', 'want', 'to', 'talk', 'to', 'mr jones']
+        )
+        s = Sentence('I want to talk to mr. jones')
+        self.assertEqual(
+            [o.text for o in s.segments],
+            ['I', 'want', 'to', 'talk', 'to', 'mr jones']
+        )
+
+        #s = Sentence('I want to talk to Tom Jones')
+        #self.assertEqual(
+        #    [o.text for o in s.segments],
+        #    ['I', 'want', 'to', 'talk', 'to', 'Tom Jones']
+        #)
 
     def test_segments(self):
         s = Sentence('This is a sentence.')
@@ -64,6 +155,8 @@ class TestSentence(TestCase):
             [o.tag for o in s.segments],
             ['DT', 'ORDINAL', 'IN', 'dunno']
         )
+
+
 
 
 class TestSegment(TestCase):

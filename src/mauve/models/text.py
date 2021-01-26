@@ -52,6 +52,7 @@ from mauve.bst import (
     search
 )
 from mauve.models.synonym import Synonym
+from mauve.models.assignment import Assignment, extract_assignments
 
 from mauve.splunk_push import StreamSubmit
 
@@ -109,6 +110,39 @@ class Segment(Tagger):
         return tag_dict.get(tag, wordnet.NOUN)
 
     @property
+    def is_prp(self):
+        return self.tag == 'PRP' or self.tag == 'PRP$'
+
+    @property
+    def is_adj(self):
+        return self.tag[0] == 'J' and not self.is_entity
+
+    @property
+    def is_titled_noun(self):
+        return any([
+            self.text.startswith('mr '),
+            self.text.startswith('mrs '),
+            self.text.startswith('dr '),
+            self.text.startswith('ms ')
+        ])
+
+    @property
+    def is_noun(self):
+        return any([
+            (self.tag[0] == 'N' and not self.is_entity),
+            self.tag in ['EVENT', 'ORG', 'PERSON', 'PRODUCT', 'NORP', 'FAC', 'GPE', 'LOC', 'WORK_OF_ART', 'LANGUAGE'],
+            self.is_titled_noun
+        ])
+
+    @property
+    def is_verb(self):
+        return self.tag[0] == 'V' and not self.is_entity
+
+    @property
+    def is_adv(self):
+        return self.tag[0] == 'R' and not self.is_entity
+
+    @property
     def is_entity(self):
         if self.tag in ['CARDINAL', 'DATE', 'EVENT', 'FAC', 'GPE', 'LANGUAGE', 'LAW', 'LOC', 'MONEY', 'NORP', 'ORDINAL', 'ORG', 'PERCENT', 'PERSON', 'PRODUCT', 'QUANTITY', 'TIME', 'WORK_OF_ART']:
             return True
@@ -135,8 +169,9 @@ class Segment(Tagger):
 
         if ' ' in self.text or '_' in self.text:
             return 'dunno'
-        else:
-            return self.pos_tag([self.text])[0][1]
+
+
+        return self.pos_tag([self.text])[0][1]
 
     @property
     def is_wordy(self):
@@ -149,68 +184,47 @@ class Sentence():
         self.text = text
 
     @property
-    def assignments(self):
-        original_joining_words = ['is', 'are', 'am', 'was', 'were']
-        joining_words = original_joining_words + ['doe', 'be', 'be', 'be', 'wa', 'be']
-        assignment_mapping = []
-        stop_words = set(stopwords.words("english")) - set(joining_words) - set(['we', 'i', 'you', 'not', 'no', 'in', 'by', 'and', 'that'])
+    def people(self):
+        people = []
 
-        good = False
-        for w in joining_words:
-            if ' ' + w + ' ' in self.text:
-                good = True
-                break
-
-        if not good:
-            return {}
-
-        smaller_sentence = []
-        for w in self.segments:
-            if w.text.lower() not in stop_words:
-                smaller_sentence.append(w)
-
-        for idx, (p, c, n) in enumerate(self.previous_current_next(smaller_sentence)):
-
-            if not p or not c or not n:
-                continue
-
-            if not p.is_wordy or not n.is_wordy:
-                continue
-
-            #if n.text.lower() in ['to', 'a', 'also', 'in', 'its', 'the', 'at', 'now', 'not', 'very', 'of', 'sure', 'which', 'an', 'more', 'that', 'too', 'almost']:
-            #    continue
-
-            if c.text.lower() in original_joining_words:
-
-                p = lower(p.lem_stem)
-                n = lower(n.lem_stem)
-
-                extra = None
-                try:
-                    if any([
-                        lower(smaller_sentence[idx + 2].lem_stem) == 'that',
-                        lower(smaller_sentence[idx + 2].lem_stem) == 'about',
-                        lower(smaller_sentence[idx + 2].lem_stem) == 'over',
-                        lower(smaller_sentence[idx + 2].lem_stem) == 'in',
-                        lower(smaller_sentence[idx + 2].lem_stem) == 'about',
-                        lower(smaller_sentence[idx + 2].lem_stem) == 'by'
-                    ]):
-                        extra = ' '.join([i.lem_stem for i in smaller_sentence[idx + 2:]])
-
-                    if n == 'not':
-                        n = 'not ' + lower(smaller_sentence[idx + 2].lem_stem)
-                except:
-                    pass
-
-                assignment_mapping.append(
-                    {
-                        'left': p,
-                        'right': n,
-                        'extra': extra
-                    }
+        for segment in self.segments:
+            print(segment.tag)
+            print(segment.text)
+            if segment.tag == 'PERSON' or (
+                segment.tag == 'dunno' and (
+                    segment.text.lower().startswith('dr ') or
+                    segment.text.lower().startswith('mr ') or
+                    segment.text.lower().startswith('ms ') or
+                    segment.text.lower().startswith('mrs ') or
+                    segment.text.lower().startswith('miss ')
                 )
+            ):
+                people.append(segment.text)
 
-        return assignment_mapping
+        #if any([
+        #    'mr ' in self.text,
+        #    'mrs ' in self.text,
+        #    'dr ' in self.text,
+        #    'miss ' in self.text,
+        #    'minister for ' in self.text,
+        #    'deputy of' in self.text,
+        #]):
+        #    # It is interesting
+
+
+        # also look for names
+
+        return people
+
+        # get people by name, title, mr / dr / the minister for x
+
+    @property
+    def is_question(self):
+        return self.text[-1] == '?'
+
+    @property
+    def assignments(self):
+        return extract_assignments(self)
 
     def previous_current_next(self, iterable):
         """Make an iterator that yields an (previous, current, next) tuple per element.
@@ -230,8 +244,13 @@ class Sentence():
         except StopIteration:
             yield (prv, cur, None)
 
-    @property
+    def preprocess_text(self, text):
+        return ' '.join([SYNONYM.get_word(t.replace(' ', '_')) for t in nltk.word_tokenize(text)])
+
+    @cached_property
     def segments(self):
+        self.text = self.preprocess_text(self.text)
+
         sentence = ENCORE(self.text.lower())
 
         mod_text = self.text
@@ -268,6 +287,8 @@ class Sentence():
                 to_put = e.text.replace(' ', '___')
                 mod_text.replace(e.text, to_put)
                 mapping[e.text] = e.label_
+
+        # get mr dr mrs miss etc
 
         return [
             Segment(
@@ -584,6 +605,9 @@ class Text(GenericObject, Tagger):
         except:
             print('Skipping content')
 
+    def preprocess_text(self, text):
+        return ' '.join([SYNONYM.get_word(t.replace(' ', '_')) for t in nltk.word_tokenize(text)])
+
     @property
     def assignments(self):
         '''
@@ -592,7 +616,8 @@ class Text(GenericObject, Tagger):
 
         mapping = defaultdict(lambda: defaultdict(lambda: defaultdict(int)))
 
-        phrases_content = self.phrases_content
+        phrases_content = self.preprocess_text(self.phrases_content)
+
         if phrases_content is None:
             return {}
 
@@ -602,5 +627,7 @@ class Text(GenericObject, Tagger):
             assignments = sentence.assignments
 
             for x in assignments:
-                print('%s=%s  %s' % (x['left'], x['right'], x['extra']))
+                print(x.serialize())
+                #print(sentence.text)
+                #print('%s=%s    %s' % (x.left, x.right, x.extra))
         return mapping
