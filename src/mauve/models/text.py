@@ -248,24 +248,6 @@ class Sentence():
     def assignments(self):
         return extract_assignments(self)
 
-    def previous_current_next(self, iterable):
-        """Make an iterator that yields an (previous, current, next) tuple per element.
-
-        Returns None if the value does not make sense (i.e. previous before
-        first and next after last).
-        """
-        iterable = iter(iterable)
-        prv = None
-        cur = iterable.__next__()
-        try:
-            while True:
-                nxt = iterable.__next__()
-                yield (prv, cur, nxt)
-                prv = cur
-                cur = nxt
-        except StopIteration:
-            yield (prv, cur, None)
-
     def preprocess_text(self, text):
         return ' '.join([SYNONYM.get_word(t.replace(' ', '_')) for t in nltk.word_tokenize(text)])
 
@@ -590,31 +572,17 @@ class Text(GenericObject, Tagger):
     def word_count(self):
         return len(self.words)
 
-    def previous_current_next(self, iterable):
-        """Make an iterator that yields an (previous, current, next) tuple per element.
-
-        Returns None if the value does not make sense (i.e. previous before
-        first and next after last).
-        """
-        iterable = iter(iterable)
-        prv = None
-        cur = iterable.__next__()
-        try:
-            while True:
-                nxt = iterable.__next__()
-                yield (prv, cur, nxt)
-                prv = cur
-                cur = nxt
-        except StopIteration:
-            yield (prv, cur, None)
-
     def get_wordnet_pos(self, tag):
-        """Map POS tag to first character lemmatize() accepts"""
+        '''
+        Map POS tag to first character lemmatize() accepts
+        '''
         tag = tag[0].upper()
-        tag_dict = {'J': wordnet.ADJ,
-                    'N': wordnet.NOUN,
-                    'V': wordnet.VERB,
-                    'R': wordnet.ADV}
+        tag_dict = {
+            'J': wordnet.ADJ,
+            'N': wordnet.NOUN,
+            'V': wordnet.VERB,
+            'R': wordnet.ADV
+        }
 
         return tag_dict.get(tag, wordnet.NOUN)
 

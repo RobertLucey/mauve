@@ -1,6 +1,6 @@
 from nltk.corpus import stopwords
 
-from mauve.utils import get_stem, get_lem, lower
+from mauve.utils import get_stem, get_lem, lower, previous_current_next
 
 
 class Assignment():
@@ -41,7 +41,7 @@ def extract_assignments(sentence):
         if s.text not in ['so', 'very', 'an', 'a', 'the']:
             cleaned_segments.append(s)
 
-    for idx, (p, c, n) in enumerate(sentence.previous_current_next(cleaned_segments)):
+    for idx, (p, c, n) in enumerate(previous_current_next(cleaned_segments)):
 
         if not p or not c or not n:
             continue

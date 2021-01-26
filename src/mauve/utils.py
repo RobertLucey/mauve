@@ -228,3 +228,23 @@ def replace_sub(test_list, repl_list, new_list):
         test_list[start:end] = new_list
         idx = start + length
     return test_list
+
+
+def previous_current_next(iterable):
+    '''
+    Make an iterator that yields an (previous, current, next) tuple per element.
+
+    Returns None if the value does not make sense (i.e. previous before
+    first and next after last).
+    '''
+    iterable = iter(iterable)
+    prv = None
+    cur = iterable.__next__()
+    try:
+        while True:
+            nxt = iterable.__next__()
+            yield (prv, cur, nxt)
+            prv = cur
+            cur = nxt
+    except StopIteration:
+        yield (prv, cur, None)
