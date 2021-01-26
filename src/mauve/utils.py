@@ -255,7 +255,7 @@ def previous_current_next(iterable):
         yield (prv, cur, None)
 
 
-def get_wordnet_pos(self, tag):
+def get_wordnet_pos(tag):
     '''
     Map POS tag to first character lemmatize() accepts
     '''
