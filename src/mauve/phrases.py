@@ -6,6 +6,10 @@ m_tool = Matcher(nlp.vocab)
 
 
 other_replacements = {
+    'Mr.': 'mr',
+    'Mrs.': 'mrs',
+    'Dr.': 'dr',
+    'Ms.': 'ms',
     'in favour': 'in_favour',
     'general election': 'general_election',
     'reap the benefit': 'benefit',

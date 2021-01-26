@@ -188,7 +188,7 @@ class Sentence():
     def __init__(self, text):
         self.text = text
 
-    @property
+    @cached_property
     def people(self):
         self.text = replace_phrases(self.text)
 
@@ -197,13 +197,13 @@ class Sentence():
         prev_was_first = False
         for segment in self.base_segments:
             if any([
-                'minister for ' in segment.text.lower(),
-                'minister of ' in segment.text.lower()
+                'minister for ' in segment.text.lower().replace('_', ' '),
+                'minister of ' in segment.text.lower().replace('_', ' ')
             ]):
                 people.append(segment.text)
             elif segment.tag == 'PERSON' or (
                 segment.tag == 'dunno' and (
-                    any([segment.text.lower().startswith(prefix) for prefix in LIKELY_PERSON_PREFIXES])
+                    any([segment.text.lower().replace('_', ' ').startswith(prefix) for prefix in LIKELY_PERSON_PREFIXES])
                 )
             ):
                 people.append(segment.text)
@@ -232,7 +232,7 @@ class Sentence():
     def is_question(self):
         return self.text[-1] == '?'
 
-    @property
+    @cached_property
     def assignments(self):
         return extract_assignments(self)
 
@@ -261,7 +261,7 @@ class Sentence():
     def base_segments(self):
         self.text = self.preprocess_text(self.text)
 
-        sentence = ENCORE(self.text.lower())
+        sentence = ENCORE(self.text)
 
         mod_text = self.text
         mapping = {}
@@ -269,10 +269,10 @@ class Sentence():
         for e in sentence.ents:
             to_put = e.text.replace(' ', '___')
             mod_text = mod_text.replace(e.text, to_put)
-            mapping[e.text.lower()] = e.label_
+            mapping[e.text] = e.label_
 
         try:
-            doc = textacy.make_spacy_doc(mod_text.lower())
+            doc = textacy.make_spacy_doc(mod_text)
         except Exception as ex:
             print(ex)
         else:
@@ -281,13 +281,17 @@ class Sentence():
                     doc,
                     normalize='lemma',
                     topn=10
-                ) if ' ' in k[0]  # only really care about multi word phrases
+                ) if ' ' in k[0] or '_' in k[0] # only really care about multi word phrases
             ]
 
             for t in things:
                 to_put = t.replace(' ', '___')
+                print('replace "%s" with "%s"' % (t, to_put))
                 mod_text = mod_text.replace(t, to_put)
                 mapping[t] = 'SOMETHING'
+
+            print('the mod')
+            print(mod_text)
 
         return [
             Segment(
@@ -631,6 +635,7 @@ class Text(GenericObject, Tagger):
 
         for s in nltk.tokenize.sent_tokenize(phrases_content):
 
+            print(s)
             sentence = Sentence(s)
             assignments = sentence.assignments
 
