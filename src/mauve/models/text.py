@@ -288,7 +288,7 @@ class Sentence():
         segments = self.base_segments
 
         for person in people:
-            segments = replace_sub(segments, [Segment(p) for p in person.split(' ')], [Segment(person)])
+            segments = replace_sub(segments, [Segment(p) for p in person.split(' ')], [Segment(person, tag='PERSON')])
 
         return segments
 
