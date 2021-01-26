@@ -29,7 +29,13 @@ from nltk.tag.mapping import tagset_mapping, map_tag
 from mauve.wps import WPS
 from mauve.idioms import replace_idioms
 from mauve.phrases import replace_phrases
-from mauve.utils import get_stem, get_lem, lower, replace_sub
+from mauve.utils import (
+    get_stem,
+    get_lem,
+    lower,
+    replace_sub,
+    get_wordnet_pos
+)
 from mauve.decorators import kwarg_validator
 from mauve.constants import (
     NAMES,
@@ -90,8 +96,18 @@ class Tagger():
 
 
 class Segment(Tagger):
+    '''
+    A segment is a word / phrase / group of words that belong together, smallest unit
+
+    This can be like "postman pat", "Department of transport", 'Dr Jones'
+    '''
 
     def __init__(self, text, tag=None):
+        '''
+
+        :param text: Text content of the segment
+        :kwarg tag: A nltk or spacy tag of the segment
+        '''
         if '___' in text:
             text = text.replace('___', ' ')
         ALL[text] += 1
@@ -107,19 +123,11 @@ class Segment(Tagger):
         }
 
     def __eq__(self, other):
+        '''
+        Are two segments equal. Only considers text as you
+        usually don't care about tags
+        '''
         return self.text == other.text
-
-    def get_wordnet_pos(self, tag):
-        """Map POS tag to first character lemmatize() accepts"""
-        tag = tag[0].upper()
-        tag_dict = {
-            'J': wordnet.ADJ,
-            'N': wordnet.NOUN,
-            'V': wordnet.VERB,
-            'R': wordnet.ADV
-        }
-
-        return tag_dict.get(tag, wordnet.NOUN)
 
     @property
     def is_prp(self):
@@ -171,7 +179,7 @@ class Segment(Tagger):
 
         return get_stem(get_lem(
             self.text,
-            self.get_wordnet_pos(self.tag)
+            get_wordnet_pos(self.tag)
         ))
 
     @property
@@ -186,6 +194,12 @@ class Segment(Tagger):
 
     @property
     def is_wordy(self):
+        '''
+        Is it more wordy than not wordy?
+
+        If any punctuation / numbers other than space and
+        underscore will return false
+        '''
         return self.text.replace(' ', '').replace('_', '').isalpha()
 
 
@@ -571,20 +585,6 @@ class Text(GenericObject, Tagger):
     @property
     def word_count(self):
         return len(self.words)
-
-    def get_wordnet_pos(self, tag):
-        '''
-        Map POS tag to first character lemmatize() accepts
-        '''
-        tag = tag[0].upper()
-        tag_dict = {
-            'J': wordnet.ADJ,
-            'N': wordnet.NOUN,
-            'V': wordnet.VERB,
-            'R': wordnet.ADV
-        }
-
-        return tag_dict.get(tag, wordnet.NOUN)
 
     @cached_property
     def phrases_content(self):
