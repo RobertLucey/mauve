@@ -13,7 +13,7 @@ class DepNode():
 
     @property
     def segment(self):
-        from mauve.models.text import Segment
+        from mauve.models.segment import Segment
         return Segment(
             self.text,
             tag=self.pos

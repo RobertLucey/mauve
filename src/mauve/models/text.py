@@ -17,16 +17,11 @@ import random
 from cached_property import cached_property
 
 import textstat
-import gender_guesser.detector as gender
 from langdetect import detect as langdetect
-from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
 
 import nltk
-from nltk.tag.perceptron import PerceptronTagger
 from nltk.tag.mapping import tagset_mapping, map_tag
 
-from mauve.wps import WPS
-from mauve.idioms import replace_idioms
 from mauve.phrases import replace_phrases
 from mauve.utils import (
     get_stem,
@@ -61,316 +56,23 @@ from mauve.bst import (
 )
 from mauve.models.synonym import Synonym
 from mauve.models.assignment import Assignment, extract_assignments
+from mauve.models.speech import Speech, extract_speech
 
 from mauve.splunk_push import StreamSubmit
 
+from mauve import (
+    GENDER_DETECTOR,
+    VADER,
+    TAGGER,
+    ENCORE,
+    WPS,
+    SYNONYM,
+    Tagger,
+    ALL
+)
+
+from mauve.models.sentence import Sentence
 
-GENDER_DETECTOR = gender.Detector()
-VADER = SentimentIntensityAnalyzer()
-TAGGER = PerceptronTagger()
-ENCORE = spacy.load('en_core_web_sm')
-
-WPS = WPS(print_rate=10000)
-
-SYNONYM = Synonym()
-
-
-ALL = defaultdict(int)
-
-
-class Tagger():
-
-    def pos_tag(self, tokens):
-        if tokens == ['']:
-            return []
-
-        tagged_tokens = TAGGER.tag(tokens)
-
-        if random.random() < 0.5:
-            count = 0
-            for tok, tag in tagged_tokens:
-                if count % 2 == 0:
-                    TAGGER.tagdict[tok] = tag
-
-        return tagged_tokens
-
-
-class Segment(Tagger):
-    '''
-    A segment is a word / phrase / group of words that belong together, smallest unit
-
-    This can be like "postman pat", "Department of transport", 'Dr Jones'
-    '''
-
-    def __init__(self, text, tag=None):
-        '''
-
-        :param text: Text content of the segment
-        :kwarg tag: A nltk or spacy tag of the segment
-        '''
-        if '___' in text:
-            text = text.replace('___', ' ')
-        ALL[text] += 1
-        self._text = SYNONYM.get_word(text.replace(' ', '_'))
-        self._tag = tag
-        WPS.update()
-
-    def serialize(self):
-        return {
-            'text': self.text,
-            'tag': self.tag,
-            'lem_stem': self.lem_stem
-        }
-
-    def __eq__(self, other):
-        '''
-        Are two segments equal. Only considers text as you
-        usually don't care about tags
-        '''
-        return self.text == other.text
-
-    @property
-    def is_prp(self):
-        return self.tag == 'PRP' or self.tag == 'PRP$'
-
-    @property
-    def is_adj(self):
-        return self.tag[0] == 'J' and not self.is_entity
-
-    @property
-    def is_person(self):
-        return self.tag == 'PERSON' or self.is_titled_noun
-
-    @property
-    def is_titled_noun(self):
-        return any([self.text.lower().startswith(prefix) for prefix in LIKELY_PERSON_PREFIXES])
-
-    @property
-    def is_noun(self):
-        tag = self.tag
-        if tag == '':
-            tag = 'Z'
-
-        return any([
-            (tag[0] == 'N' and not self.is_entity),
-            tag in ['EVENT', 'ORG', 'PERSON', 'PRODUCT', 'NORP', 'FAC', 'GPE', 'LOC', 'WORK_OF_ART', 'LANGUAGE'],
-            self.is_titled_noun,
-            self.is_person
-        ])
-
-    @property
-    def is_verb(self):
-        return self.tag[0] == 'V' and not self.is_entity
-
-    @property
-    def is_adv(self):
-        return self.tag[0] == 'R' and not self.is_entity
-
-    @property
-    def is_entity(self):
-        if self.tag in ['CARDINAL', 'DATE', 'EVENT', 'FAC', 'GPE', 'LANGUAGE', 'LAW', 'LOC', 'MONEY', 'NORP', 'ORDINAL', 'ORG', 'PERCENT', 'PERSON', 'PRODUCT', 'QUANTITY', 'TIME', 'WORK_OF_ART']:
-            return True
-        return False
-
-    @property
-    def text(self):
-        return self._text.replace('_', ' ')
-
-    @property
-    def lem_stem(self):
-        if ' ' in self.text or self.is_entity:
-            return self.text
-
-        return get_stem(get_lem(
-            self.text,
-            get_wordnet_pos(self.tag)
-        ))
-
-    @property
-    def tag(self):
-        if self._tag is not None:
-            return self._tag
-
-        if ' ' in self.text or '_' in self.text:
-            return 'dunno'
-
-        return self.pos_tag([self.text])[0][1]
-
-    @property
-    def is_wordy(self):
-        '''
-        Is it more wordy than not wordy?
-
-        If any punctuation / numbers other than space and
-        underscore will return false
-        '''
-        return self.text.replace(' ', '').replace('_', '').isalpha()
-
-
-class Sentence():
-
-    def __init__(self, text):
-        self.text = text
-
-    @property
-    def clean_text(self):
-        return self.text.replace('___', ' ').replace('_', '')
-
-    def serialize(self):
-        return {
-            'text': self.text,
-            'people': self.people
-        }
-
-    @property
-    def deptree(self):
-        doc = ENCORE(self.get_unsplit_text)
-        return DepTree([
-            DepNode(
-                token.text,
-                token.dep_,
-                token.head.text,
-                token.head.pos_,
-                [child for child in token.children],
-                token.idx
-            ) for token in doc
-        ])
-
-    @cached_property
-    def people(self):
-
-        # Names can be chained by , and ands but we only get the last
-
-        self.text = replace_phrases(self.text)
-
-        people = []
-
-        prev_was_first = False
-        for segment in self.base_segments:
-            if any([
-                'minister for ' in segment.text.lower().replace('_', ' '),
-                'minister of ' in segment.text.lower().replace('_', ' ')
-            ]):
-                people.append(segment.text)
-            elif segment.tag == 'PERSON' or (
-                segment.tag == 'dunno' and (
-                    any([segment.text.lower().replace('_', ' ').startswith(prefix) for prefix in LIKELY_PERSON_PREFIXES])
-                )
-            ):
-                people.append(segment.text)
-            else:
-                # do some stuff around caital letters
-
-                if ' ' in segment.text:
-                    if all([i in NAMES for i in segment.text.split(' ')]):
-                        people.append(segment.text)
-                        continue
-
-
-                # or if already a segment and not a name see the split of ' '
-                if segment.text in NAMES:
-                    if not prev_was_first:
-                        prev_was_first = True
-                        people.append(segment.text)
-                    else:
-                        people[-1] += ' ' + segment.text
-                else:
-                    prev_was_first = False
-        # also look for names
-        return people
-
-    @property
-    def is_question(self):
-        return self.text[-1] == '?'
-
-    @cached_property
-    def assignments(self):
-        return extract_assignments(self)
-
-    def preprocess_text(self, text):
-        return ' '.join([SYNONYM.get_word(t.replace(' ', '_')) for t in nltk.word_tokenize(text)])
-
-    @cached_property
-    def get_unsplit_text(self):
-        self.text = self.preprocess_text(replace_phrases(self.text))
-
-        sentence = ENCORE(self.text)
-
-        mod_text = self.text
-        mapping = {}
-
-        for e in sentence.ents:
-            to_put = e.text.replace(' ', '___')
-            mod_text = mod_text.replace(e.text, to_put)
-            mapping[e.text] = e.label_
-
-        try:
-            doc = textacy.make_spacy_doc(mod_text)
-        except Exception as ex:
-            print(ex)
-        else:
-            things = [
-                k[0] for k in textacy.ke.textrank(
-                    doc,
-                    normalize='lemma',
-                    topn=10
-                ) if ' ' in k[0] or '_' in k[0] # only really care about multi word phrases
-            ]
-
-            for t in things:
-                to_put = t.replace(' ', '___')
-                mod_text = mod_text.replace(t, to_put)
-                mapping[t] = 'SOMETHING'
-        return mod_text
-
-    @cached_property
-    def base_segments(self):
-        self.text = self.preprocess_text(self.text)
-
-        sentence = ENCORE(self.text)
-
-        mod_text = self.text
-        mapping = {}
-
-        for e in sentence.ents:
-            to_put = e.text.replace(' ', '___')
-            mod_text = mod_text.replace(e.text, to_put)
-            mapping[e.text] = e.label_
-
-        try:
-            doc = textacy.make_spacy_doc(mod_text)
-        except Exception as ex:
-            print(ex)
-        else:
-            things = [
-                k[0] for k in textacy.ke.textrank(
-                    doc,
-                    normalize='lemma',
-                    topn=10
-                ) if ' ' in k[0] or '_' in k[0] # only really care about multi word phrases
-            ]
-
-            for t in things:
-                to_put = t.replace(' ', '___')
-                mod_text = mod_text.replace(t, to_put)
-                mapping[t] = 'SOMETHING'
-
-        return [
-            Segment(
-                t,
-                tag=mapping.get(t.lower(), None)
-            ) for t in nltk.word_tokenize(mod_text)
-        ]
-
-    @cached_property
-    def segments(self):
-        people = self.people
-        segments = self.base_segments
-
-        for person in people:
-            segments = replace_sub(segments, [Segment(p) for p in person.split(' ')], [Segment(person, tag='PERSON')])
-
-        return segments
 
 
 
@@ -660,4 +362,15 @@ class Text(GenericObject, Tagger):
 
         return [
             Sentence(s).assignments for s in nltk.tokenize.sent_tokenize(content)
+        ]
+
+    @property
+    def speech(self):
+        content = self.content
+
+        if content is None:
+            return []
+
+        return [
+            Sentence(s).speech for s in nltk.tokenize.sent_tokenize(content)
         ]

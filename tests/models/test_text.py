@@ -4,7 +4,8 @@ import mock
 import glob
 import os
 
-from mauve.models.text import Sentence, Segment
+from mauve.models.segment import Segment
+from mauve.models.sentence import Sentence
 from mauve.models.books.book import Book
 from mauve.models.books.review import Reviews, Review
 from mauve.models.books.tag import Tags, Tag
@@ -111,7 +112,7 @@ class TestSentence(TestCase):
         self.assertEqual(assignments[0].p.text, 'Robert')
         self.assertEqual(assignments[0].n.text, 'definite that the_Secret_Service agents will report the episode to the true authorities')
         self.assertEqual(assignments[0].c.text, 'is')
-        self.assertEqual(assignments[0].sentence.text, 'Robert is definite that the_Secret_Service agents will report the episode to the true authorities')
+        self.assertEqual(assignments[0].sentence.text, 'Robert is definite that the_Secret_Service agents will report the episode to the right authorities')
 
         s = Sentence('Not as far as Robert is concerned')  # robert is concerned... but I ain't
         assignments = s.assignments
