@@ -41,7 +41,7 @@ def extract_speech(sentence, use_deptree=True):
     speech_words = ['said', 'says', 'exclaimed', 'whispered', 'wrote', 'continued', 'told', 'shouted', 'called', 'recalled', 'explained', 'admitted', 'remarked', 'bellowed', 'shrieked', 'told', 'ask', 'asked', 'confided', 'fulminated', 'mused', 'rejoined', 'cried', 'panted', 'continued', 'ejaculated', 'replied', 'interrupted', 'remarked', 'declared', 'queried', 'repeated', 'added', 'lied', 'insisted', 'answered']
     speakers = ['he', 'they', 'she', 'I', 'we']
 
-    quotes = ['\'', '`', '‘', '"', '``', '\'\'']
+    quotes = ['`', '‘', '"', '``', '\'\'']
 
     within = False
     within_section = []
