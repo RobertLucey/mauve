@@ -19,6 +19,6 @@ class TestSynonym(TestCase):
     def test_synonym(self):
 
         speech = extract_speech(Sentence('"Shut up" he said'))
-        print(speech.text)
-
-        raise Exception(speech)
+        self.assertEqual(speech.text, 'Shut up')
+        self.assertEqual(speech.inflection, 'said')
+        self.assertEqual(speech.speaker, 'he')
