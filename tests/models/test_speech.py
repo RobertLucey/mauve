@@ -20,11 +20,21 @@ class TestSynonym(TestCase):
     def test_synonym(self):
 
         speech = extract_speech(Sentence('"Shut up" he said'))
-        self.assertEqual(speech.text, 'Shut up')
-        self.assertEqual(speech.inflection, 'said')
-        self.assertEqual(speech.speaker, 'he')
+        self.assertEqual(speech.text.strip(), 'Shut up')
+        self.assertEqual(speech.inflection.strip(), 'said')
+        self.assertEqual(speech.speaker.strip(), 'he')
 
         speech = extract_speech(Sentence('He said "Shut up"'))
-        self.assertEqual(speech.text, 'Shut up')
-        self.assertEqual(speech.inflection, 'said')
-        self.assertEqual(speech.speaker, 'he')
+        self.assertEqual(speech.text.strip(), 'Shut up')
+        self.assertEqual(speech.inflection.strip(), 'said')
+        self.assertEqual(speech.speaker.strip(), 'he')
+
+        speech = extract_speech(Sentence('And then Robert exclaimed "Shut up"'))
+        self.assertEqual(speech.text.strip(), 'Shut up')
+        self.assertEqual(speech.inflection.strip(), 'exclaimed')
+        self.assertEqual(speech.speaker.strip(), 'Robert')
+
+        speech = extract_speech(Sentence('"Shut up" Robert exclaimed to Mikey'))
+        self.assertEqual(speech.text.strip(), 'Shut up')
+        self.assertEqual(speech.inflection.strip(), 'exclaimed')
+        self.assertEqual(speech.speaker.strip(), 'Robert')
