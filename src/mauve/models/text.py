@@ -8,7 +8,6 @@ from spacy.matcher import Matcher
 import textacy.ke
 
 from nltk.corpus import wordnet
-from nltk.corpus import stopwords
 import pickle
 import difflib
 import statistics
@@ -48,6 +47,7 @@ from mauve.constants import (
     ANALYSIS_VERSION
 )
 
+from mauve.models.deptree import DepTree, DepNode
 from mauve.models.generic import (
     GenericObject,
     GenericObjects
@@ -147,9 +147,13 @@ class Segment(Tagger):
 
     @property
     def is_noun(self):
+        tag = self.tag
+        if tag == '':
+            tag = 'Z'
+
         return any([
-            (self.tag[0] == 'N' and not self.is_entity),
-            self.tag in ['EVENT', 'ORG', 'PERSON', 'PRODUCT', 'NORP', 'FAC', 'GPE', 'LOC', 'WORK_OF_ART', 'LANGUAGE'],
+            (tag[0] == 'N' and not self.is_entity),
+            tag in ['EVENT', 'ORG', 'PERSON', 'PRODUCT', 'NORP', 'FAC', 'GPE', 'LOC', 'WORK_OF_ART', 'LANGUAGE'],
             self.is_titled_noun,
             self.is_person
         ])
@@ -208,14 +212,35 @@ class Sentence():
     def __init__(self, text):
         self.text = text
 
+    @property
+    def clean_text(self):
+        return self.text.replace('___', ' ').replace('_', '')
+
     def serialize(self):
         return {
             'text': self.text,
             'people': self.people
         }
 
+    @property
+    def deptree(self):
+        doc = ENCORE(self.get_unsplit_text)
+        return DepTree([
+            DepNode(
+                token.text,
+                token.dep_,
+                token.head.text,
+                token.head.pos_,
+                [child for child in token.children],
+                token.idx
+            ) for token in doc
+        ])
+
     @cached_property
     def people(self):
+
+        # Names can be chained by , and ands but we only get the last
+
         self.text = replace_phrases(self.text)
 
         people = []
@@ -264,6 +289,39 @@ class Sentence():
 
     def preprocess_text(self, text):
         return ' '.join([SYNONYM.get_word(t.replace(' ', '_')) for t in nltk.word_tokenize(text)])
+
+    @cached_property
+    def get_unsplit_text(self):
+        self.text = self.preprocess_text(replace_phrases(self.text))
+
+        sentence = ENCORE(self.text)
+
+        mod_text = self.text
+        mapping = {}
+
+        for e in sentence.ents:
+            to_put = e.text.replace(' ', '___')
+            mod_text = mod_text.replace(e.text, to_put)
+            mapping[e.text] = e.label_
+
+        try:
+            doc = textacy.make_spacy_doc(mod_text)
+        except Exception as ex:
+            print(ex)
+        else:
+            things = [
+                k[0] for k in textacy.ke.textrank(
+                    doc,
+                    normalize='lemma',
+                    topn=10
+                ) if ' ' in k[0] or '_' in k[0] # only really care about multi word phrases
+            ]
+
+            for t in things:
+                to_put = t.replace(' ', '___')
+                mod_text = mod_text.replace(t, to_put)
+                mapping[t] = 'SOMETHING'
+        return mod_text
 
     @cached_property
     def base_segments(self):
@@ -593,16 +651,13 @@ class Text(GenericObject, Tagger):
         except Exception as ex:
             print('Skipping content: %s' % (ex))
 
-    def preprocess_text(self, text):
-        return ' '.join([SYNONYM.get_word(t.replace(' ', '_')) for t in nltk.word_tokenize(text)])
-
     @property
     def assignments(self):
-        phrases_content = self.preprocess_text(self.phrases_content)
+        content = self.content
 
-        if phrases_content is None:
-            return {}
+        if content is None:
+            return []
 
         return [
-            Sentence(s).assignments for s in nltk.tokenize.sent_tokenize(phrases_content)
+            Sentence(s).assignments for s in nltk.tokenize.sent_tokenize(content)
         ]
