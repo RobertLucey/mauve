@@ -46,6 +46,7 @@ def extract_speech(sentence, use_deptree=True):
     within = False
     within_section = []
     broken_idx = -1
+    start_speech_idx = -1
 
     # Some books do:
     # He said 'Yah yah yah.' And what did that mean?
@@ -64,22 +65,26 @@ def extract_speech(sentence, use_deptree=True):
             within_section.append(s)
 
         if s.text in quotes and not within:
+            start_speech_idx = idx
             within = True
 
     after_speech = sentence.segments[broken_idx + 1:broken_idx + 4]
+    pre_speech = sentence.segments[max(start_speech_idx - 4, 0):max(start_speech_idx, 0)]
 
     inflection = None
-    inflection_intersection = set([f.text for f in after_speech]).intersection(set(speech_words))
-    if inflection_intersection != set():
-        # handle if multiple
-        inflection = list(inflection_intersection)[0]
-
     speaker = None
-    speaker_intersection = set([f.text for f in after_speech]).intersection(set(speakers))
-    if speaker_intersection != set():
-        # handle if multiple
-        # also check for names, not just pronouns
-        speaker = list(speaker_intersection)[0]
+
+    for interesting_part in [after_speech, pre_speech]:
+        inflection_intersection = set([f.text.lower() for f in interesting_part]).intersection(set(speech_words))
+        if inflection_intersection != set():
+            # handle if multiple
+            inflection = list(inflection_intersection)[0]
+
+        speaker_intersection = set([f.text.lower() for f in interesting_part]).intersection(set(speakers))
+        if speaker_intersection != set():
+            # handle if multiple
+            # also check for names, not just pronouns
+            speaker = list(speaker_intersection)[0]
 
 
     return Speech(

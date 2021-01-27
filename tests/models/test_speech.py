@@ -22,3 +22,8 @@ class TestSynonym(TestCase):
         self.assertEqual(speech.text, 'Shut up')
         self.assertEqual(speech.inflection, 'said')
         self.assertEqual(speech.speaker, 'he')
+
+        speech = extract_speech(Sentence('He said "Shut up"'))
+        self.assertEqual(speech.text, 'Shut up')
+        self.assertEqual(speech.inflection, 'said')
+        self.assertEqual(speech.speaker, 'he')
