@@ -590,8 +590,8 @@ class Text(GenericObject, Tagger):
     def phrases_content(self):
         try:
             return replace_phrases(self.content)
-        except:
-            print('Skipping content')
+        except Exception as ex:
+            print('Skipping content: %s' % (ex))
 
     def preprocess_text(self, text):
         return ' '.join([SYNONYM.get_word(t.replace(' ', '_')) for t in nltk.word_tokenize(text)])

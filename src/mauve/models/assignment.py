@@ -67,10 +67,14 @@ def extract_assignments(sentence):
 
         if c.text.lower() in original_joining_words:
 
-            if (
-                not p.is_noun and not p.is_prp
-            ) and p.text not in sentence.people:
+            if p.text not in sentence.people:
                 continue
+
+            ## Including below does all but I just care about personal things
+            #if (
+            #    not p.is_noun and not p.is_prp
+            #) and p.text not in sentence.people:
+            #    continue
 
             n_text = n.text
 
@@ -84,7 +88,7 @@ def extract_assignments(sentence):
                 except:
                     pass
 
-                if n.text in ['not', 'no', 'a', 'why', 'by', 'quite', 'very', 'well', 'really'] or is_ly:
+                if n.text in ['not', 'no', 'a', 'why', 'by', 'quite', 'very', 'well', 'really'] or is_ly or n.tag == 'ORDINAL':
                     n._text = n._text + ' ' + lower(cleaned_segments[idx + 2].text)
                     extra_index = idx + 3
 
