@@ -16,6 +16,17 @@ from mauve.models.synonym import Synonym
 class TestSentence(TestCase):
 
 
+    def test_get_assignments_ordinal_carry_on(self):
+
+        s = Sentence('currently, Robert is the first person to shove a golf ball up their nose')
+        assignments = s.assignments
+        self.assertEqual(len(assignments), 1)
+        self.assertEqual(assignments[0].p.text, 'Robert')
+        self.assertEqual(assignments[0].n.text, 'first person')
+        self.assertEqual(assignments[0].c.text, 'is')
+        self.assertEqual(assignments[0].extra, 'to shove golf ball up their nose')
+        self.assertEqual(assignments[0].sentence.text, 'currently , Robert is the first person to shove a golf ball up their nose')
+
     def test_get_assignments(self):
 
         s = Sentence('Tom Jones is happy')
@@ -36,23 +47,23 @@ class TestSentence(TestCase):
         self.assertEqual(assignments[0].extra, 'about it')
         self.assertEqual(assignments[0].sentence.text, 'Tom_Jones is happy about it')
 
-        s = Sentence('Sports are fun')
+        s = Sentence('Robert are fun')
         assignments = s.assignments
         self.assertEqual(len(assignments), 1)
-        self.assertEqual(assignments[0].p.text, 'Sports')
+        self.assertEqual(assignments[0].p.text, 'Robert')
         self.assertEqual(assignments[0].n.text, 'fun')
         self.assertEqual(assignments[0].c.text, 'are')
         self.assertEqual(assignments[0].extra, None)
-        self.assertEqual(assignments[0].sentence.text, 'Sports are fun')
+        self.assertEqual(assignments[0].sentence.text, 'Robert are fun')
 
-        s = Sentence('Sports are not fun')
+        s = Sentence('Robert are not fun')
         assignments = s.assignments
         self.assertEqual(len(assignments), 1)
-        self.assertEqual(assignments[0].p.text, 'Sports')
+        self.assertEqual(assignments[0].p.text, 'Robert')
         self.assertEqual(assignments[0].n.text, 'not fun')
         self.assertEqual(assignments[0].c.text, 'are')
         self.assertEqual(assignments[0].extra, None)
-        self.assertEqual(assignments[0].sentence.text, 'Sports are not fun')
+        self.assertEqual(assignments[0].sentence.text, 'Robert are not fun')
 
         s = Sentence('Peter is a spider on my shoe')
         assignments = s.assignments
@@ -63,32 +74,32 @@ class TestSentence(TestCase):
         self.assertEqual(assignments[0].extra, 'on my shoe')
         self.assertEqual(assignments[0].sentence.text, 'Peter is a spider on my shoe')
 
-        s = Sentence('currently, the board is drafting its 1998 annual report')
+        s = Sentence('currently, Robert is drafting its 1998 annual report')
         assignments = s.assignments
         self.assertEqual(len(assignments), 1)
-        self.assertEqual(assignments[0].p.text, 'board')
+        self.assertEqual(assignments[0].p.text, 'Robert')
         self.assertEqual(assignments[0].n.text, 'drafting')
         self.assertEqual(assignments[0].c.text, 'is')
         self.assertEqual(assignments[0].extra, 'its 1998 annual report')
-        self.assertEqual(assignments[0].sentence.text, 'currently , the board is drafting its 1998 annual report')
+        self.assertEqual(assignments[0].sentence.text, 'currently , Robert is drafting its 1998 annual report')
 
-        s = Sentence('food is pretty tasty')
+        s = Sentence('Robert is pretty tasty')
         assignments = s.assignments
         self.assertEqual(len(assignments), 1)
-        self.assertEqual(assignments[0].p.text, 'food')
-        self.assertEqual(assignments[0].n.text, 'beautiful')
+        self.assertEqual(assignments[0].p.text, 'Robert')
+        self.assertEqual(assignments[0].n.text, 'beautiful tasty')
         self.assertEqual(assignments[0].c.text, 'is')
         self.assertEqual(assignments[0].extra, None)
-        self.assertEqual(assignments[0].sentence.text, 'food is beautiful tasty')
+        self.assertEqual(assignments[0].sentence.text, 'Robert is beautiful tasty')
 
-        s = Sentence('I am really sorry')
+        s = Sentence('Robert is really sorry')
         assignments = s.assignments
         self.assertEqual(len(assignments), 1)
-        self.assertEqual(assignments[0].p.text, 'I')
+        self.assertEqual(assignments[0].p.text, 'Robert')
         self.assertEqual(assignments[0].n.text, 'really sorry')
-        self.assertEqual(assignments[0].c.text, 'am')
+        self.assertEqual(assignments[0].c.text, 'is')
         self.assertEqual(assignments[0].extra, None)
-        self.assertEqual(assignments[0].sentence.text, 'I am really sorry')
+        self.assertEqual(assignments[0].sentence.text, 'Robert is really sorry')
 
         s = Sentence('I think Dr. jones is a tool')
         assignments = s.assignments
@@ -98,6 +109,45 @@ class TestSentence(TestCase):
         self.assertEqual(assignments[0].c.text, 'is')
         self.assertEqual(assignments[0].extra, None)
         self.assertEqual(assignments[0].sentence.text, 'I think Dr jones is a tool')
+
+
+    def test_tricky_assignments(self):
+        s = Sentence('Not as far as Robert is concerned')  # robert is concerned... but I ain't
+        assignments = s.assignments
+        self.assertEqual(len(assignments), 1)
+        self.assertEqual(assignments[0].p.text, 'Robert')
+        self.assertEqual(assignments[0].n.text, 'concerned')
+        self.assertEqual(assignments[0].c.text, 'is')
+        self.assertEqual(assignments[0].extra, None)
+        self.assertEqual(assignments[0].sentence.text, 'not as far as Robert is concerned')
+
+        s = Sentence('Robert is in this holding pattern')
+        assignments = s.assignments
+        self.assertEqual(len(assignments), 1)
+        self.assertEqual(assignments[0].p.text, 'Robert')
+        self.assertEqual(assignments[0].n.text, 'in')
+        self.assertEqual(assignments[0].c.text, 'is')
+        self.assertEqual(assignments[0].extra, None)   # this should have holding patterm
+        self.assertEqual(assignments[0].sentence.text, 'Robert is in this holding pattern')
+
+        # Has good content but what to do with extra?
+        s = Sentence('Robert is certain that the Secret Service agents will report the episode to the proper authorities')
+        assignments = s.assignments
+        self.assertEqual(len(assignments), 1)
+        self.assertEqual(assignments[0].p.text, 'Robert')
+        self.assertEqual(assignments[0].n.text, 'definite')
+        self.assertEqual(assignments[0].c.text, 'is')
+        self.assertEqual(assignments[0].extra, 'that the Secret Service agents will report episode to right authorities') 
+        self.assertEqual(assignments[0].sentence.text, 'Robert is definite that the_Secret_Service agents will report the episode to the true authorities')
+
+        s = Sentence('Equally disturbing to Robert is the thought that it is difficult to explain Tippit’s death unless it was an attempt to escape arrest for the assassination of the president')
+        assignments = s.assignments
+        self.assertEqual(len(assignments), 1)
+        self.assertEqual(assignments[0].p.text, 'Robert')
+        self.assertEqual(assignments[0].n.text, 'idea')
+        self.assertEqual(assignments[0].c.text, 'is')
+        self.assertEqual(assignments[0].extra, 'that it is difficult to tell Tippit ’ s death unless it was attempt to escape arrest for assassination of president') 
+        self.assertEqual(assignments[0].sentence.text, 'Equally disturbing to Robert is the idea that it is difficult to tell Tippit ’ s death unless it was an attempt to escape arrest for the assassination of the president')
 
     def test_person_extract(self):
         s = Sentence('I want to talk to dr. jones')

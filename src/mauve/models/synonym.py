@@ -1065,7 +1065,6 @@ class Synonym():
         'sprint': 'run',
         'dash': 'run',
         'rush': 'run',
-        'escape': 'run',
         'elope': 'run',
         'flee': 'run',
         'inform': 'say',
