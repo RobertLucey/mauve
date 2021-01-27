@@ -2,6 +2,8 @@ import os
 import random
 import pickle
 from functools import lru_cache
+
+import nltk
 from nltk.corpus import wordnet
 
 from nltk.stem.wordnet import WordNetLemmatizer
@@ -267,3 +269,22 @@ def get_wordnet_pos(tag):
         'R': wordnet.ADV
     }
     return tag_dict.get(tag, wordnet.NOUN)
+
+
+def quote_aware_sent_tokenize(content):
+    sentences = nltk.tokenize.sent_tokenize(content)
+
+    final_sentences = []
+    inside_quote = False
+    for s in sentences:
+        if inside_quote:
+            final_sentences[-1] += ' ' + s
+        else:
+            final_sentences.append(s)
+
+        if s.count('"') % 2 != 0 and not inside_quote:
+            inside_quote = True
+        elif s.count('"') % 2 != 0 and inside_quote:
+            inside_quote = False
+
+    return final_sentences

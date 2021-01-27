@@ -23,7 +23,8 @@ from mauve.utils import (
     compress_file,
     get_file_content,
     get_metadata,
-    iter_books
+    iter_books,
+    quote_aware_sent_tokenize
 )
 
 from .utils import create_epub
@@ -203,4 +204,24 @@ class TestUtils(TestCase):
         self.assertEqual(
             get_loose_filepath(os.path.join(TEXT_PATH, 'Another Great Title.txt.bz')),
             '/tmp/mauve/txt/Another Great Title.txt'
+        )
+
+    def test_quote_aware_sent_tokenize(self):
+        content = '''
+Hallward painted away with that marvellous bold touch of his, that had the true refinement and perfect delicacy that in art, at any rate comes only from strength.  He was unconscious of the silence.
+
+"Basil, I am tired of standing," cried Dorian Gray suddenly.  "I must go out and sit in the garden.  The air is stifling here."
+
+"My dear fellow, I am so sorry.  When I am painting, I can't think of anything else.  But you never sat better.  You were perfectly still.  And I have caught the effect I wanted--the half-parted lips and the bright look in the eyes.  I don't know what Harry has been saying to you, but he has certainly made you have the most wonderful expression.  I suppose he has been paying you compliments.  You mustn't believe a word that he says."
+        '''
+        sentences = quote_aware_sent_tokenize(content)
+        self.assertEquals(
+            sentences,
+            [
+                '\nHallward painted away with that marvellous bold touch of his, that had the true refinement and perfect delicacy that in art, at any rate comes only from strength.',
+                'He was unconscious of the silence.',
+                '"Basil, I am tired of standing," cried Dorian Gray suddenly.',
+                '"I must go out and sit in the garden. The air is stifling here."',
+                '"My dear fellow, I am so sorry. When I am painting, I can\'t think of anything else. But you never sat better. You were perfectly still. And I have caught the effect I wanted--the half-parted lips and the bright look in the eyes. I don\'t know what Harry has been saying to you, but he has certainly made you have the most wonderful expression. I suppose he has been paying you compliments. You mustn\'t believe a word that he says."'
+            ]
         )

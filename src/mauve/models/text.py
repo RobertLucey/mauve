@@ -28,7 +28,8 @@ from mauve.utils import (
     get_lem,
     lower,
     replace_sub,
-    get_wordnet_pos
+    get_wordnet_pos,
+    quote_aware_sent_tokenize
 )
 from mauve.decorators import kwarg_validator
 from mauve.constants import (
@@ -372,5 +373,5 @@ class Text(GenericObject, Tagger):
             return []
 
         return [
-            Sentence(s).speech for s in nltk.tokenize.sent_tokenize(content)
+            Sentence(s).speech for s in quote_aware_sent_tokenize(content)
         ]
