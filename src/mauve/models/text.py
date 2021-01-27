@@ -61,6 +61,7 @@ from mauve.bst import (
 )
 from mauve.models.synonym import Synonym
 from mauve.models.assignment import Assignment, extract_assignments
+from mauve.models.speech import Speech, extract_speech
 
 from mauve.splunk_push import StreamSubmit
 
@@ -283,10 +284,6 @@ class Sentence():
     def is_question(self):
         return self.text[-1] == '?'
 
-    @cached_property
-    def assignments(self):
-        return extract_assignments(self)
-
     def preprocess_text(self, text):
         return ' '.join([SYNONYM.get_word(t.replace(' ', '_')) for t in nltk.word_tokenize(text)])
 
@@ -372,6 +369,13 @@ class Sentence():
 
         return segments
 
+    @cached_property
+    def assignments(self):
+        return extract_assignments(self)
+
+    @cached_property
+    def speech(self):
+        return extract_speech(self)
 
 
 class Text(GenericObject, Tagger):
@@ -660,4 +664,15 @@ class Text(GenericObject, Tagger):
 
         return [
             Sentence(s).assignments for s in nltk.tokenize.sent_tokenize(content)
+        ]
+
+    @property
+    def speech(self):
+        content = self.content
+
+        if content is None:
+            return []
+
+        return [
+            Sentence(s).speech for s in nltk.tokenize.sent_tokenize(content)
         ]
