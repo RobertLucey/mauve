@@ -5,7 +5,8 @@ import mock
 import glob
 import os
 
-from mauve.models.text import Sentence, Segment
+from mauve.models.segment import Segment
+from mauve.models.sentence import Sentence
 from mauve.models.books.book import Book
 from mauve.models.books.review import Reviews, Review
 from mauve.models.books.tag import Tags, Tag
