@@ -62,6 +62,7 @@ def extract_speech(sentence, use_deptree=True):
             break  # allow for multiple once one works
 
         if within:
+            print('app: "%s"' % (s.text))
             within_section.append(s)
 
         if s.text in quotes and not within:
@@ -75,6 +76,7 @@ def extract_speech(sentence, use_deptree=True):
     speaker = None
 
     for interesting_part in [after_speech, pre_speech]:
+
         inflection_intersection = set([f.text.lower() for f in interesting_part]).intersection(set(speech_words))
         if inflection_intersection != set():
             # handle if multiple
@@ -86,6 +88,11 @@ def extract_speech(sentence, use_deptree=True):
             # also check for names, not just pronouns
             speaker = list(speaker_intersection)[0]
 
+        for i in interesting_part:
+            if i.tag == 'PERSON':
+                speaker = i.text
+
+        # if we have a name, that's a better speaker
 
     return Speech(
         segments=within_section,
