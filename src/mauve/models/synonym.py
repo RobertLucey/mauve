@@ -8,6 +8,8 @@ from spacy_wordnet.wordnet_annotator import WordnetAnnotator
 
 from cached_property import cached_property
 
+from mauve.settings import WORDNET_REPLACE
+
 
 ALL = defaultdict(int)
 
@@ -1318,7 +1320,7 @@ class Synonym():
                 for name in domain.lemma_names():
                     options[name] = ALL.get(name, 0)
         else:
-            raise Exception()
+            options = {word: ALL[word]}
 
         return options
 
@@ -1334,7 +1336,10 @@ class Synonym():
             return text
         else:
             try:
-                options = self.get_synonyms(text)
+                if WORDNET_REPLACE:
+                    options = self.get_synonyms(text, method='wordnet')
+                else:
+                    options = self.get_synonyms(text, method=None)
                 try:
                     word = max(options.items(), key=operator.itemgetter(1))[0]
 

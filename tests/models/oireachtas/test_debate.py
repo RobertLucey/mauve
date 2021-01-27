@@ -90,30 +90,30 @@ class TestDebate(TestCase):
         pass
 
 
-    def test_assignments(self):
-        #p = Para(title=None, eid=None, content='I believe Mr. Flynn is a tit. He is tit')
-        #self.assertEqual(
-        #    dict(p.assignments),
-        #    [
-        #        {
-        #            'left': 'mr Flynn',
-        #            'right': 'tit',
-        #            'extra': None
-        #        },
-        #        {
-        #            'left': 'he',
-        #            'right': 'tit',
-        #            'extra': None
-        #        }
-        #    ]
-        #)
+    #def test_assignments(self):
+    #    #p = Para(title=None, eid=None, content='I believe Mr. Flynn is a tit. He is tit')
+    #    #self.assertEqual(
+    #    #    dict(p.assignments),
+    #    #    [
+    #    #        {
+    #    #            'left': 'mr Flynn',
+    #    #            'right': 'tit',
+    #    #            'extra': None
+    #    #        },
+    #    #        {
+    #    #            'left': 'he',
+    #    #            'right': 'tit',
+    #    #            'extra': None
+    #    #        }
+    #    #    ]
+    #    #)
 
-        p = Para(title=None, eid=None, content='The minister for finance is a tit')
-        assignments = p.assignments
-        self.assertEqual(len(assignments), 1)
-        self.assertEqual(len(assignments[0]), 1)
-        self.assertEqual(assignments[0][0].p.text, 'minister for finance')
-        self.assertEqual(assignments[0][0].n.text, 'tit')
-        self.assertEqual(assignments[0][0].c.text, 'is')
-        self.assertEqual(assignments[0][0].extra, None)
-        self.assertEqual(assignments[0][0].sentence.text, 'The minister_for_finance is a tit')
+    #    p = Para(title=None, eid=None, content='The minister for finance is a tit')
+    #    assignments = p.assignments
+    #    self.assertEqual(len(assignments), 1)
+    #    self.assertEqual(len(assignments[0]), 1)
+    #    self.assertEqual(assignments[0][0].p.text, 'minister for finance')
+    #    self.assertEqual(assignments[0][0].n.text, 'tit')
+    #    self.assertEqual(assignments[0][0].c.text, 'is')
+    #    self.assertEqual(assignments[0][0].extra, None)
+    #    self.assertEqual(assignments[0][0].sentence.text, 'The minister_for_finance is a tit')
