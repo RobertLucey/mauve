@@ -55,19 +55,20 @@ def extract_speech(sentence, use_deptree=True):
 
     # starting idx would be handy for he said "shut up"
     for idx, s in enumerate(sentence.segments):
-
         if s.text in quotes and within:
             within = False
             broken_idx = idx
             break  # allow for multiple once one works
 
         if within:
-            print('app: "%s"' % (s.text))
             within_section.append(s)
 
         if s.text in quotes and not within:
             start_speech_idx = idx
             within = True
+
+    if not within_section:
+        return
 
     after_speech = sentence.segments[broken_idx + 1:broken_idx + 4]
     pre_speech = sentence.segments[max(start_speech_idx - 4, 0):max(start_speech_idx, 0)]
@@ -89,7 +90,7 @@ def extract_speech(sentence, use_deptree=True):
             speaker = list(speaker_intersection)[0]
 
         for i in interesting_part:
-            if i.tag == 'PERSON':
+            if i.is_person:
                 speaker = i.text
 
         # if we have a name, that's a better speaker

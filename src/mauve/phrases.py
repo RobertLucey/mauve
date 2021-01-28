@@ -117,10 +117,7 @@ def replace_phrases(text):
 
     thetext = sentence.text
 
-    sub_replace = list(set([s.text for s in sentence.ents]))
-
-    for name in replacements + sub_replace:
-
+    for name in replacements:
         thetext = thetext.replace(
             name,
             name.replace(' ', '_')
