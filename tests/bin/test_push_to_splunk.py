@@ -31,7 +31,7 @@ from mauve.utils import (
 from ..utils import create_epub
 
 
-class TestCompressFiles(TestCase):
+class TestPushToSplunk(TestCase):
 
     def write(self, fp, content):
         f = open(fp, 'w')
