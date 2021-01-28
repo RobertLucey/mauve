@@ -1,5 +1,16 @@
 
 
+def serialize_children(children):
+    return [{
+        'text': child.text,
+        'dep': child.dep_,
+        'head': child.head.text,
+        'pos': child.head.pos,
+        'idx': child.idx,
+        'children': serialize_children(child.children)
+    } for child in children]
+
+
 
 class DepNode():
 
@@ -22,6 +33,16 @@ class DepNode():
     def serialize_line(self):
         return '%s   %s   %s   %s   %s' % (self.text.ljust(8), self.dep.ljust(8), self.head.ljust(8), self.pos.ljust(8), self.children)
 
+    def serialize(self):
+        return {
+            'text': self.text,
+            'dep': self.dep,
+            'head': self.head,
+            'pos': self.pos,
+            'children': serialize_children(self.children),
+            'segment': self.segment.serialize()
+        }
+
 
 class DepTree():
 
@@ -31,43 +52,20 @@ class DepTree():
     def get_after_node(self, cmp_node):
         return [node for node in self.nodes if node.idx > cmp_node.idx]
 
+    def get_closest_before(self, cmp_node, dep=None):
+        try:
+            return [node for node in self.nodes if node.idx < cmp_node.idx and node.dep in dep][-1]
+        except IndexError:
+            return DepNode('', '', '', '', [], 0)
+
+    def serialize(self):
+        return [n.serialize() for n in self.nodes]
+
     @property
     def equals(self):
         eqs = ['is', 'are', 'am', 'was', 'were', 'be']
         return [node for node in self.nodes if node.text in eqs]
 
     @property
-    def root(self):
-        try:
-            return [node for node in self.nodes if node.dep == 'ROOT'][0]
-        except IndexError:
-            return DepNode('', '', '', '', [], 0)
-
-    @property
-    def dobj(self):
-        try:
-            return [node for node in self.nodes if node.dep == 'dobj'][0]
-        except IndexError:
-            return DepNode('', '', '', '', [], 0)
-
-    @property
-    def nsubj(self):
-        try:
-            return [node for node in self.nodes if node.dep == 'nsubj'][0]
-        except IndexError:
-            return DepNode('', '', '', '', [], 0)
-
-    @property
-    def post_root(self):
-        idx = max([idx if x.dep == 'ROOT' else -1 for idx, x in enumerate(self.nodes)])
-        return self.nodes[idx + 1:]
-
-    @property
     def text(self):
         return ' '.join([n.text for n in self.nodes])
-
-    def closest_before(self, cmp_node, dep=None):
-        try:
-            return [node for node in self.nodes if node.idx < cmp_node.idx and node.dep in dep][-1]
-        except IndexError:
-            return DepNode('', '', '', '', [], 0)

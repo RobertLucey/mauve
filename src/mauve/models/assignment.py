@@ -58,7 +58,7 @@ def extract_assignments(sentence, use_deptree=True):
 
     for eq in deptree.equals:
 
-        left = deptree.closest_before(eq, dep=['nsubj', 'dobj', 'pobj', 'nsubj'])
+        left = deptree.get_closest_before(eq, dep=['nsubj', 'dobj', 'pobj', 'nsubj'])
 
         if not left.segment.is_noun and not left.segment.is_prp and left.segment.text not in sentence.people and left.dep not in ['nsubj', 'dobj', 'pobj', 'nsubj']:
             continue
