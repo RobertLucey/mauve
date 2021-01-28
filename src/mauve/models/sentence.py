@@ -45,10 +45,6 @@ class Sentence():
     def __init__(self, text):
         self.text = text
 
-    @property
-    def clean_text(self):
-        return self.text.replace('___', ' ').replace('_', '')
-
     def serialize(self):
         return {
             'text': self.text,
@@ -73,9 +69,7 @@ class Sentence():
     def people(self):
 
         # Names can be chained by , and ands but we only get the last
-
         self.text = replace_phrases(self.text)
-
         people = []
 
         prev_was_first = False
@@ -131,7 +125,7 @@ class Sentence():
         for e in sentence.ents:
             to_put = e.text.replace(' ', '___')
             mod_text = mod_text.replace(e.text, to_put)
-            mapping[e.text] = e.label_
+            mapping[to_put] = e.label_
 
         try:
             doc = textacy.make_spacy_doc(mod_text)
@@ -164,7 +158,7 @@ class Sentence():
         for e in sentence.ents:
             to_put = e.text.replace(' ', '___')
             mod_text = mod_text.replace(e.text, to_put)
-            mapping[e.text] = e.label_
+            mapping[to_put] = e.label_
 
         try:
             doc = textacy.make_spacy_doc(mod_text)
@@ -187,14 +181,14 @@ class Sentence():
         return [
             Segment(
                 t,
-                tag=mapping.get(t.lower(), None)
+                tag=mapping.get(t, None)
             ) for t in nltk.word_tokenize(mod_text)
         ]
 
     @cached_property
     def segments(self):
-        people = self.people
         segments = self.base_segments
+        people = self.people
 
         for person in people:
             segments = replace_sub(segments, [Segment(p) for p in person.split(' ')], [Segment(person, tag='PERSON')])
