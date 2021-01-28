@@ -81,7 +81,7 @@ for idiom in IDIOMS:
 
 def replace_idioms(text):
 
-    sentence = nlp(text.lower())
+    sentence = nlp(text)
 
     phrase_matches = m_tool(sentence)
 
