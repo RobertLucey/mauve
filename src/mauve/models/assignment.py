@@ -1,9 +1,4 @@
-from mauve.utils import (
-    lower,
-    previous_current_next
-)
-
-from mauve.models.deptree import DepTree, DepNode
+from mauve.models.deptree import DepTree
 
 
 class Assignment():
@@ -31,12 +26,11 @@ class Assignment():
         }
 
 
-def extract_assignments(sentence, use_deptree=True):
+def extract_assignments(sentence):
     '''
     Given a sentence, pull out the assignments made in the sentence
 
     :param sentence: Sentence object
-    :kwarg use_deptree:
     :return:
     '''
     joining_words = ['is', 'are', 'am', 'was', 'were', 'be']
@@ -56,19 +50,29 @@ def extract_assignments(sentence, use_deptree=True):
 
     # Still interesting things around -ly and wordy things
 
-    for eq in deptree.equals:
+    for equal_node in deptree.equals:
 
-        left = deptree.get_closest_before(eq, dep=['nsubj', 'dobj', 'pobj', 'nsubj'])
+        # expl can usually be second part of an assignment?
 
-        if not left.segment.is_noun and not left.segment.is_prp and left.segment.text not in sentence.people and left.dep not in ['nsubj', 'dobj', 'pobj', 'nsubj']:
+        left = deptree.get_closest_before(
+            equal_node,
+            dep=['nsubj', 'dobj', 'pobj', 'nsubj', 'expl']
+        )
+
+        if all([
+            not left.segment.is_noun,
+            not left.segment.is_prp,
+            left.segment.text not in sentence.people,
+            left.dep not in ['nsubj', 'dobj', 'pobj', 'nsubj', 'expl']
+        ]):
             continue
 
         assignments.append(
             Assignment(
                 sentence,
                 left.segment,
-                DepTree(deptree.get_after_node(eq)),
-                eq
+                DepTree(deptree.get_after_node(equal_node)),
+                equal_node
             )
         )
     return assignments

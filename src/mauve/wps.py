@@ -27,7 +27,7 @@ class WPS():
             return 0
 
     def clean_queue(self):
-        if len(self.data) == 0:
+        if self.data == deque([]):
             return
 
         while (time.monotonic() - self.data[-1]) > self.past_seconds:

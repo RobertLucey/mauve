@@ -4,38 +4,22 @@ from cached_property import cached_property
 import textacy.ke
 import nltk
 
-from mauve.models.assignment import Assignment, extract_assignments
-from mauve.models.speech import Speech, extract_speech
+from mauve.models.assignment import extract_assignments
+from mauve.models.speech import extract_speech
 
-from mauve.utils import (
-    get_stem,
-    get_lem,
-    lower,
-    replace_sub,
-    get_wordnet_pos
-)
+from mauve.utils import replace_sub
 
 from mauve.phrases import replace_phrases
 from mauve.models.deptree import DepTree, DepNode
 from mauve.models.segment import Segment
 from mauve import (
-    GENDER_DETECTOR,
-    VADER,
-    TAGGER,
     ENCORE,
-    WPS,
     SYNONYM
 )
 
 from mauve.constants import (
     NAMES,
-    LIKELY_PERSON_PREFIXES,
-    LIKELY_WORD_TOKENS,
-    ENG_WORDS,
-    PROFANITY_LIST,
-    SENTENCE_TERMINATORS,
-    SIMPLE_TOKEN_MAP,
-    ANALYSIS_VERSION
+    LIKELY_PERSON_PREFIXES
 )
 
 
@@ -122,17 +106,17 @@ class Sentence():
         mod_text = self.text
         mapping = {}
 
-        for e in sentence.ents:
-            to_put = e.text.replace(' ', '___')
-            mod_text = mod_text.replace(e.text, to_put)
-            mapping[to_put] = e.label_
+        for entity in sentence.ents:
+            to_put = entity.text.replace(' ', '___')
+            mod_text = mod_text.replace(entity.text, to_put)
+            mapping[to_put] = entity.label_
 
         try:
             doc = textacy.make_spacy_doc(mod_text)
         except Exception as ex:
             print(ex)
         else:
-            things = [
+            textphrases = [
                 k[0] for k in textacy.ke.textrank(
                     doc,
                     normalize='lemma',
@@ -140,10 +124,12 @@ class Sentence():
                 ) if ' ' in k[0] or '_' in k[0] # only really care about multi word phrases
             ]
 
-            for t in things:
-                to_put = t.replace(' ', '___')
-                mod_text = mod_text.replace(t, to_put)
-                mapping[t] = 'SOMETHING'
+            for textphrase in textphrases:
+                to_put = textphrase.replace(' ', '___')
+                mod_text = mod_text.replace(textphrase, to_put)
+                mapping[textphrase] = 'SOMETHING'
+
+
         return mod_text
 
     @cached_property
@@ -155,17 +141,17 @@ class Sentence():
         mod_text = self.text
         mapping = {}
 
-        for e in sentence.ents:
-            to_put = e.text.replace(' ', '___')
-            mod_text = mod_text.replace(e.text, to_put)
-            mapping[to_put] = e.label_
+        for entity in sentence.ents:
+            to_put = entity.text.replace(' ', '___')
+            mod_text = mod_text.replace(entity.text, to_put)
+            mapping[to_put] = entity.label_
 
         try:
             doc = textacy.make_spacy_doc(mod_text)
         except Exception as ex:
             print(ex)
         else:
-            things = [
+            textphrases = [
                 k[0] for k in textacy.ke.textrank(
                     doc,
                     normalize='lemma',
@@ -173,10 +159,10 @@ class Sentence():
                 ) if ' ' in k[0] or '_' in k[0] # only really care about multi word phrases
             ]
 
-            for t in things:
-                to_put = t.replace(' ', '___')
-                mod_text = mod_text.replace(t, to_put)
-                mapping[t] = 'SOMETHING'
+            for textphrase in textphrases:
+                to_put = textphrase.replace(' ', '___')
+                mod_text = mod_text.replace(textphrase, to_put)
+                mapping[textphrase] = 'SOMETHING'
 
         return [
             Segment(

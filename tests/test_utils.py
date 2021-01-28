@@ -24,7 +24,9 @@ from mauve.utils import (
     get_file_content,
     get_metadata,
     iter_books,
-    quote_aware_sent_tokenize
+    quote_aware_sent_tokenize,
+    previous_current_next,
+    lower
 )
 
 from .utils import create_epub
@@ -225,3 +227,28 @@ Hallward painted away with that marvellous bold touch of his, that had the true 
                 '"My dear fellow, I am so sorry. When I am painting, I can\'t think of anything else. But you never sat better. You were perfectly still. And I have caught the effect I wanted--the half-parted lips and the bright look in the eyes. I don\'t know what Harry has been saying to you, but he has certainly made you have the most wonderful expression. I suppose he has been paying you compliments. You mustn\'t believe a word that he says."'
             ]
         )
+
+
+    def test_previous_current_next(self):
+        self.assertEquals(
+            list(previous_current_next(
+                [
+                    0, 1, 2, 3, 4
+                ]
+            )),
+            [
+                (None, 0, 1), (0, 1, 2), (1, 2, 3), (2, 3, 4), (3, 4, None)
+            ]
+        )
+
+    def test_lower(self):
+        self.assertEquals(
+            lower('AaA'),
+            'aaa'
+        )
+
+        self.assertEquals(
+            lower({}),
+            {}
+        )
+

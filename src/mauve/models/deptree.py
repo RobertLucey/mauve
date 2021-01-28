@@ -43,6 +43,10 @@ class DepNode():
             'segment': self.segment.serialize()
         }
 
+    @staticmethod
+    def get_empty_node():
+        return DepNode('', '', '', '', [], 0)
+
 
 class DepTree():
 
@@ -56,7 +60,7 @@ class DepTree():
         try:
             return [node for node in self.nodes if node.idx < cmp_node.idx and node.dep in dep][-1]
         except IndexError:
-            return DepNode('', '', '', '', [], 0)
+            return DepNode.get_empty_node()
 
     def serialize(self):
         return [n.serialize() for n in self.nodes]

@@ -1,11 +1,11 @@
 import spacy
 from spacy.matcher import Matcher
 
-nlp = spacy.load('en_core_web_lg')
-m_tool = Matcher(nlp.vocab)
+NLP = spacy.load('en_core_web_lg')
+M_TOOL = Matcher(NLP.vocab)
 
 
-other_replacements = {
+OTHER_REPLACEMENTS = {
     'mr.': 'mr',
     'mrs.': 'mrs',
     'dr.': 'dr',
@@ -29,14 +29,13 @@ other_replacements = {
     'sinn féin': 'sinn_fein',
     'don\'t': 'do not',
     'it\'s': 'it is',
-    'i\'m': 'i am',
     'a great deal': 'a lot',
     'fully aware': 'aware',
     'motor car': 'car'
 }  # TODO: test this
 
 
-bodies = [
+GOV_BODIES = [
     'agriculture, food and the marine',
     'children, equality, disability, integration and youth',
     'defence',
@@ -63,35 +62,35 @@ bodies = [
     'the environment'
 ]
 
-joiners = {
-    'department of {}': bodies,
-    'minister for {}': bodies,
-    'minister of {}': bodies,
+JOINERS = {
+    'department of {}': GOV_BODIES,
+    'minister for {}': GOV_BODIES,
+    'minister of {}': GOV_BODIES,
 }
 
 
 PHRASES = []
 
 
-for j, v in joiners.items():
+for j, v in JOINERS.items():
     items = [j.format(i) for i in v]
     PHRASES.extend(items)
 
 
 
 for idiom in PHRASES:
-    m_tool.add(
+    M_TOOL.add(
         'QBF',
         None,
         [
             {
                 'LOWER': i.lower()
-            } for i in other_replacements
+            } for i in OTHER_REPLACEMENTS
         ])
 
 
 for idiom in PHRASES:
-    m_tool.add(
+    M_TOOL.add(
         'QBF',
         None,
         [
@@ -103,13 +102,13 @@ for idiom in PHRASES:
 
 def replace_phrases(text):
 
-    sentence = nlp(text)
+    sentence = NLP(text)
 
-    phrase_matches = m_tool(sentence)
+    phrase_matches = M_TOOL(sentence)
 
     replacements = []
 
-    for match_id, start, end in phrase_matches:
+    for _, start, end in phrase_matches:
         span = sentence[start:end]
         replacements.append(span)
 
@@ -123,11 +122,11 @@ def replace_phrases(text):
             name.replace(' ', '_')
         )
 
-    for name in other_replacements:
-        if name in other_replacements:
+    for name in OTHER_REPLACEMENTS:
+        if name in OTHER_REPLACEMENTS:
             thetext = thetext.replace(
                 name,
-                other_replacements[name]
+                OTHER_REPLACEMENTS[name]
             )
 
     return thetext

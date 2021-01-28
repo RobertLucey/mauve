@@ -1,6 +1,5 @@
 from collections import defaultdict
 from urllib.request import urlopen
-from urllib.request import HTTPError
 import os
 import pickle
 import requests
@@ -267,9 +266,9 @@ class Debate():
 
             pdf_request = requests.get(url, stream=True)
 
-            with open(self.pickle_location.replace('pickle', 'pdf'), 'wb') as fd:
+            with open(self.pickle_location.replace('pickle', 'pdf'), 'wb') as pdfile:
                 for chunk in pdf_request.iter_content(2000):
-                    fd.write(chunk)
+                    pdfile.write(chunk)
 
         self.loaded = True
 

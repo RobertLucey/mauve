@@ -1,20 +1,34 @@
-import re
-
-from mauve.utils import (
-    lower,
-    previous_current_next
-)
-
-from mauve.models.deptree import DepTree, DepNode
+from mauve.constants import SPEECH_QUOTES
 
 
 class Speech():
 
-    def __init__(self, text=None, segments=None, speaker=None, inflection=None):
+    def __init__(
+        self,
+        text=None,
+        segments=None,
+        speaker=None,
+        inflection=None
+    ):
+        '''
+
+        :kwarg text: The text of the speech
+        :kwarg segments: The segments of the speech.
+            Can prob replace text with this parsed
+        :kwarg speaker: the identifier of the speaker
+        :kwarg inflection: said / exclaimed / however someone said the speech.
+            Should rename to something verby
+        '''
         self.segments = segments
         self._text = text
         self.speaker = speaker
         self._inflection = inflection
+
+    @property
+    def sentences(self):
+        # the sentences of the text since there can be multiple
+        # sentences from quote_aware_sent_tokenize
+        return
 
     @property
     def text(self):
@@ -24,9 +38,10 @@ class Speech():
 
     @property
     def inflection(self):
+        inflection = None
         if self._inflection:
-            return self._inflection
-        return  # Tom exclaimed / whispered
+            inflection = self._inflection
+        return inflection
 
     def serialize(self):
         return {
@@ -36,12 +51,10 @@ class Speech():
         }
 
 
-def extract_speech(sentence, use_deptree=True):
+def extract_speech(sentence):
 
     speech_words = ['said', 'says', 'exclaimed', 'whispered', 'wrote', 'continued', 'told', 'shouted', 'called', 'recalled', 'explained', 'admitted', 'remarked', 'bellowed', 'shrieked', 'told', 'ask', 'asked', 'confided', 'fulminated', 'mused', 'rejoined', 'cried', 'panted', 'continued', 'ejaculated', 'replied', 'interrupted', 'remarked', 'declared', 'queried', 'repeated', 'added', 'lied', 'insisted', 'answered']
     speakers = ['he', 'they', 'she', 'I', 'we']
-
-    quotes = ['`', '‘', '"', '``', '\'\'']
 
     within = False
     within_section = []
@@ -54,16 +67,16 @@ def extract_speech(sentence, use_deptree=True):
     # said the cat, the cat said. We should shuffle and use only one I guess for handiness sake?
 
     # starting idx would be handy for he said "shut up"
-    for idx, s in enumerate(sentence.segments):
-        if s.text in quotes and within:
+    for idx, segment in enumerate(sentence.segments):
+        if segment.text in SPEECH_QUOTES and within:
             within = False
             broken_idx = idx
             break  # allow for multiple once one works
 
         if within:
-            within_section.append(s)
+            within_section.append(segment)
 
-        if s.text in quotes and not within:
+        if segment.text in SPEECH_QUOTES and not within:
             start_speech_idx = idx
             within = True
 

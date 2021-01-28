@@ -173,3 +173,5 @@ LIKELY_PERSON_PREFIXES = [
     'mrs ',
     'miss '
 ]
+
+SPEECH_QUOTES = ['`', '‘', '"', '``', '\'\'']

@@ -37,5 +37,4 @@ def search(root, word, depth=1):
         return depth, root.count
     elif word < root.value:
         return search(root.left, word, depth + 1)
-    else:
-        return search(root.right, word, depth + 1)
+    return search(root.right, word, depth + 1)

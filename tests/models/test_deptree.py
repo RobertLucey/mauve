@@ -7,6 +7,25 @@ from mauve.models.deptree import DepNode, DepTree
 
 class TestDepNode(TestCase):
 
+    def test_get_empty(self):
+        node = DepNode.get_empty_node()
+
+        self.assertEquals(
+            node.serialize(),
+            {
+                'text': '',
+                'dep': '',
+                'head': '',
+                'pos': '',
+                'children': [],
+                'segment': {
+                    'text': '',
+                    'tag': '',
+                    'lem_stem': ''
+                }
+            }
+        )
+
     def test_serialize(self):
         token = ENCORE('window')[0]
         node = DepNode(

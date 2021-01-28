@@ -20,8 +20,8 @@ from mauve.models.books.tag import (
 )
 from mauve.constants import (
     GOODREADS_METADATA_PATH,
-    SIMPLE_TOKEN_MAP,
-    TEXT_PATH
+    TEXT_PATH,
+    SPEECH_QUOTES
 )
 
 
@@ -207,18 +207,22 @@ def get_stem(word):
 
 @lru_cache(maxsize=100000)
 def get_lem(word, pos=None):
+    if not word:
+        return word
+    if pos is None:
+        return LEM.lemmatize(word)
     return LEM.lemmatize(word, pos)
 
 
-def lower(x):
+def lower(var):
     '''
     Try to get the lower of something. Screw it if
     not, just return the param
     '''
     try:
-        return x.lower()
-    except:
-        return x
+        return var.lower()
+    except AttributeError:
+        return var
 
 
 def find_sub_idx(original, repl_list, start=0):
@@ -261,14 +265,18 @@ def get_wordnet_pos(tag):
     '''
     Map POS tag to first character lemmatize() accepts
     '''
-    tag = tag[0].upper()
-    tag_dict = {
-        'J': wordnet.ADJ,
-        'N': wordnet.NOUN,
-        'V': wordnet.VERB,
-        'R': wordnet.ADV
-    }
-    return tag_dict.get(tag, wordnet.NOUN)
+    try:
+        tag = tag[0].upper()
+    except IndexError:
+        return None
+    else:
+        tag_dict = {
+            'J': wordnet.ADJ,
+            'N': wordnet.NOUN,
+            'V': wordnet.VERB,
+            'R': wordnet.ADV
+        }
+        return tag_dict.get(tag, wordnet.NOUN)
 
 
 def quote_aware_sent_tokenize(content):
@@ -276,15 +284,20 @@ def quote_aware_sent_tokenize(content):
 
     final_sentences = []
     inside_quote = False
-    for s in sentences:
+    for sentence in sentences:
         if inside_quote:
-            final_sentences[-1] += ' ' + s
+            final_sentences[-1] += ' ' + sentence
         else:
-            final_sentences.append(s)
+            final_sentences.append(sentence)
 
-        if s.count('"') % 2 != 0 and not inside_quote:
+        # FIXME: might not be "
+        if str_count_multi(sentence, SPEECH_QUOTES) % 2 != 0 and not inside_quote:
             inside_quote = True
-        elif s.count('"') % 2 != 0 and inside_quote:
+        elif str_count_multi(sentence, SPEECH_QUOTES) % 2 != 0 and inside_quote:
             inside_quote = False
 
     return final_sentences
+
+
+def str_count_multi(string, things_to_count):
+    return sum([string.count(thing) for thing in things_to_count])

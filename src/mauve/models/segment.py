@@ -1,19 +1,10 @@
-
-from mauve.constants import (
-    NAMES,
-    LIKELY_PERSON_PREFIXES,
-    LIKELY_WORD_TOKENS,
-    ENG_WORDS,
-    PROFANITY_LIST,
-    SENTENCE_TERMINATORS,
-    SIMPLE_TOKEN_MAP,
-    ANALYSIS_VERSION
+from mauve.models.generic import (
+    GenericObject,
+    GenericObjects
 )
+
+from mauve.constants import LIKELY_PERSON_PREFIXES
 from mauve import (
-    GENDER_DETECTOR,
-    VADER,
-    TAGGER,
-    ENCORE,
     WPS,
     SYNONYM,
     Tagger,
@@ -23,31 +14,44 @@ from mauve import (
 from mauve.utils import (
     get_stem,
     get_lem,
-    lower,
-    replace_sub,
     get_wordnet_pos
 )
 
+class Segments(GenericObjects):
+    '''
+    A group of segments. Not necessarilly a sentence, but can pretty be
+    All sentences are segments but not all segments are sentences?
+    I don't know, will see how it shakes out
+    '''
 
-class Segment(Tagger):
+    def __init__(self, *args, **kwargs):
+        '''
+        '''
+        kwargs.setdefault('child_class', Segment)
+        super(Segments, self).__init__(*args, **kwargs)
+
+
+class Segment(Tagger, GenericObject):
     '''
     A segment is a word / phrase / group of words that belong together, smallest unit
 
     This can be like "postman pat", "Department of transport", 'Dr Jones'
     '''
 
-    def __init__(self, text, tag=None):
+    def __init__(self, *args, **kwargs):
         '''
 
         :param text: Text content of the segment
         :kwarg tag: A nltk or spacy tag of the segment
         '''
+        text = args[0]
         if '___' in text:
             text = text.replace('___', ' ')
         ALL[text] += 1
         self._text = SYNONYM.get_word(text.replace(' ', '_'))
-        self._tag = tag
+        self._tag = kwargs.get('tag', None)
         WPS.update()
+        super(Segment, self).__init__(*args, **kwargs)
 
     def serialize(self):
         return {
@@ -139,4 +143,3 @@ class Segment(Tagger):
         underscore will return false
         '''
         return self.text.replace(' ', '').replace('_', '').isalpha()
-
