@@ -37,7 +37,7 @@ class TestSentence(TestCase):
         self.assertEqual(assignments[0].p.text, 'Tom Jones')
         self.assertEqual(assignments[0].n.text, 'happy')
         self.assertEqual(assignments[0].c.text, 'is')
-        self.assertEqual(assignments[0].sentence.text, 'Tom_Jones is happy')
+        self.assertEqual(assignments[0].sentence.text, 'Tom Jones is happy')
 
         s = Sentence('Tom Jones is happy about it')
         assignments = s.assignments
@@ -45,7 +45,7 @@ class TestSentence(TestCase):
         self.assertEqual(assignments[0].p.text, 'Tom Jones')
         self.assertEqual(assignments[0].n.text, 'happy about it')
         self.assertEqual(assignments[0].c.text, 'is')
-        self.assertEqual(assignments[0].sentence.text, 'Tom_Jones is happy about it')
+        self.assertEqual(assignments[0].sentence.text, 'Tom Jones is happy about it')
 
         s = Sentence('Robert are fun')
         assignments = s.assignments
@@ -110,9 +110,9 @@ class TestSentence(TestCase):
         assignments = s.assignments
         self.assertEqual(len(assignments), 1)
         self.assertEqual(assignments[0].p.text, 'Robert')
-        self.assertEqual(assignments[0].n.text, 'definite that the_Secret_Service agents will report the episode to the true authorities')
+        self.assertEqual(assignments[0].n.text, 'definite that the___Secret___Service___agents will report the episode to the true authorities')
         self.assertEqual(assignments[0].c.text, 'is')
-        self.assertEqual(assignments[0].sentence.text, 'Robert is definite that the_Secret_Service agents will report the episode to the right authorities')
+        self.assertEqual(assignments[0].sentence.text, 'Robert is definite that the Secret Service agents will report the episode to the right authorities')
 
         s = Sentence('Not as far as Robert is concerned')  # robert is concerned... but I ain't
         assignments = s.assignments
@@ -153,6 +153,7 @@ class TestSentence(TestCase):
         #self.assertEqual(assignments[0].sentence.text, 'Equally disturbing to Robert is the idea that it is difficult to tell Tippit ’ s death unless it was an attempt to escape arrest for the assassination of the president')
 
     def test_person_extract(self):
+
         s = Sentence('I want to talk to dr. jones')
         self.assertEqual(s.people, ['dr jones'])
         self.assertEqual(
