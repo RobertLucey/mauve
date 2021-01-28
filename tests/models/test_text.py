@@ -130,10 +130,8 @@ class TestSentence(TestCase):
         self.assertEqual(assignments[0].c.text, 'is')
         self.assertEqual(assignments[0].sentence.text, 'Robert is in this holding pattern')
 
+    def test_som(self):
         s = Sentence('What are you thinking?')
-        deptree = s.deptree
-        for d in deptree.nodes:
-            print(d.serialize_line())
         assignments = s.assignments
         self.assertEqual(len(assignments), 1)
         self.assertEqual(assignments[0].p.text, 'What')
@@ -141,16 +139,18 @@ class TestSentence(TestCase):
         self.assertEqual(assignments[0].c.text, 'are')
         self.assertEqual(assignments[0].sentence.text, 'What are you thinking ?')
 
-        raise Exception()
-
-        #s = Sentence('Equally disturbing to Robert is the thought that it is difficult to explain Tippit’s death unless it was an attempt to escape arrest for the assassination of the president')
-        #assignments = s.assignments
-        #self.assertEqual(len(assignments), 3)
-        #self.assertEqual(assignments[0].p.text, 'Robert')
-        ##self.assertEqual(assignments[0].n.text, 'idea')
-        #self.assertEqual(assignments[0].c.text, 'is')
-        ##self.assertEqual(assignments[0].extra, 'that it is difficult to tell Tippit ’ s death unless it was attempt to escape arrest for assassination of president') 
-        #self.assertEqual(assignments[0].sentence.text, 'Equally disturbing to Robert is the idea that it is difficult to tell Tippit ’ s death unless it was an attempt to escape arrest for the assassination of the president')
+        s = Sentence('Equally disturbing to Robert is the thought that it is difficult to explain Tippit’s death unless it was an attempt to escape arrest for the assassination of the president')
+        assignments = s.assignments
+        self.assertEqual(len(assignments), 3)
+        self.assertEqual(assignments[0].p.text, 'Robert')
+        self.assertEqual(assignments[0].c.text, 'is')
+        self.assertEqual(assignments[0].sentence.text, 'Equally disturbing to Robert is the idea that it is difficult to tell Tippit ’ s death unless it was an attempt to escape arrest for the assassination of the president')
+        self.assertEqual(assignments[1].p.text, 'it')
+        self.assertEqual(assignments[1].c.text, 'is')
+        self.assertEqual(assignments[1].sentence.text, 'Equally disturbing to Robert is the idea that it is difficult to tell Tippit ’ s death unless it was an attempt to escape arrest for the assassination of the president')
+        self.assertEqual(assignments[2].p.text, 'it')
+        self.assertEqual(assignments[2].c.text, 'was')
+        self.assertEqual(assignments[2].sentence.text, 'Equally disturbing to Robert is the idea that it is difficult to tell Tippit ’ s death unless it was an attempt to escape arrest for the assassination of the president')
 
     def test_person_extract(self):
 
