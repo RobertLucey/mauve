@@ -130,7 +130,6 @@ class TestSentence(TestCase):
         self.assertEqual(assignments[0].c.text, 'is')
         self.assertEqual(assignments[0].sentence.text, 'Robert is in this holding pattern')
 
-    def test_som(self):
         s = Sentence('What are you thinking?')
         assignments = s.assignments
         self.assertEqual(len(assignments), 1)
