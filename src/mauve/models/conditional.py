@@ -1,6 +1,3 @@
-from mauve.models.meaning_tree import Node
-
-
 CONDITIONAL_LIST = [
     'if',
     'because',
