@@ -1,3 +1,4 @@
+from mauve.models.conditional import CONDITIONAL_LIST
 
 
 def serialize_children(children):
@@ -11,8 +12,7 @@ def serialize_children(children):
     } for child in children]
 
 
-
-class DepNode():
+class DepNode:
 
     def __init__(self, text, dep, head, pos, children, idx):
         self.text = text
@@ -53,14 +53,37 @@ class DepTree():
     def __init__(self, nodes):
         self.nodes = nodes
 
+    def get_before_node(self, cmp_node):
+        return [node for node in self.nodes if node.idx < cmp_node.idx]
+
     def get_after_node(self, cmp_node):
         return [node for node in self.nodes if node.idx > cmp_node.idx]
 
-    def get_closest_before(self, cmp_node, dep=None):
-        try:
-            return [node for node in self.nodes if node.idx < cmp_node.idx and node.dep in dep][-1]
-        except IndexError:
-            return DepNode.get_empty_node()
+    def get_closest_after(self, cmp_node, dep=None, text=None):
+        if dep is not None:
+            try:
+                return [node for node in self.nodes if node.idx > cmp_node.idx and node.dep in dep][0]
+            except IndexError:
+                return DepNode.get_empty_node()
+        if text is not None:
+            try:
+                print([n.text for n in self.nodes])
+                return [node for node in self.nodes if node.idx > cmp_node.idx and node.text in text][0]
+            except IndexError:
+                return DepNode.get_empty_node()
+
+    def get_closest_before(self, cmp_node, dep=None, text=None):
+        if dep is not None:
+            try:
+                return [node for node in self.nodes if node.idx < cmp_node.idx and node.dep in dep][-1]
+            except IndexError:
+                return DepNode.get_empty_node()
+
+        if text is not None:
+            try:
+                return [node for node in self.nodes if node.idx < cmp_node.idx and node.text in text][-1]
+            except IndexError:
+                return DepNode.get_empty_node()
 
     def serialize(self):
         return [n.serialize() for n in self.nodes]
@@ -73,3 +96,7 @@ class DepTree():
     @property
     def text(self):
         return ' '.join([n.text for n in self.nodes])
+
+    @property
+    def conditionals(self):
+        return [node for node in self.nodes if node.text.lower() in CONDITIONAL_LIST]
