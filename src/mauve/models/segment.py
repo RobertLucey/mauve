@@ -17,33 +17,34 @@ from mauve.utils import (
     get_wordnet_pos
 )
 
+
 class Segments(GenericObjects):
-    '''
+    """
     A group of segments. Not necessarilly a sentence, but can pretty be
     All sentences are segments but not all segments are sentences?
     I don't know, will see how it shakes out
-    '''
+    """
 
     def __init__(self, *args, **kwargs):
-        '''
-        '''
+        """
+        """
         kwargs.setdefault('child_class', Segment)
         super(Segments, self).__init__(*args, **kwargs)
 
 
 class Segment(Tagger, GenericObject):
-    '''
+    """
     A segment is a word / phrase / group of words that belong together, smallest unit
 
     This can be like "postman pat", "Department of transport", 'Dr Jones'
-    '''
+    """
 
     def __init__(self, *args, **kwargs):
-        '''
+        """
 
         :param text: Text content of the segment
         :kwarg tag: A nltk or spacy tag of the segment
-        '''
+        """
         text = args[0]
         if '___' in text:
             text = text.replace('___', ' ')
@@ -61,10 +62,10 @@ class Segment(Tagger, GenericObject):
         }
 
     def __eq__(self, other):
-        '''
+        """
         Are two segments equal. Only considers text as you
         usually don't care about tags
-        '''
+        """
         return self.text == other.text
 
     @property
@@ -136,10 +137,10 @@ class Segment(Tagger, GenericObject):
 
     @property
     def is_wordy(self):
-        '''
+        """
         Is it more wordy than not wordy?
 
         If any punctuation / numbers other than space and
         underscore will return false
-        '''
+        """
         return self.text.replace(' ', '').replace('_', '').isalpha()

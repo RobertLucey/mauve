@@ -1,13 +1,16 @@
 from mauve.models.assignment import extract_assignments
 from mauve.models.meaning_tree import Node
 
+# This stuff should be done in the node itself
+
 def update(n, r):
     if r is not None:
         n.child = r
     return n
 
+
 def get_back(assignment_node):
-    if assignment_node == None:
+    if assignment_node is None:
         return Node(None)
     else:
 
@@ -19,7 +22,7 @@ def get_back(assignment_node):
         if extraction.is_empty:
             return Node(None)
 
-        if extraction.value == None:
+        if extraction.value is None:
             return Node(None)
 
         if extraction.left is not None:

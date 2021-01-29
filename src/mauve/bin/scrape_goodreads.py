@@ -48,6 +48,7 @@ def get_id_from_isbn(data):
         ##    print('EXCEPTION: ' + title + ' - ' + str(ex))
         ##    return None
 
+
 def get_id_from_title(data):
     try:
         title = data['title']
@@ -122,13 +123,19 @@ def get_rating_distribution(soup):
 
 def get_num_pages(soup):
     if soup.find('span', {'itemprop': 'numberOfPages'}):
-        num_pages = soup.find('span', {'itemprop': 'numberOfPages'}).text.strip()
+        num_pages = soup.find(
+            'span',
+            {'itemprop': 'numberOfPages'}
+        ).text.strip()
         return int(num_pages.split()[0])
     return ''
 
 
 def get_year_first_published(soup):
-    year_first_published = soup.find('nobr', attrs={'class': 'greyText'}).string
+    year_first_published = soup.find(
+        'nobr',
+        attrs={'class': 'greyText'}
+    ).string
     return re.search('([0-9]{3,4})', year_first_published).group(1)
 
 
@@ -145,16 +152,29 @@ def scrape_book(book_id):
     try:
         return {
             'book_id': get_id(book_id),
-            'book_title': ' '.join(soup.find('h1', {'id': 'bookTitle'}).text.split()),
+            'book_title': ' '.join(
+                soup.find('h1', {'id': 'bookTitle'}).text.split()
+            ),
             'isbn': get_isbn(soup),
             'isbn13': get_isbn13(soup),
             'year_first_published': get_year_first_published(soup),
-            'author': ' '.join(soup.find('span', {'itemprop': 'name'}).text.split()),
+            'author': ' '.join(
+                soup.find('span', {'itemprop': 'name'}).text.split()
+            ),
             'num_pages': get_num_pages(soup),
             'genres': get_genres(soup),
-            'num_ratings': soup.find('meta', {'itemprop': 'ratingCount'})['content'].strip(),
-            'num_reviews': soup.find('meta', {'itemprop': 'reviewCount'})['content'].strip(),
-            'average_rating': soup.find('span', {'itemprop': 'ratingValue'}).text.strip(),
+            'num_ratings': soup.find(
+                'meta',
+                {'itemprop': 'ratingCount'}
+            )['content'].strip(),
+            'num_reviews': soup.find(
+                'meta',
+                {'itemprop': 'reviewCount'}
+            )['content'].strip(),
+            'average_rating': soup.find(
+                'span',
+                {'itemprop': 'ratingValue'}
+            ).text.strip(),
             'rating_distribution': get_rating_distribution(soup)
         }
     except:
@@ -162,6 +182,11 @@ def scrape_book(book_id):
 
 
 def get_title_id_cache():
+    '''
+
+    :return:
+    :rtype: dict
+    '''
     title_id_file = os.path.join(
         GOODREADS_METADATA_PATH,
         'title_id_map.json'
@@ -174,8 +199,12 @@ def get_title_id_cache():
     return {}
 
 
-
 def get_request_chunk_items(files, title_id_cache):
+    '''
+
+    :param files:
+    :param title_id_cache:
+    '''
     titles = []
     count = 0
     for f in files:
@@ -202,7 +231,12 @@ def get_request_chunk_items(files, title_id_cache):
                     break
     return titles
 
+
 def write_title_id_cache(title_id_cache):
+    '''
+
+    :param title_id_cache: The new title_id_cache updated by the script
+    '''
     title_id_file = os.path.join(
         GOODREADS_METADATA_PATH,
         'title_id_map.json'
@@ -213,12 +247,19 @@ def write_title_id_cache(title_id_cache):
 
 
 def write_book_metadata(metadata_results):
+    '''
+
+    :param metadata_results:
+    '''
     for scrape_result in metadata_results:
         if scrape_result is not None:
             json.dump(
                 scrape_result,
                 open(
-                    os.path.join(GOODREADS_METADATA_PATH, scrape_result['book_id'] + '.json'),
+                    os.path.join(
+                        GOODREADS_METADATA_PATH,
+                        scrape_result['book_id'] + '.json'
+                    ),
                     'w'
                 )
             )

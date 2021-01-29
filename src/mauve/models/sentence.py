@@ -1,4 +1,3 @@
-
 from cached_property import cached_property
 
 import textacy.ke
@@ -23,8 +22,7 @@ from mauve.constants import (
 )
 
 
-
-class Sentence():
+class Sentence:
 
     def __init__(self, text):
         self.text = text
@@ -64,9 +62,10 @@ class Sentence():
             ]):
                 people.append(segment.text)
             elif segment.tag == 'PERSON' or (
-                segment.tag == 'dunno' and (
-                    any([segment.text.lower().replace('_', ' ').startswith(prefix) for prefix in LIKELY_PERSON_PREFIXES])
-                )
+                    segment.tag == 'dunno' and (
+                    any([segment.text.lower().replace('_', ' ').startswith(prefix) for prefix in
+                         LIKELY_PERSON_PREFIXES])
+            )
             ):
                 people.append(segment.text)
             else:
@@ -76,7 +75,6 @@ class Sentence():
                     if all([i in NAMES for i in segment.text.split(' ')]):
                         people.append(segment.text)
                         continue
-
 
                 # or if already a segment and not a name see the split of ' '
                 if segment.text in NAMES:
@@ -94,7 +92,8 @@ class Sentence():
     def is_question(self):
         return self.text[-1] == '?'
 
-    def preprocess_text(self, text):
+    @staticmethod
+    def preprocess_text(text):
         return ' '.join([SYNONYM.get_word(t.replace(' ', '_')) for t in nltk.word_tokenize(text)])
 
     @cached_property
@@ -121,14 +120,13 @@ class Sentence():
                     doc,
                     normalize='lemma',
                     topn=10
-                ) if ' ' in k[0] or '_' in k[0] # only really care about multi word phrases
+                ) if ' ' in k[0] or '_' in k[0]  # only really care about multi word phrases
             ]
 
             for textphrase in textphrases:
                 to_put = textphrase.replace(' ', '___')
                 mod_text = mod_text.replace(textphrase, to_put)
                 mapping[textphrase] = 'SOMETHING'
-
 
         return mod_text
 
@@ -156,7 +154,7 @@ class Sentence():
                     doc,
                     normalize='lemma',
                     topn=10
-                ) if ' ' in k[0] or '_' in k[0] # only really care about multi word phrases
+                ) if ' ' in k[0] or '_' in k[0]  # only really care about multi word phrases
             ]
 
             for textphrase in textphrases:

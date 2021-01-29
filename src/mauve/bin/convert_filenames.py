@@ -1,6 +1,6 @@
-'''
+"""
 Badly optimized, fight me
-'''
+"""
 
 import argparse
 import os
@@ -18,9 +18,9 @@ from mauve.constants import (
 
 
 def clean_isbn(isbn):
-    '''
+    """
     cleaner for raw isbns strings. Should use some actual validation here.
-    '''
+    """
     rm_list = [
         '-',
         'urn:uuid:',

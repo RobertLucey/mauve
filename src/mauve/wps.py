@@ -2,7 +2,7 @@ import time
 from collections import deque
 
 
-class WPS():
+class WPS:
 
     def __init__(self, past_seconds=5 * 60, print_rate=None):
         self.data = deque([])

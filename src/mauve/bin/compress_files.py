@@ -1,6 +1,6 @@
-'''
+"""
 Badly optimized, fight me
-'''
+"""
 
 import glob
 import argparse
@@ -27,6 +27,7 @@ from compress_pickle import (
     load
 )
 
+
 def _compress_file(fp):
     if os.path.exists(fp + '.bz'):
         os.remove(fp)
@@ -36,11 +37,10 @@ def _compress_file(fp):
 
 
 def compress(num_processes=4):
-
     files = []
     for filename in glob.iglob(
-        os.path.join(BASE_DATA_PATH, '**/*.pickle'),
-        recursive=True
+            os.path.join(BASE_DATA_PATH, '**/*.pickle'),
+            recursive=True
     ):
         files.append((filename, os.path.getsize(filename)))
 
@@ -58,8 +58,8 @@ def compress(num_processes=4):
     else:  # pragma: nocover
         pool = Pool(processes=num_processes)
         for _ in tqdm.tqdm(
-            pool.imap_unordered(_compress_file, files),
-            total=len(files)
+                pool.imap_unordered(_compress_file, files),
+                total=len(files)
         ):
             pass
 
@@ -71,11 +71,12 @@ def main():  # pragma: nocover
         '--processes',
         type=int,
         dest='num_processes',
-        default=6
+        default=1
     )
     args = parser.parse_args()
 
     compress(num_processes=args.num_processes)
+
 
 if __name__ == '__main__':  # pragma: nocover
     main()

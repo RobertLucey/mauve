@@ -1,7 +1,7 @@
 from mauve.constants import SPEECH_QUOTES
 
 
-class Speech():
+class Speech:
 
     def __init__(
         self,

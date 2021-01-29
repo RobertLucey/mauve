@@ -77,7 +77,6 @@ for j, v in JOINERS.items():
     PHRASES.extend(items)
 
 
-
 for idiom in PHRASES:
     M_TOOL.add(
         'QBF',

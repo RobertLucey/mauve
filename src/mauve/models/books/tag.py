@@ -16,10 +16,10 @@ class Tag(GenericObject):
         }
 
     def add_book(self, book):
-        '''
+        """
         Add books to this tag,
         should be able to lazy load when we want to get the books back
-        '''
+        """
         raise NotImplementedError()
 
 
@@ -33,10 +33,10 @@ class Tags(GenericObjects):
         return [t.name for t in self]
 
     def contains(self, tag):
-        '''
+        """
 
         :param tag
-        '''
+        """
         if not isinstance(tag, Tag):
             tag = Tag(name=tag)
 

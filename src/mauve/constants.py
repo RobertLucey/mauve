@@ -163,7 +163,7 @@ CLEAN_EPUB_PATH = os.path.join(BASE_DATA_PATH, 'clean_books')
 OIREACHTAS_DIR = os.path.join(BASE_DATA_PATH, 'oireachtas')
 
 
-SENTENCE_TERMINATORS = set(['.', '?', '!'])
+SENTENCE_TERMINATORS = {'.', '?', '!'}
 
 
 LIKELY_PERSON_PREFIXES = [

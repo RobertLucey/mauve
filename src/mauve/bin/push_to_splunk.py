@@ -4,13 +4,10 @@ from multiprocessing import Pool
 
 import tqdm
 
-from mauve.utils import iter_books
-
 from mauve.constants import (
-    TEXT_PATH,
-    GOODREADS_METADATA_PATH,
     TOKEN_VERSION
 )
+from mauve.utils import iter_books
 
 
 def push_to_splunk(b):

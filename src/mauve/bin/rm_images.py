@@ -1,12 +1,11 @@
-'''
-
+"""
 To save space add this to the loop in _load_manifest in epub.py and run
 
 Removes image files. May use them later but not for text analysis
 
 if len(set(['.m4a', '.svg', '.TTF', '.otf', '.mp3', '.mp4', '.css', '.jpg', '.jpeg', '.png', '.gif', '.ttf']).intersection([os.path.splitext(ei.file_name)[1]])):
     continue
-'''
+"""
 
 import argparse
 import time
@@ -75,6 +74,7 @@ def main():
         total=len(books)
     ):
         pass
+
 
 if __name__ == '__main__':
     main()

@@ -20,7 +20,7 @@ class StreamSubmit(object):
         host=None,
         time=None
     ):
-        '''
+        """
 
         :param event_data: Data to be sent
         :kwarg index:
@@ -28,7 +28,7 @@ class StreamSubmit(object):
         :kwarg source:
         :kwarg host:
         :kwarg time:
-        '''
+        """
         data = {
             'index': index,
             'event': event_data
@@ -55,7 +55,7 @@ class StreamSubmit(object):
         return data
 
     def submit(self, index_name, data, **kwargs):
-        '''
+        """
 
         :param index_name:
         :param data: Event data
@@ -63,7 +63,7 @@ class StreamSubmit(object):
         :kwarg host:
         :kwarg source:
         :kwarg sourcetype:
-        '''
+        """
         kwargs.setdefault('time', None)
         kwargs.setdefault('host', None)
         kwargs.setdefault('source', None)

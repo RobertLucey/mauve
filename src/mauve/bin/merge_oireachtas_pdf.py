@@ -56,6 +56,7 @@ def clean(lines):
         final_lines.append(l.replace('�', ''))
     return final_lines
 
+
 def sections_to_speeches(sections):
     speeches = []
     for s in sections.values():
@@ -83,6 +84,7 @@ def lines_to_sections(lines, date):
 
         sections[idx].append(f)
     return sections
+
 
 def process(fn):
     y, m, d = fn.split('_')[-1].replace('.pdf', '').split('-')
@@ -136,6 +138,7 @@ def main():
         total=len(files)
     ):
         pass
+
 
 if __name__ == '__main__':
     main()

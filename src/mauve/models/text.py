@@ -39,15 +39,14 @@ from mauve.models.sentence import Sentence
 
 class Text(GenericObject, Tagger):
 
-
     def __init__(self, *args, **kwargs):
         self.content_path = kwargs.get('content_path', None)
         super(Text, self).__init__(*args, **kwargs)
 
     @cached_property
     def content(self):
-        '''
-        '''
+        """
+        """
         try:
             return open(
                 self.content_path,
@@ -60,10 +59,10 @@ class Text(GenericObject, Tagger):
             return ''
 
     def set_content_location(self, content_path):
-        '''
+        """
 
         :param content_path:
-        '''
+        """
         self.content_path = content_path
 
     def get_top_adjectives(self, num_to_get):
@@ -73,10 +72,10 @@ class Text(GenericObject, Tagger):
         return dict(
             [
                 a for a in adjs if all([
-                    a[0] in self.dictionary_words,
-                    'â' not in str(a),
-                    a != 'n'
-                ])
+                a[0] in self.dictionary_words,
+                'â' not in str(a),
+                a != 'n'
+            ])
             ][0:num_to_get]
         )
 
@@ -87,10 +86,10 @@ class Text(GenericObject, Tagger):
         return dict(
             [
                 a for a in nouns if all([
-                    a[0] in self.dictionary_words,
-                    'â' not in str(a),
-                    a != 'n'
-                ])
+                a[0] in self.dictionary_words,
+                'â' not in str(a),
+                a != 'n'
+            ])
             ][0:num_to_get]
         )
 
@@ -101,10 +100,10 @@ class Text(GenericObject, Tagger):
         return dict(
             [
                 a for a in verbs if all([
-                    a[0] in self.dictionary_words,
-                    'â' not in str(a),
-                    a != 'n'
-                ])
+                a[0] in self.dictionary_words,
+                'â' not in str(a),
+                a != 'n'
+            ])
             ][0:num_to_get]
         )
 
@@ -129,7 +128,7 @@ class Text(GenericObject, Tagger):
         return sum(word_counts.values()) / div
 
     def get_token_type_score(self, token_type):
-        assert(token_type in SIMPLE_TOKEN_MAP.values())
+        assert (token_type in SIMPLE_TOKEN_MAP.values())
         div = len(self.words) / 10000.
         return len([m for m in self.tokens if SIMPLE_TOKEN_MAP[m[1]] == token_type]) / div
 
@@ -351,18 +350,18 @@ class Text(GenericObject, Tagger):
 
 
 class TextBody(GenericObject, Tagger):
-    '''
+    """
     A cleaner text body
     Something that holds many sentences / paragraphs relating to one
     piece of writing
-    '''
+    """
 
     def __init__(self, *args, **kwargs):
-        '''
+        """
 
         :kwarg content: Text content as a string
         :kwarg content_path: Path to a txt file containing the content
-        '''
+        """
         self._content = kwargs.get('content', None)
         self.content_path = kwargs.get('content_path', None)
         super(TextBody, self).__init__(*args, **kwargs)
@@ -391,12 +390,12 @@ class TextBody(GenericObject, Tagger):
                 pass
 
     def get_lexical_diversity(self, only_dictionary_words=False):
-        '''
+        """
 
         :kwargs only_dictionary_words:
         :return:
         :rtype:
-        '''
+        """
         if only_dictionary_words:
             return float(len(set(self.dictionary_words))) / len(self.dictionary_words)
         return float(len(set(self.words))) / len(self.words)
@@ -415,17 +414,17 @@ class TextBody(GenericObject, Tagger):
         for word in words:
             word_counts[word] = self.words.count(word)
 
-        if words == []:
+        if not words:
             return 0
 
         div = original_len / 10000.
         return sum(word_counts.values()) / div
 
     def set_content_location(self, content_path):
-        '''
+        """
 
         :param content_path:
-        '''
+        """
         self.content_path = content_path
 
     @property
@@ -486,10 +485,10 @@ class TextBody(GenericObject, Tagger):
 
     @property
     def speech(self):
-        '''
+        """
 
         :return: list of Speech objects
-        '''
+        """
         content = self.content
 
         if content is None:

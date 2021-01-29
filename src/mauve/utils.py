@@ -30,20 +30,20 @@ LEM = WordNetLemmatizer()
 
 
 def loose_exists(filepath):
-    '''
+    """
 
     :param filepath: filepath to get a related file of
     :return: Bool if a file or related file exists
-    '''
+    """
     return get_loose_filepath(filepath) is not None
 
 
 def get_loose_filepath(filepath):
-    '''
+    """
 
     :param: filepath to get a related file of
     :return: The path to the file or loose file that was found
-    '''
+    """
     if os.path.exists(filepath):
         return filepath
 
@@ -65,12 +65,12 @@ def get_loose_filepath(filepath):
 
 
 def compress_file(filepath):
-    '''
+    """
     Compress a file if possible. When reading files that may have been
     compressed use the get_file_content
 
     :param filepath: Filepath to compress
-    '''
+    """
     ext = os.path.splitext(filepath)[1]
     if ext == '.txt':
         # We want to do this? txt files necessary at all?
@@ -88,7 +88,7 @@ def compress_file(filepath):
 
 
 def get_file_content(filepath):
-    '''
+    """
     Read a file regardless of the extension
 
     For instance if there's some pickle files and some pickle.bz files
@@ -96,7 +96,7 @@ def get_file_content(filepath):
 
     :param filepath: Filepath to read from
     :return: Depending on the ext it may be a pickled obj / str
-    '''
+    """
     ext = os.path.splitext(filepath)[1]
     if ext == '.txt':
         return open(filepath, 'r').read()
@@ -109,12 +109,12 @@ def get_file_content(filepath):
 
 
 def get_metadata(source='goodreads'):
-    '''
+    """
 
     :kwarg source: The type of source to get metadata from
     :return: All metadata related to whatever books you're looking for
     :rtype: list
-    '''
+    """
     data = []
     if source == 'goodreads':
         data_dir = GOODREADS_METADATA_PATH
@@ -160,13 +160,12 @@ def get_metadata(source='goodreads'):
 
 
 def iter_books(source='goodreads'):
-    '''
+    """
 
-    :param books_dir:
     :kwarg source:
     :kwarg: the v of tokens to get from
     :return: generator of book objects
-    '''
+    """
     from mauve.models.books.book import Book
     books_dir = {
         'goodreads': GOODREADS_METADATA_PATH,
@@ -215,10 +214,10 @@ def get_lem(word, pos=None):
 
 
 def lower(var):
-    '''
+    """
     Try to get the lower of something. Screw it if
     not, just return the param
-    '''
+    """
     try:
         return var.lower()
     except AttributeError:
@@ -242,29 +241,29 @@ def replace_sub(original, repl_list, new_list):
 
 
 def previous_current_next(iterable):
-    '''
+    """
     Make an iterator that yields an (previous, current, next) tuple per element.
 
     Returns None if the value does not make sense (i.e. previous before
     first and next after last).
-    '''
+    """
     iterable = iter(iterable)
     prv = None
     cur = iterable.__next__()
     try:
         while True:
             nxt = iterable.__next__()
-            yield (prv, cur, nxt)
+            yield prv, cur, nxt
             prv = cur
             cur = nxt
     except StopIteration:
-        yield (prv, cur, None)
+        yield prv, cur, None
 
 
 def get_wordnet_pos(tag):
-    '''
+    """
     Map POS tag to first character lemmatize() accepts
-    '''
+    """
     try:
         tag = tag[0].upper()
     except IndexError:

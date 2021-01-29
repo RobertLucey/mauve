@@ -14,7 +14,6 @@ from mauve.constants import EPUB_PATH
 
 
 def download(data):
-
     category = data[0]
     filename = data[1]
 
@@ -38,8 +37,8 @@ def download(data):
 
 
 def parse_size(number, unit):
-    units = {'K': 10**3, 'M': 10**6, 'G': 10**9}
-    return int(float(number)*units[unit])
+    units = {'K': 10 ** 3, 'M': 10 ** 6, 'G': 10 ** 9}
+    return int(float(number) * units[unit])
 
 
 def main():
@@ -110,8 +109,8 @@ def main():
 
     pool = ThreadPool(processes=args.num_processes)
     for _ in tqdm.tqdm(
-        pool.imap_unordered(download, fns),
-        total=len(fns)
+            pool.imap_unordered(download, fns),
+            total=len(fns)
     ):
         pass
 

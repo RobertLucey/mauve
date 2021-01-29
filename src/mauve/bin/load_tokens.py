@@ -1,7 +1,7 @@
-'''
+"""
 Use this to set the tokens of books.
 Just set the data dir for output and the source txt dir
-'''
+"""
 
 import argparse
 import os
@@ -50,7 +50,7 @@ def main():  # pragma: nocover
         '--processes',
         type=int,
         dest='num_processes',
-        default=7
+        default=1
     )
     args = parser.parse_args()
 
