@@ -1,4 +1,5 @@
 from mauve.models.deptree import DepTree
+from mauve.models.meaning_tree import Node, Leaf, Tree
 
 
 class Assignment():
@@ -26,53 +27,132 @@ class Assignment():
         }
 
 
-def extract_assignments(sentence):
-    '''
-    Given a sentence, pull out the assignments made in the sentence
 
-    :param sentence: Sentence object
+# TODO: only extract first assignment, then feed the tail into a parser that may analyse again in the tree
+def extract_assignments(sentence, get_node=False):
+    '''
+    Given segments, pull out the assignments made in the segments
+
+    :param segments: Segments object
+    :kwarg get_node:
     :return:
     '''
-    joining_words = ['is', 'are', 'am', 'was', 'were', 'be']
 
-    good = False
-    for joining_word in joining_words:
-        if ' ' + joining_word + ' ' in sentence.text:
-            good = True
-            break
 
-    if not good:
-        return []
+    if get_node:
 
-    deptree = sentence.deptree
+        node = sentence
 
-    assignments = []
+        if node == None:
+            return None
 
-    # Still interesting things around -ly and wordy things
+        if node.value == None:
+            return None
 
-    for equal_node in deptree.equals:
+        joining_words = ['is', 'are', 'am', 'was', 'were', 'be']
 
-        # expl can usually be second part of an assignment?
+        good = False
+        for joining_word in joining_words:
+            if ' ' + joining_word + ' ' in node.value.text:
+                good = True
+                break
 
-        left = deptree.get_closest_before(
-            equal_node,
-            dep=['nsubj', 'dobj', 'pobj', 'nsubj', 'expl']
-        )
+        if not good:
+            return node
 
-        if all([
-            not left.segment.is_noun,
-            not left.segment.is_prp,
-            left.segment.text not in sentence.people,
-            left.dep not in ['nsubj', 'dobj', 'pobj', 'nsubj', 'expl']
-        ]):
-            continue
+        deptree = node.value.deptree
 
-        assignments.append(
-            Assignment(
-                sentence,
-                left.segment,
-                DepTree(deptree.get_after_node(equal_node)),
-                equal_node
+        assignments = []
+
+        # Still interesting things around -ly and wordy things
+
+        for equal_node in deptree.equals:
+
+            # expl can usually be second part of an assignment?
+
+            left = deptree.get_closest_before(
+                equal_node,
+                dep=['nsubj', 'dobj', 'pobj', 'nsubj', 'expl']
             )
-        )
-    return assignments
+
+            if all([
+                not left.segment.is_noun,
+                not left.segment.is_prp,
+                left.segment.text not in node.value.people,
+                left.dep not in ['nsubj', 'dobj', 'pobj', 'nsubj', 'expl']
+            ]):
+                continue
+
+            #assignment_node.right = Node(DepTree(deptree.get_after_node(equal_node)))  # TODO: recurse with conditionals and all that
+
+            from mauve.models.sentence import Sentence
+            # clean
+
+            print('left: %s    right: %s' % (left.text, Sentence(' '.join([d.text for d in deptree.get_after_node(equal_node)])).text))
+
+            node.value = equal_node
+            node.left = Node(left)
+            node.right = Node(Sentence(' '.join([d.text for d in deptree.get_after_node(equal_node)]))) #Sentence(' '.join([a.text for a in deptree.get_after_node(equal_node)]))  # TODO: recurse with conditionals and all that
+
+            return node
+
+
+    else:
+        joining_words = ['is', 'are', 'am', 'was', 'were', 'be']
+
+        good = False
+        for joining_word in joining_words:
+            if ' ' + joining_word + ' ' in sentence.text:
+                good = True
+                break
+
+        if not good:
+            return []
+
+        deptree = sentence.deptree
+
+        assignments = []
+
+        # Still interesting things around -ly and wordy things
+
+        for equal_node in deptree.equals:
+
+            # expl can usually be second part of an assignment?
+
+            left = deptree.get_closest_before(
+                equal_node,
+                dep=['nsubj', 'dobj', 'pobj', 'nsubj', 'expl']
+            )
+
+            if all([
+                not left.segment.is_noun,
+                not left.segment.is_prp,
+                left.segment.text not in sentence.people,
+                left.dep not in ['nsubj', 'dobj', 'pobj', 'nsubj', 'expl']
+            ]):
+                continue
+
+            if get_node:
+
+                #assignment_node.right = Node(DepTree(deptree.get_after_node(equal_node)))  # TODO: recurse with conditionals and all that
+
+                from mauve.models.sentence import Sentence
+                # clean
+
+                assignment_node = Node(equal_node)
+                assignment_node.left = Node(left)
+                assignment_node.right = Node(deptree.get_after_node(equal_node)) #Sentence(' '.join([a.text for a in deptree.get_after_node(equal_node)]))  # TODO: recurse with conditionals and all that
+
+                return assignment_node
+
+            else:
+                assignments.append(
+                    Assignment(
+                        sentence,
+                        left.segment,
+                        DepTree(deptree.get_after_node(equal_node)),
+                        equal_node
+                    )
+                )
+
+        return assignments
