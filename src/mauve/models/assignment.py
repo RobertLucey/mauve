@@ -1,5 +1,6 @@
+import copy
 from mauve.models.deptree import DepTree
-from mauve.models.meaning_tree import Node, Leaf, Tree
+from mauve.models.meaning_tree import Node
 
 
 class Assignment():
@@ -44,10 +45,10 @@ def extract_assignments(sentence, get_node=False):
         node = sentence
 
         if node == None:
-            return None
+            return Node(None)
 
         if node.value == None:
-            return None
+            return Node(None)
 
         joining_words = ['is', 'are', 'am', 'was', 'were', 'be']
 
@@ -58,7 +59,7 @@ def extract_assignments(sentence, get_node=False):
                 break
 
         if not good:
-            return node
+            return Node(None)
 
         deptree = node.value.deptree
 
@@ -83,18 +84,12 @@ def extract_assignments(sentence, get_node=False):
             ]):
                 continue
 
-            #assignment_node.right = Node(DepTree(deptree.get_after_node(equal_node)))  # TODO: recurse with conditionals and all that
-
             from mauve.models.sentence import Sentence
-            # clean
 
-            print('left: %s    right: %s' % (left.text, Sentence(' '.join([d.text for d in deptree.get_after_node(equal_node)])).text))
-
-            node.value = equal_node
-            node.left = Node(left)
-            node.right = Node(Sentence(' '.join([d.text for d in deptree.get_after_node(equal_node)]))) #Sentence(' '.join([a.text for a in deptree.get_after_node(equal_node)]))  # TODO: recurse with conditionals and all that
-
-            return node
+            new = Node(equal_node)
+            new.left = Node(left)
+            new.right = Node(Sentence(' '.join([d.text for d in deptree.get_after_node(equal_node)]))) #Sentence(' '.join([a.text for a in deptree.get_after_node(equal_node)]))  # TODO: recurse with conditionals and all that
+            return new
 
 
     else:
