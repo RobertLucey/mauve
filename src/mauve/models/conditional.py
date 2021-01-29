@@ -20,34 +20,30 @@ class Conditional():
     def parse_conditionals(sentence):
         from mauve.models.sentence import Sentence
 
-        nodes = []
+        conditionals = []
         for conditional in sentence.deptree.conditionals:
 
-            node = Node(conditional)
+            value = conditional
             if conditional.idx == 0:
-                node.left = Node(
-                    Sentence(
-                        ' '.join(
-                            [
-                                s.text for s in sentence.deptree.get_before_node(sentence.deptree.get_closest_after(conditional, text=[',', 'then']))
-                            ]
-                        )
+                left = Sentence(
+                    ' '.join(
+                        [
+                            s.text for s in sentence.deptree.get_before_node(sentence.deptree.get_closest_after(conditional, text=[',', 'then']))
+                        ]
                     )
                 )
-                node.right = Node(
-                    Sentence(
-                        ' '.join(
-                            [
-                                s.text for s in sentence.deptree.get_after_node(sentence.deptree.get_closest_after(conditional, text=[',', 'then']))
-                            ]
-                        )
+                right = Sentence(
+                    ' '.join(
+                        [
+                            s.text for s in sentence.deptree.get_after_node(sentence.deptree.get_closest_after(conditional, text=[',', 'then']))
+                        ]
                     )
                 )
 
-                nodes.append(
-                    node
+                conditionals.append(
+                    (left, value, right)
                 )
             else:
                 print('conditional not at start')
 
-        return nodes
+        return conditionals
