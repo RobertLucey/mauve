@@ -186,3 +186,12 @@ class Sentence:
     @cached_property
     def speech(self):
         return extract_speech(self)
+
+    @property
+    def get_lvr(self):
+        from mauve.models.assignment import extract_assignments
+        return extract_assignments(
+            self,
+            get_node=True
+        )
+        # extraction should be (l,v,r)  r may be a sentence we can get lvr of again
