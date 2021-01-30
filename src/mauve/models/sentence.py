@@ -202,8 +202,8 @@ class Sentence:
     @property
     def get_lvr(self):
         from mauve.models.assignment import extract_assignments
-        return extract_assignments(
-            self,
-            get_node=True
-        )
+
+        # TODO: work in conditionals and bits, not just assignments
+
+        return extract_assignments(self)
         # extraction should be (l,v,r)  r may be a sentence we can get lvr of again

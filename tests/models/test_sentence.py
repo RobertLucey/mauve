@@ -25,84 +25,74 @@ class TestSentence(TestCase):
         s = Sentence('currently, Robert is the first person to shove a golf ball up their nose')
         assignments = s.assignments
         self.assertEqual(len(assignments), 1)
-        self.assertEqual(assignments[0].p.text, 'Robert')
-        self.assertEqual(assignments[0].n.text, 'the first person to shove a golf___ball up their nose')
-        self.assertEqual(assignments[0].c.text, 'is')
-        self.assertEqual(assignments[0].sentence.text, 'currently , Robert is the first person to shove a golf ball up their nose')
+        self.assertEqual(assignments[0][0].text, 'Robert')
+        self.assertEqual(assignments[0][2].text, 'the first person to shove a golf___ball up their nose')
+        self.assertEqual(assignments[0][1].text, 'is')
 
     def test_get_assignments(self):
 
         s = Sentence('Tom Jones is happy')
         assignments = s.assignments
         self.assertEqual(len(assignments), 1)
-        self.assertEqual(assignments[0].p.text, 'Tom Jones')
-        self.assertEqual(assignments[0].n.text, 'happy')
-        self.assertEqual(assignments[0].c.text, 'is')
-        self.assertEqual(assignments[0].sentence.text, 'Tom Jones is happy')
+        self.assertEqual(assignments[0][0].text, 'Tom___Jones') # FIXME This should be a person in a while
+        self.assertEqual(assignments[0][2].text, 'happy')
+        self.assertEqual(assignments[0][1].text, 'is')
 
         s = Sentence('Tom Jones is happy about it')
         assignments = s.assignments
         self.assertEqual(len(assignments), 1)
-        self.assertEqual(assignments[0].p.text, 'Tom Jones')
-        self.assertEqual(assignments[0].n.text, 'happy about it')
-        self.assertEqual(assignments[0].c.text, 'is')
-        self.assertEqual(assignments[0].sentence.text, 'Tom Jones is happy about it')
+        self.assertEqual(assignments[0][0].text, 'Tom___Jones')
+        self.assertEqual(assignments[0][2].text, 'happy about it')
+        self.assertEqual(assignments[0][1].text, 'is')
 
         s = Sentence('Robert are fun')
         assignments = s.assignments
         self.assertEqual(len(assignments), 1)
-        self.assertEqual(assignments[0].p.text, 'Robert')
-        self.assertEqual(assignments[0].n.text, 'fun')
-        self.assertEqual(assignments[0].c.text, 'are')
-        self.assertEqual(assignments[0].sentence.text, 'Robert are fun')
+        self.assertEqual(assignments[0][0].text, 'Robert')
+        self.assertEqual(assignments[0][2].text, 'fun')
+        self.assertEqual(assignments[0][1].text, 'are')
 
         s = Sentence('Robert are not fun')
         assignments = s.assignments
         self.assertEqual(len(assignments), 1)
-        self.assertEqual(assignments[0].p.text, 'Robert')
-        self.assertEqual(assignments[0].n.text, 'not fun')
-        self.assertEqual(assignments[0].c.text, 'are')
-        self.assertEqual(assignments[0].sentence.text, 'Robert are not fun')
+        self.assertEqual(assignments[0][0].text, 'Robert')
+        self.assertEqual(assignments[0][2].text, 'not fun')
+        self.assertEqual(assignments[0][1].text, 'are')
 
         s = Sentence('Peter is a spider on my shoe')
         assignments = s.assignments
         self.assertEqual(len(assignments), 1)
-        self.assertEqual(assignments[0].p.text, 'Peter')
-        self.assertEqual(assignments[0].n.text, 'a spider on my shoe')
-        self.assertEqual(assignments[0].c.text, 'is')
-        self.assertEqual(assignments[0].sentence.text, 'Peter is a spider on my shoe')
+        self.assertEqual(assignments[0][0].text, 'Peter')
+        self.assertEqual(assignments[0][2].text, 'a spider on my shoe')
+        self.assertEqual(assignments[0][1].text, 'is')
 
         s = Sentence('currently, Robert is drafting its 1998 annual report')
         assignments = s.assignments
         self.assertEqual(len(assignments), 1)
-        self.assertEqual(assignments[0].p.text, 'Robert')
-        self.assertEqual(assignments[0].n.text, 'drafting its 1998 annual___report')
-        self.assertEqual(assignments[0].c.text, 'is')
-        self.assertEqual(assignments[0].sentence.text, 'currently , Robert is drafting its 1998 annual report')
+        self.assertEqual(assignments[0][0].text, 'Robert')
+        self.assertEqual(assignments[0][2].text, 'drafting its 1998 annual___report')
+        self.assertEqual(assignments[0][1].text, 'is')
 
         s = Sentence('Robert is pretty tasty')
         assignments = s.assignments
         self.assertEqual(len(assignments), 1)
-        self.assertEqual(assignments[0].p.text, 'Robert')
-        self.assertEqual(assignments[0].n.text, 'beautiful___tasty')
-        self.assertEqual(assignments[0].c.text, 'is')
-        self.assertEqual(assignments[0].sentence.text, 'Robert is beautiful tasty')
+        self.assertEqual(assignments[0][0].text, 'Robert')
+        self.assertEqual(assignments[0][2].text, 'beautiful___tasty')
+        self.assertEqual(assignments[0][1].text, 'is')
 
         s = Sentence('Robert is really sorry')
         assignments = s.assignments
         self.assertEqual(len(assignments), 1)
-        self.assertEqual(assignments[0].p.text, 'Robert')
-        self.assertEqual(assignments[0].n.text, 'really sorry')
-        self.assertEqual(assignments[0].c.text, 'is')
-        self.assertEqual(assignments[0].sentence.text, 'Robert is really sorry')
+        self.assertEqual(assignments[0][0].text, 'Robert')
+        self.assertEqual(assignments[0][2].text, 'really sorry')
+        self.assertEqual(assignments[0][1].text, 'is')
 
         s = Sentence('I think Dr. jones is a tool')
         assignments = s.assignments
         self.assertEqual(len(assignments), 1)
-        self.assertEqual(assignments[0].p.text, 'Dr jones')
-        self.assertEqual(assignments[0].n.text, 'a tool')
-        self.assertEqual(assignments[0].c.text, 'is')
-        self.assertEqual(assignments[0].sentence.text, 'I think Dr jones is a tool')
+        self.assertEqual(assignments[0][0].text, 'Dr___jones')
+        self.assertEqual(assignments[0][2].text, 'a tool')
+        self.assertEqual(assignments[0][1].text, 'is')
 
     def test_tricky_assignments(self):
 
@@ -110,47 +100,40 @@ class TestSentence(TestCase):
         s = Sentence('Robert is certain that the Secret Service agents will report the episode to the proper authorities')
         assignments = s.assignments
         self.assertEqual(len(assignments), 1)
-        self.assertEqual(assignments[0].p.text, 'Robert')
-        self.assertEqual(assignments[0].n.text, 'definite that the___Secret___Service___agents will report the episode to the true authorities')
-        self.assertEqual(assignments[0].c.text, 'is')
-        self.assertEqual(assignments[0].sentence.text, 'Robert is definite that the Secret Service agents will report the episode to the right authorities')
+        self.assertEqual(assignments[0][0].text, 'Robert')
+        self.assertEqual(assignments[0][2].text, 'definite that the___Secret___Service___agents will report the episode to the true authorities')
+        self.assertEqual(assignments[0][1].text, 'is')
 
         s = Sentence('Not as far as Robert is concerned')  # robert is concerned... but I ain't
         assignments = s.assignments
         self.assertEqual(len(assignments), 1)
-        self.assertEqual(assignments[0].p.text, 'Robert')
-        self.assertEqual(assignments[0].n.text, 'concerned')
-        self.assertEqual(assignments[0].c.text, 'is')
-        self.assertEqual(assignments[0].sentence.text, 'Not as far as Robert is concerned')
+        self.assertEqual(assignments[0][0].text, 'Robert')
+        self.assertEqual(assignments[0][2].text, 'concerned')
+        self.assertEqual(assignments[0][1].text, 'is')
 
         s = Sentence('Robert is in this holding pattern')
         assignments = s.assignments
         self.assertEqual(len(assignments), 1)
-        self.assertEqual(assignments[0].p.text, 'Robert')
-        self.assertEqual(assignments[0].n.text, 'in this holding pattern')
-        self.assertEqual(assignments[0].c.text, 'is')
-        self.assertEqual(assignments[0].sentence.text, 'Robert is in this holding pattern')
+        self.assertEqual(assignments[0][0].text, 'Robert')
+        self.assertEqual(assignments[0][2].text, 'in this holding pattern')
+        self.assertEqual(assignments[0][1].text, 'is')
 
         s = Sentence('What are you thinking?')
         assignments = s.assignments
         self.assertEqual(len(assignments), 1)
-        self.assertEqual(assignments[0].p.text, 'What')
-        self.assertEqual(assignments[0].n.text, 'you thinking ?')
-        self.assertEqual(assignments[0].c.text, 'are')
-        self.assertEqual(assignments[0].sentence.text, 'What are you thinking ?')
+        self.assertEqual(assignments[0][0].text, 'What')
+        self.assertEqual(assignments[0][2].text, 'you thinking ?')
+        self.assertEqual(assignments[0][1].text, 'are')
 
         s = Sentence('Equally disturbing to Robert is the thought that it is difficult to explain Tippit’s death unless it was an attempt to escape arrest for the assassination of the president')
         assignments = s.assignments
         self.assertEqual(len(assignments), 3)
-        self.assertEqual(assignments[0].p.text, 'Robert')
-        self.assertEqual(assignments[0].c.text, 'is')
-        self.assertEqual(assignments[0].sentence.text, 'Equally disturbing to Robert is the idea that it is difficult to tell Tippit ’ s death unless it was an attempt to escape arrest for the assassination of the president')
-        self.assertEqual(assignments[1].p.text, 'it')
-        self.assertEqual(assignments[1].c.text, 'is')
-        self.assertEqual(assignments[1].sentence.text, 'Equally disturbing to Robert is the idea that it is difficult to tell Tippit ’ s death unless it was an attempt to escape arrest for the assassination of the president')
-        self.assertEqual(assignments[2].p.text, 'it')
-        self.assertEqual(assignments[2].c.text, 'was')
-        self.assertEqual(assignments[2].sentence.text, 'Equally disturbing to Robert is the idea that it is difficult to tell Tippit ’ s death unless it was an attempt to escape arrest for the assassination of the president')
+        self.assertEqual(assignments[0][0].text, 'Robert')
+        self.assertEqual(assignments[0][1].text, 'is')
+        self.assertEqual(assignments[1][0].text, 'it')
+        self.assertEqual(assignments[1][1].text, 'is')
+        self.assertEqual(assignments[2][0].text, 'it')
+        self.assertEqual(assignments[2][1].text, 'was')
 
     def test_person_extract(self):
 
@@ -195,10 +178,9 @@ class TestSentence(TestCase):
         assignments = s.assignments
 
         self.assertEqual(len(assignments), 1)
-        self.assertEqual(assignments[0].p.text, 'minister for transport')
-        self.assertEqual(assignments[0].n.text, 'a tit')
-        self.assertEqual(assignments[0].c.text, 'is')
-        self.assertEqual(assignments[0].sentence.text, 'The minister_for_transport is a tit')
+        self.assertEqual(assignments[0][0].text, 'minister_for_transport')  # FIXME This should be a person in a while
+        self.assertEqual(assignments[0][2].text, 'a tit')
+        self.assertEqual(assignments[0][1].text, 'is')
 
     def test_minister_person_parse(self):
         s = Sentence('The minister for transport something something')
@@ -230,12 +212,12 @@ class TestSentence(TestCase):
 
     def test_lvr(self):
         lvr = Sentence('This is a weird test if it was failing').get_lvr
-        self.assertEquals(lvr[0].text, 'This')
-        self.assertEquals(lvr[1].text, 'is')
-        self.assertEquals(lvr[2].text, 'a strange___test if it was failing')
-        self.assertEquals(lvr[2].get_lvr[0].text, 'it')
-        self.assertEquals(lvr[2].get_lvr[1].text, 'was')
-        self.assertEquals(lvr[2].get_lvr[2].text, 'failing')
+        self.assertEquals(lvr[0][0].text, 'This')
+        self.assertEquals(lvr[0][1].text, 'is')
+        self.assertEquals(lvr[0][2].text, 'a strange___test if it was failing')
+        self.assertEquals(lvr[0][2].get_lvr[0][0].text, 'it')
+        self.assertEquals(lvr[0][2].get_lvr[0][1].text, 'was')
+        self.assertEquals(lvr[0][2].get_lvr[0][2].text, 'failing')
 
         lvr = Sentence('la la la').get_lvr
         self.assertIsNone(lvr)
