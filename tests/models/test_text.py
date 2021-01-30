@@ -38,3 +38,14 @@ class TestTextBody(TestCase):
             sorted([p.name for p in people]),
             sorted(['Carl O\'Malley', 'Mark Somethingorother', 'Robert Lucey'])
         )
+
+    def test_people_fullnames_initials(self):
+
+        people = TextBody(
+            content='Robert C Lucey went to the shop. He then saw Carl O\'Malley talking to Mark M. Somethingorother.'
+        ).people
+
+        self.assertEqual(
+            sorted([p.name for p in people]),
+            sorted(['Carl O\'Malley', 'Mark M. Somethingorother', 'Robert C Lucey'])
+        )
