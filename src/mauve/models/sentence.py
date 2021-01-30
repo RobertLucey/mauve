@@ -71,9 +71,10 @@ class Sentence:
             ):
                 people.append(Person(name=segment.text))
             else:
+                print(segment.text)
                 # do some stuff around caital letters
                 if ' ' in segment.text:
-                    if segment.text.split(' ')[0] in NAMES:
+                    if segment.text.split(' ')[0] in NAMES or segment or segment.text.split(' ')[0].lower() + ' ' in LIKELY_PERSON_PREFIXES:
                         people.append(Person(name=segment.text))
                         continue
 

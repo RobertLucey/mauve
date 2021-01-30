@@ -18,7 +18,6 @@ from mauve.models.synonym import Synonym
 class TestTextBody(TestCase):
 
     def test_people_firstnames(self):
-
         people = TextBody(
             content='Robert went to the shop. He then saw Carl talking to Mark.'
         ).people
@@ -40,7 +39,6 @@ class TestTextBody(TestCase):
         )
 
     def test_people_fullnames_initials(self):
-
         people = TextBody(
             content='Robert C Lucey went to the shop. He then saw Carl O\'Malley talking to Mark M. Somethingorother.'
         ).people
@@ -48,4 +46,14 @@ class TestTextBody(TestCase):
         self.assertEqual(
             sorted([p.name for p in people]),
             sorted(['Carl O\'Malley', 'Mark M. Somethingorother', 'Robert C Lucey'])
+        )
+
+    def test_people_titles(self):
+        people = TextBody(
+            content='Mr C Lucey went to the shop. He then saw Dr O\'Malley talking to Mr Somethingorother.'
+        ).people
+
+        self.assertEqual(
+            sorted([p.name for p in people]),
+            sorted(["Dr O'Malley", 'Mr C Lucey', 'Mr Somethingorother'])
         )
