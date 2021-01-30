@@ -72,9 +72,8 @@ class Sentence:
                 people.append(Person(name=segment.text))
             else:
                 # do some stuff around caital letters
-
                 if ' ' in segment.text:
-                    if all([i in NAMES for i in segment.text.split(' ')]):
+                    if segment.text.split(' ')[0] in NAMES:
                         people.append(Person(name=segment.text))
                         continue
 
