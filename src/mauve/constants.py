@@ -187,4 +187,8 @@ GENDER_PREFIXES = {
     'mrs': 'female'
 }
 
+PERSON_TITLE_PREFIXES = {
+    'dr': 'Doctor'
+}
+
 SPEECH_QUOTES = ['`', '‘', '"', '``', '\'\'']
