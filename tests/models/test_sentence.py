@@ -233,7 +233,9 @@ class TestSentence(TestCase):
         self.assertEquals(lvr[0].text, 'This')
         self.assertEquals(lvr[1].text, 'is')
         self.assertEquals(lvr[2].text, 'a strange___test if it was failing')
-
         self.assertEquals(lvr[2].get_lvr[0].text, 'it')
         self.assertEquals(lvr[2].get_lvr[1].text, 'was')
         self.assertEquals(lvr[2].get_lvr[2].text, 'failing')
+
+        lvr = Sentence('la la la').get_lvr
+        self.assertIsNone(lvr)
