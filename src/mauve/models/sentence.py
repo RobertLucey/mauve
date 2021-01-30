@@ -10,6 +10,7 @@ from mauve.utils import replace_sub
 
 from mauve.phrases import replace_phrases
 from mauve.models.deptree import DepTree, DepNode
+from mauve.models.person import Person
 from mauve.models.segment import Segment
 from mauve import (
     ENCORE,
@@ -60,27 +61,28 @@ class Sentence:
                 'minister for ' in segment.text.lower().replace('_', ' '),
                 'minister of ' in segment.text.lower().replace('_', ' ')
             ]):
-                people.append(segment.text)
+                people.append(Person(name=segment.text))
             elif segment.tag == 'PERSON' or (
-                    segment.tag == 'dunno' and (
+                segment.tag == 'dunno' and
+                (
                     any([segment.text.lower().replace('_', ' ').startswith(prefix) for prefix in
                          LIKELY_PERSON_PREFIXES])
-            )
+                )
             ):
-                people.append(segment.text)
+                people.append(Person(name=segment.text))
             else:
                 # do some stuff around caital letters
 
                 if ' ' in segment.text:
                     if all([i in NAMES for i in segment.text.split(' ')]):
-                        people.append(segment.text)
+                        people.append(Person(name=segment.text))
                         continue
 
                 # or if already a segment and not a name see the split of ' '
                 if segment.text in NAMES:
                     if not prev_was_first:
                         prev_was_first = True
-                        people.append(segment.text)
+                        people.append(Person(name=segment.text))
                     else:
                         people[-1] += ' ' + segment.text
                 else:
@@ -175,7 +177,11 @@ class Sentence:
         people = self.people
 
         for person in people:
-            segments = replace_sub(segments, [Segment(p) for p in person.split(' ')], [Segment(person, tag='PERSON')])
+            segments = replace_sub(  # keep the object
+                segments,
+                [Segment(p) for p in person.name.split(' ')],
+                [Segment(person.name, tag='PERSON')]
+            )
 
         return segments
 

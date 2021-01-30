@@ -497,3 +497,10 @@ class TextBody(GenericObject, Tagger):
         return [
             Sentence(s).speech for s in quote_aware_sent_tokenize(content)
         ]
+
+    @property
+    def people(self):
+        people = []
+        for sentence in self.sentences:
+            people.extend(Sentence(sentence).people)
+        return set(people)
