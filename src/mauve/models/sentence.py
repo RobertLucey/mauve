@@ -19,7 +19,7 @@ from mauve import (
 
 from mauve.constants import (
     NAMES,
-    LIKELY_PERSON_PREFIXES
+    GENDER_PREFIXES
 )
 
 
@@ -65,8 +65,7 @@ class Sentence:
             elif segment.tag == 'PERSON' or (
                 segment.tag == 'dunno' and
                 (
-                    any([segment.text.lower().replace('_', ' ').startswith(prefix) for prefix in
-                         LIKELY_PERSON_PREFIXES])
+                    any([segment.text.lower().replace('_', ' ').startswith(prefix) for prefix in GENDER_PREFIXES.keys()])
                 )
             ):
                 people.append(Person(name=segment.text))
@@ -74,7 +73,7 @@ class Sentence:
                 print(segment.text)
                 # do some stuff around caital letters
                 if ' ' in segment.text:
-                    if segment.text.split(' ')[0] in NAMES or segment or segment.text.split(' ')[0].lower() + ' ' in LIKELY_PERSON_PREFIXES:
+                    if segment.text.split(' ')[0] in NAMES or segment or segment.text.split(' ')[0].lower() in GENDER_PREFIXES.keys():
                         people.append(Person(name=segment.text))
                         continue
 

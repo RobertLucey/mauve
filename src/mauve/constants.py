@@ -174,4 +174,17 @@ LIKELY_PERSON_PREFIXES = [
     'miss '
 ]
 
+GENDER_PREFIXES = {
+    'mr': 'male',
+    'mister': 'male',
+    'mr.': 'male',
+    'sir': 'male',
+    'lady': 'female',
+    'miss': 'female',
+    'ms.': 'female',
+    'mrs.': 'female',
+    'ms': 'female',
+    'mrs': 'female'
+}
+
 SPEECH_QUOTES = ['`', '‘', '"', '``', '\'\'']
