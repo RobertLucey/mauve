@@ -3,7 +3,7 @@ from cached_property import cached_property
 import textacy.ke
 import nltk
 
-from mauve.models.assignment import extract_assignments
+from mauve.structure.assignment import extract_assignments
 from mauve.models.speech import extract_speech
 
 from mauve.utils import replace_sub
@@ -201,8 +201,6 @@ class Sentence:
 
     @property
     def get_lvr(self):
-        from mauve.models.assignment import extract_assignments
-
         # TODO: work in conditionals and bits, not just assignments
 
         return extract_assignments(self)
