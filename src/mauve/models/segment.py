@@ -45,7 +45,13 @@ class Segment(Tagger, GenericObject):
         :param text: Text content of the segment
         :kwarg tag: A nltk or spacy tag of the segment
         """
-        text = args[0]
+
+        self._data = args[0]
+        text = None
+        if isinstance(self._data, str):
+            text = self._data
+        else:
+            text = self._data.text
         if '___' in text:
             text = text.replace('___', ' ')
         ALL[text] += 1

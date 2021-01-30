@@ -2,10 +2,16 @@ from mauve import GENDER_DETECTOR
 
 from mauve.models.entity import Entity
 
+from mauve.constants import GENDER_PREFIXES
+
 
 class Person(Entity):
 
     def __init__(self, *args, **kwargs):
+        '''
+
+        :kwarg: The person's name
+        '''
         self.name = kwargs['name']
 
         kwargs.setdefault('etype', 'person')
@@ -21,21 +27,8 @@ class Person(Entity):
         gender = None
         name_split = self.name.split(' ')
 
-        title_map = {
-            'mr': 'male',
-            'mister': 'male',
-            'mr.': 'male',
-            'sir': 'male',
-            'lady': 'female',
-            'miss': 'female',
-            'ms.': 'female',
-            'mrs.': 'female',
-            'ms': 'female',
-            'mrs': 'female'
-        }
-
-        if name_split[0].lower() in title_map:
-            return title_map[name_split[0].lower()]
+        if name_split[0].lower() in GENDER_PREFIXES.keys():
+            return GENDER_PREFIXES[name_split[0].lower()]
 
         if '.' in name_split[0]:
             # Should attempt to do something here
