@@ -155,7 +155,7 @@ class TestSentence(TestCase):
     def test_person_extract(self):
 
         s = Sentence('I want to talk to dr. jones')
-        self.assertEqual(s.people, ['dr jones'])
+        self.assertEqual([p.name for p in s.people], ['dr jones'])
         self.assertEqual(
             [o.text for o in s.segments],
             ['I', 'want', 'to', 'talk', 'to', 'dr jones']
@@ -167,7 +167,7 @@ class TestSentence(TestCase):
         )
 
         s = Sentence('I want to talk to mr jones')
-        self.assertEqual(s.people, ['mr jones'])
+        self.assertEqual([p.name for p in s.people], ['mr jones'])
         self.assertEqual(
             [o.text for o in s.segments],
             ['I', 'want', 'to', 'talk', 'to', 'mr jones']
@@ -179,7 +179,7 @@ class TestSentence(TestCase):
         )
 
         s = Sentence('I want to talk to Tom Jones right now')
-        self.assertEqual(s.people, ['Tom Jones'])
+        self.assertEqual([p.name for p in s.people], ['Tom Jones'])
         self.assertEqual(
             [o.text for o in s.segments],
             ['I', 'want', 'to', 'talk', 'to', 'Tom Jones', 'right', 'now']
@@ -187,7 +187,7 @@ class TestSentence(TestCase):
 
     def test_minister_assign(self):
         s = Sentence('The minister for transport is a tit')
-        self.assertEqual(s.people, ['minister for transport'])
+        self.assertEqual([p.name for p in s.people], ['minister for transport'])
         self.assertEqual(
             [o.text for o in s.segments],
             ['The', 'minister for transport', 'is', 'a', 'tit']
@@ -202,7 +202,7 @@ class TestSentence(TestCase):
 
     def test_minister_person_parse(self):
         s = Sentence('The minister for transport something something')
-        self.assertEqual(s.people, ['minister for transport'])
+        self.assertEqual([p.name for p in s.people], ['minister for transport'])
 
     def test_segments(self):
         s = Sentence('This is a sentence.')
