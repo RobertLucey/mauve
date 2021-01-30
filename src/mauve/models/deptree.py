@@ -1,4 +1,4 @@
-from mauve.models.conditional import CONDITIONAL_LIST
+from mauve.structure.conditional import CONDITIONAL_LIST
 
 
 def serialize_children(children):
@@ -98,5 +98,5 @@ class DepTree():
         return ' '.join([n.text for n in self.nodes])
 
     @property
-    def conditionals(self):
+    def conditionals(self):  # prob move this to sentence... and then move to segments
         return [node for node in self.nodes if node.text.lower() in CONDITIONAL_LIST]
