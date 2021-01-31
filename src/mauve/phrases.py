@@ -1,5 +1,6 @@
 import spacy
 from spacy.matcher import Matcher
+from mauve.structure.conditional import CONDITIONAL_LIST
 
 NLP = spacy.load('en_core_web_lg')
 M_TOOL = Matcher(NLP.vocab)
@@ -68,6 +69,8 @@ JOINERS = {
     'minister of {}': GOV_BODIES,
 }
 
+CONDITIONALS = {c: c.replace(' ', '_') for c in CONDITIONAL_LIST}
+
 
 PHRASES = []
 
@@ -76,6 +79,8 @@ for j, v in JOINERS.items():
     items = [j.format(i) for i in v]
     PHRASES.extend(items)
 
+
+PHRASES.extend(CONDITIONALS)
 
 for idiom in PHRASES:
     M_TOOL.add(

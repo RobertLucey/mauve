@@ -26,10 +26,17 @@ class TestConditional(TestCase):
         self.assertEqual(node[1].text, 'If')
         self.assertEqual(node[2].text, 'something')
 
-        #node = parse_conditionals(
-        #    Sentence('You can have some chocolate if you like')
-        #)[0]
-        #self.assertEqual(node.left.text, 'you like')
-        #self.assertEqual(node.value.text, 'If')
-        #self.assertEqual(node.right.text, 'You can have some chocolate')
+        node = parse_conditionals(
+            Sentence('You can have some chocolate if you want')
+        )[0]
+        self.assertEqual(node[0].text, 'you want')
+        self.assertEqual(node[1].text, 'if')
+        self.assertEqual(node[2].text, 'You can have some chocolate')
 
+    def test_as_long_as(self):
+        node = parse_conditionals(
+            Sentence('as long as you fed him, he would be cooperative')
+        )[0]
+        self.assertEqual(node[0].text, 'as_long_as you fed him')
+        self.assertEqual(node[1].text, 'as_long_as')
+        self.assertEqual(node[2].text, 'he would be cooperative')

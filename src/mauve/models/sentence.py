@@ -114,6 +114,9 @@ class Sentence:
         mapping = {}
 
         for entity in sentence.ents:
+            if '_' in entity.text:
+                # This is one of ours, messes things up often
+                continue
             to_put = entity.text.replace(' ', '___')
             mod_text = mod_text.replace(entity.text, to_put)
             mapping[to_put] = entity.label_
