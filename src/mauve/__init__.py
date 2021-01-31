@@ -18,7 +18,7 @@ VADER = SentimentIntensityAnalyzer()
 TAGGER = PerceptronTagger()
 try:
     ENCORE = spacy.load('en_core_web_sm')
-except:
+except:  # pragma: nocover
     from spacy.cli import download
     download('en')
     ENCORE = spacy.load('en_core_web_sm')

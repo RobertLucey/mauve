@@ -4,7 +4,7 @@ from mauve.structure.conditional import CONDITIONAL_LIST
 
 try:
     NLP = spacy.load('en_core_web_lg')
-except:
+except:  # pragma: nocover
     from spacy.cli import download
     download('en_core_web_lg')
     NLP = spacy.load('en_core_web_lg')
