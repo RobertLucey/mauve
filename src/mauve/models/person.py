@@ -16,6 +16,12 @@ class People(GenericObjects):
         kwargs.setdefault('child_class', Person)
         super(People, self).__init__(*args, **kwargs)
 
+    def __contains__(self, person):
+        name = person
+        if isinstance(person, Person):
+            name = person.name
+        return name in [p.name for p in self]
+
 
 class Person(Entity):
 
@@ -47,6 +53,9 @@ class Person(Entity):
 
         kwargs.setdefault('etype', 'person')
         super(Person, self).__init__(*args, **kwargs)
+
+    def __hash__(self):
+        return hash(self.name)
 
     def serialize(self):
         return {

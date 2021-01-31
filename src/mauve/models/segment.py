@@ -72,7 +72,7 @@ class Segment(Tagger, GenericObject):
         Are two segments equal. Only considers text as you
         usually don't care about tags
         """
-        return self.text == other.text
+        return self.text == getattr(other, 'text', other)
 
     @property
     def is_prp(self):

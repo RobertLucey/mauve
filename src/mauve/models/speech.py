@@ -91,13 +91,28 @@ def extract_speech(sentence):
     speaker = None
 
     for interesting_part in [after_speech, pre_speech]:
-
-        inflection_intersection = set([f.text.lower() for f in interesting_part]).intersection(set(speech_words))
+        set_inflection = False
+        inflection_intersection = set(
+            [
+                f.text.lower() for f in interesting_part
+            ]
+        ).intersection(set(speech_words))
         if inflection_intersection != set():
             # handle if multiple
             inflection = list(inflection_intersection)[0]
+            set_inflection = True
 
-        speaker_intersection = set([f.text.lower() for f in interesting_part]).intersection(set(speakers))
+        if inflection is not None:
+            try:
+                interesting_part.remove(inflection)
+            except:
+                pass
+
+        speaker_intersection = set(
+            [
+                f.text.lower() for f in interesting_part
+            ]
+        ).intersection(set(speakers))
         if speaker_intersection != set():
             # handle if multiple
             # also check for names, not just pronouns
@@ -106,6 +121,12 @@ def extract_speech(sentence):
         for i in interesting_part:
             if i.is_person:
                 speaker = i.text
+
+        ## if has inflected more likely
+        ## also a good sign if there's few words and one of them is the
+        if speaker is None and set_inflection:
+            if len(interesting_part) < 3:
+                speaker = ' '.join([i.text for i in interesting_part])
 
         # if we have a name, that's a better speaker
 

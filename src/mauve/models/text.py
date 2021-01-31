@@ -21,6 +21,7 @@ from mauve.constants import (
 )
 
 from mauve.models.generic import GenericObject
+from mauve.models.person import People
 from mauve.bst import (
     create,
     search
@@ -500,17 +501,33 @@ class TextBody(GenericObject, Tagger):
 
     @property
     def people(self):
-        people = []
+        """
+
+        :return People
+        """
+        people = People()
         for sentence in self.sentences:
-            people.extend(Sentence(sentence).people)
-        return set(people)
+            for person in Sentence(sentence).people:
+                if person not in people:
+                    people.append(person)
+        return people
 
     def get_speech_by_person(self, person):
+        """
+
+        :param person: Person object to get where they are the speaker
+        :return: List of speech objects
+        """
         return [
             s for s in self.speech if s and s.speaker.name.lower() == person.name.lower()
         ]
 
     def get_assignments_by(self, left_text):
+        """
+        Get assignments by the thing being assigned to
+
+        :param left_text: whatever is being assigned. left_text is something
+        """
         assignments = []
         for sentence_assignments in self.assignments:
             for assignment in sentence_assignments:
