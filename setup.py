@@ -21,7 +21,8 @@ INSTALL_REQUIRES = [
     'vaderSentiment',
     'mobi',
     'EbookLib',
-    'tika'
+    'tika',
+    'spacy_wordnet'
 ]
 
 setup(

@@ -16,7 +16,12 @@ from mauve.models.synonym import Synonym
 GENDER_DETECTOR = gender.Detector()
 VADER = SentimentIntensityAnalyzer()
 TAGGER = PerceptronTagger()
-ENCORE = spacy.load('en_core_web_sm')
+try:
+    ENCORE = spacy.load('en_core_web_sm')
+except:
+    from spacy.cli import download
+    download('en')
+    ENCORE = spacy.load('en_core_web_sm')
 WPS = WPS(print_rate=10000)
 SYNONYM = Synonym()
 

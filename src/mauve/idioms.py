@@ -9,10 +9,10 @@ IDIOMS = ['a bit much', 'a bite at the cherry', 'a busy bee', 'a cat has nine li
 
 
 import spacy
-nlp = spacy.load('en_core_web_sm')
+from mauve import ENCORE
 
 from spacy.matcher import Matcher
-m_tool = Matcher(nlp.vocab)
+m_tool = Matcher(ENCORE.vocab)
 
 
 IDIOMS.extend(['a little learning is a dangerous thing', 'a snowball effect', "a snowball's chance in hell", 'a stitch in time saves nine', 'a storm in a teacup', 'an apple a day keeps the doctor away', 'an ounce of prevention is worth a pound of cure', 'as right as rain', 'bolt from the blue', 'burn bridges', 'calm before the storm', 'come rain or shine', 'curiosity killed the cat', 'cut the mustard', "don't beat a dead horse", 'every dog has his day', 'familiarity breeds contempt', 'fit as a fiddle', 'fortune favours the bold', 'get a second wind', 'get wind of something', 'go down in flames', 'haste makes waste', 'have your head in the clouds', 'he who laughs last laughs loudest', "hear something straight from the horse's mouth", "he's not playing with a full deck", "he's off his rocker", "he's sitting on the fence", 'it is a poor workman who blames his tools', 'it is always darkest before the dawn', 'it takes two to tango', 'jump on the bandwagon', 'know which way the wind is blowing', 'leave no stone unturned', 'let sleeping dogs lie', 'like riding a bicycle', 'like two peas in a pod', 'make hay while the sun shines', 'on cloud nine', 'once bitten, twice shy', 'out of the frying pan and into the fire', 'run like the wind', 'shape up or ship out', 'snowed under', 'that ship has sailed', 'the pot calling the kettle black', 'there are clouds on the horizon', "those who live in glass houses shouldn't throw stones", 'through thick and thin', 'time is money', 'waste not, want not', 'we see eye to eye', 'weather the storm', 'well begun is half done', 'when it rains it pours', 'you can catch more flies with honey than you can with vinegar', "you can lead a horse to water, but you can't make him drink", "you can't make an omelet without breaking some eggs"])
@@ -81,7 +81,7 @@ for idiom in IDIOMS:
 
 def replace_idioms(text):
 
-    sentence = nlp(text)
+    sentence = ENCORE(text)
 
     phrase_matches = m_tool(sentence)
 

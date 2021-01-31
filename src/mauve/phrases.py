@@ -2,7 +2,13 @@ import spacy
 from spacy.matcher import Matcher
 from mauve.structure.conditional import CONDITIONAL_LIST
 
-NLP = spacy.load('en_core_web_lg')
+try:
+    NLP = spacy.load('en_core_web_lg')
+except:
+    from spacy.cli import download
+    download('en_core_web_lg')
+    NLP = spacy.load('en_core_web_lg')
+
 M_TOOL = Matcher(NLP.vocab)
 
 
