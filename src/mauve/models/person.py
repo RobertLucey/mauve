@@ -1,12 +1,20 @@
 from mauve import GENDER_DETECTOR
 from mauve.phrases import replace_phrases
 from mauve.models.entity import Entity
+from mauve.models.generic import GenericObjects
 from mauve.constants import (
     NAMES,
     GENDER_PREFIXES,
     PERSON_TITLE_PREFIXES,
     PERSON_PREFIXES
 )
+
+
+class People(GenericObjects):
+
+    def __init__(self, *args, **kwargs):
+        kwargs.setdefault('child_class', Person)
+        super(People, self).__init__(*args, **kwargs)
 
 
 class Person(Entity):
@@ -69,8 +77,8 @@ class Person(Entity):
 
 def extract_people(sentence):
     # Names can be chained by , and ands but we only get the last
-    sentence.text = sentence.text
-    people = []
+    sentence.text = replace_phrases(sentence.text)
+    people = People()
 
     # if a verb after something that could be a name or if X said then X is likely a person
 
@@ -88,16 +96,14 @@ def extract_people(sentence):
                     ]
                 )
             )
-            if person.name:
-                people.append(person)
+            people.append(person)
         elif 'minister' in segment.text.lower():
             if any([
                 'minister for ' in segment.text.lower().replace('_', ' '),
                 'minister of ' in segment.text.lower().replace('_', ' ')
             ]):
                 person = Person(name=segment.text)
-                if person.name:
-                    people.append(person)
+                people.append(person)
         else:
             # do some stuff around caital letters
             text = segment.text.strip()
@@ -113,9 +119,7 @@ def extract_people(sentence):
                     split[1][0].isupper()
                 ):
                     person = Person(name=text)
-                    if person.name:
-                        people.append(person)
-                    continue
+                    people.append(person)
 
     # also look for names
     return people
