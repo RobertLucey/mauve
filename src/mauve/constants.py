@@ -193,4 +193,4 @@ PERSON_TITLE_PREFIXES = {
 
 PERSON_PREFIXES = list(GENDER_PREFIXES.keys()) + list(PERSON_TITLE_PREFIXES.keys())
 
-SPEECH_QUOTES = ['`', '‘', '"', '``', '\'\'']
+SPEECH_QUOTES = ['`', '‘', '"', '``', '\'\'', '”', '“']

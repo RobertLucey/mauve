@@ -504,3 +504,16 @@ class TextBody(GenericObject, Tagger):
         for sentence in self.sentences:
             people.extend(Sentence(sentence).people)
         return set(people)
+
+    def get_speech_by_person(self, person):
+        return [
+            s for s in self.speech if s and s.speaker.name.lower() == person.name.lower()
+        ]
+
+    def get_assignments_by(self, left_text):
+        assignments = []
+        for sentence_assignments in self.assignments:
+            for assignment in sentence_assignments:
+                if left_text in assignment[0].text.lower():
+                    assignments.append(assignment[2].text)
+        return assignments

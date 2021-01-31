@@ -1,4 +1,5 @@
 from mauve.constants import SPEECH_QUOTES
+from mauve.models.person import Person
 
 
 class Speech:
@@ -46,7 +47,7 @@ class Speech:
     def serialize(self):
         return {
             'text': self.text,
-            'speaker': self.speaker,
+            'speaker': self.speaker.serialize(),
             'inflection': self.inflection,
         }
 
@@ -110,6 +111,6 @@ def extract_speech(sentence):
 
     return Speech(
         segments=within_section,
-        speaker=speaker,
+        speaker=Person(name=speaker),
         inflection=inflection
     )

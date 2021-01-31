@@ -22,22 +22,22 @@ class TestSpeech(TestCase):
         speech = extract_speech(Sentence('"Shut up" he said'))
         self.assertEqual(speech.text.strip(), 'Shut up')
         self.assertEqual(speech.inflection.strip(), 'said')
-        self.assertEqual(speech.speaker.strip(), 'he')
+        self.assertEqual(speech.speaker.name.strip(), 'he')
 
         speech = extract_speech(Sentence('He said "Shut up"'))
         self.assertEqual(speech.text.strip(), 'Shut up')
         self.assertEqual(speech.inflection.strip(), 'said')
-        self.assertEqual(speech.speaker.strip(), 'he')
+        self.assertEqual(speech.speaker.name.strip(), 'he')
 
         speech = extract_speech(Sentence('And then Robert exclaimed "Shut up"'))
         self.assertEqual(speech.text.strip(), 'Shut up')
         self.assertEqual(speech.inflection.strip(), 'exclaimed')
-        self.assertEqual(speech.speaker.strip(), 'Robert')
+        self.assertEqual(speech.speaker.name.strip(), 'Robert')
 
         speech = extract_speech(Sentence('"Shut up" Robert exclaimed to Mikey'))
         self.assertEqual(speech.text.strip(), 'Shut up')
         self.assertEqual(speech.inflection.strip(), 'exclaimed')
-        self.assertEqual(speech.speaker.strip(), 'Robert')
+        self.assertEqual(speech.speaker.name.strip(), 'Robert')
 
 
     def test_real_text(self):
@@ -59,8 +59,8 @@ Hallward painted away with that marvellous bold touch of his, that had the true 
         self.assertEquals(
             [s.serialize() for s in speech_parts if s],
             [
-                {'text': 'Basil , I am tired of standing ,', 'speaker': 'Dorian Gray', 'inflection': 'cried'},
-                {'text': 'I must go out and sit in the garden . The air is stifling here .', 'speaker': None, 'inflection': None},
-                {'text': "My dear fellow , I am so sorry . When I am painting , I ca n't think of anything else . But you never sat better . You were perfectly calm . And I have caught the put I wanted -- the half-parted lips and the interesting look in the eyes . I do n't know what Harry has been saying to you , but he has certainly made you have the most good expression . I suppose he has been paying you compliments . You must n't think a word that he says .", 'speaker': None, 'inflection': None}
+                {'text': 'Basil , I am tired of standing ,', 'speaker': {'name': 'Dorian Gray', 'gender': 'male'}, 'inflection': 'cried'},
+                {'text': 'I must go out and sit in the garden . The air is stifling here .', 'speaker': {'name': '', 'gender': None}, 'inflection': None},
+                {'text': "My dear fellow , I am so sorry . When I am painting , I ca n't think of anything else . But you never sat better . You were perfectly calm . And I have caught the put I wanted -- the half-parted lips and the interesting look in the eyes . I do n't know what Harry has been saying to you , but he has certainly made you have the most good expression . I suppose he has been paying you compliments . You must n't think a word that he says .", 'speaker': {'name': '', 'gender': None}, 'inflection': None}
             ]
         )

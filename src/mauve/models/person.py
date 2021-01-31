@@ -24,7 +24,7 @@ class Person(Entity):
 
         :kwarg: The person's name
         """
-        self.name = kwargs['name']
+        self.name = kwargs['name'] if kwargs['name'] else ''
 
         if self.name.lower().startswith('the '):
             self.name = self.name[4:]
@@ -47,6 +47,12 @@ class Person(Entity):
 
         kwargs.setdefault('etype', 'person')
         super(Person, self).__init__(*args, **kwargs)
+
+    def serialize(self):
+        return {
+            'name': self.name,
+            'gender': self.gender
+        }
 
     @property
     def gender(self):
@@ -83,30 +89,31 @@ def extract_people(sentence):
     # if a verb after something that could be a name or if X said then X is likely a person
 
     for segment in sentence.base_segments:
+        text = segment.text.strip()
         if segment.tag == 'PERSON' or (
             segment.tag == 'dunno' and
             (
-                any([segment.text.lower().replace('_', ' ').startswith(prefix) for prefix in GENDER_PREFIXES])
+                any([text.lower().replace('_', ' ').startswith(prefix) for prefix in GENDER_PREFIXES])
             )
         ):
             person = Person(
                 name=' '.join(
                     [
-                        n for n in segment.text.split(' ') if n[0].isupper() or n.lower() in PERSON_PREFIXES
+                        n for n in text.split(' ') if n[0].isupper() or n.lower() in PERSON_PREFIXES
                     ]
                 )
             )
             people.append(person)
-        elif 'minister' in segment.text.lower():
+        elif 'minister' in text.lower():
             if any([
-                'minister for ' in segment.text.lower().replace('_', ' '),
-                'minister of ' in segment.text.lower().replace('_', ' ')
+                'minister for ' in text.lower().replace('_', ' '),
+                'minister of ' in text.lower().replace('_', ' ')
             ]):
-                person = Person(name=segment.text)
+                person = Person(name=text)
                 people.append(person)
         else:
             # do some stuff around caital letters
-            text = segment.text.strip()
+            text = text.strip()
             if ' ' in text:
                 split = text.split(' ')
                 if any([

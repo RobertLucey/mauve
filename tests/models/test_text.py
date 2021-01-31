@@ -6,6 +6,7 @@ import glob
 import os
 
 from mauve.models.text import TextBody
+from mauve.models.person import Person
 from mauve.models.segment import Segment
 from mauve.models.sentence import Sentence
 from mauve.models.books.book import Book
@@ -89,8 +90,16 @@ class TestTextBody(TestCase):
             for assignment in sentence_assignments:
                 if 'alice' in assignment[0].text.lower():
                     alice_assignments.append(assignment[2].text)
-
         # First assignment in the book
         self.assertTrue(
             alice_assignments[0].startswith('beginning to get very tired of sitting by her sister')
+        )
+
+    def test_alice_speech(self):
+        alice = open(os.path.join(RESOURCE_PATH, 'alices_adventures_in_wonderland.txt'), 'r').read()
+
+        book = TextBody(content=alice)
+        speech_objects = book.get_speech_by_person(Person(name='Alice'))
+        self.assertTrue(
+            {'text': 'which certainly was not here before ,', 'speaker': {'name': 'Alice', 'gender': 'female'}, 'inflection': 'said'} in [s.serialize() for s in speech_objects]
         )
