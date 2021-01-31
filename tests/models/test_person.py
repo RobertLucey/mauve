@@ -25,3 +25,17 @@ class TestPerson(TestCase):
                 gender,
                 name
             )
+
+    def test_name_parse(self):
+
+        test_map = {
+            'the great bob': 'great bob',
+            'chapter two': '',
+        }
+
+        for name, gender in test_map.items():
+            self.assertEquals(
+                Person(name=name).name,
+                gender,
+                name
+            )

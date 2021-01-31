@@ -1,6 +1,7 @@
 from unittest import TestCase
 import mock
 
+from collections import Counter
 import glob
 import os
 
@@ -13,6 +14,18 @@ from mauve.models.books.tag import Tags, Tag
 from mauve import constants
 
 from mauve.models.synonym import Synonym
+
+
+RESOURCE_PATH = os.path.join(
+    os.path.dirname(
+        os.path.dirname(
+            os.path.dirname(
+                os.path.abspath(__file__)
+            )
+        )
+    ),
+    'tests/resources'
+)
 
 
 class TestTextBody(TestCase):
@@ -57,3 +70,12 @@ class TestTextBody(TestCase):
             sorted([p.name for p in people]),
             sorted(["Dr O'Malley", 'Mr C Lucey', 'Mr Somethingorother'])
         )
+
+    def test_alice(self):
+        alice = open(os.path.join(RESOURCE_PATH, 'alices_adventures_in_wonderland.txt'), 'r').read()
+        book = TextBody(
+            content=alice
+        )
+        people_names = [p.name for p in book.people]
+        self.assertTrue('March Hare' in people_names)
+        self.assertTrue('Caterpillar' in people_names)

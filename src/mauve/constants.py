@@ -191,4 +191,6 @@ PERSON_TITLE_PREFIXES = {
     'dr': 'Doctor'
 }
 
+PERSON_PREFIXES = list(GENDER_PREFIXES.keys()) + list(PERSON_TITLE_PREFIXES.keys())
+
 SPEECH_QUOTES = ['`', '‘', '"', '``', '\'\'']

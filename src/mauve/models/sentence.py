@@ -21,7 +21,8 @@ from mauve import (
 from mauve.constants import (
     NAMES,
     GENDER_PREFIXES,
-    PERSON_TITLE_PREFIXES
+    PERSON_TITLE_PREFIXES,
+    PERSON_PREFIXES
 )
 
 
@@ -57,41 +58,68 @@ class Sentence:
         self.text = replace_phrases(self.text)
         people = []
 
+        # If name starts with 'the ' remove it
+
+        # geographical places
+        # Days of the week
+        # Months of the year
+        wrongs = [
+            'My',
+            'An',
+            'don',
+        ]
+
         prev_was_first = False
         for segment in self.base_segments:
             if any([
                 'minister for ' in segment.text.lower().replace('_', ' '),
                 'minister of ' in segment.text.lower().replace('_', ' ')
             ]):
-                people.append(Person(name=segment.text))
+                person = Person(name=segment.text)
+                if person.name:
+                    people.append(person)
             elif segment.tag == 'PERSON' or (
                 segment.tag == 'dunno' and
                 (
                     any([segment.text.lower().replace('_', ' ').startswith(prefix) for prefix in GENDER_PREFIXES.keys()])
                 )
             ):
-                people.append(Person(name=segment.text))
+                person = Person(
+                    name=' '.join(
+                        [
+                            n for n in segment.text.split(' ') if n[0].isupper() or n.lower() in PERSON_PREFIXES
+                        ]
+                    )
+                )
+                if person.name:
+                    people.append(person)
             else:
-                print(segment.text)
                 # do some stuff around caital letters
-                if ' ' in segment.text:
+                text = segment.text.strip()
+                if ' ' in text:
                     if any([
-                        segment.text.split(' ')[0] in NAMES,
-                        segment.text.split(' ')[0].lower() in GENDER_PREFIXES.keys(),
-                        segment.text.split(' ')[0].lower() in PERSON_TITLE_PREFIXES.keys()
-                    ]):
-                        people.append(Person(name=segment.text))
+                        text.split(' ')[0] in NAMES,
+                        text.split(' ')[0].lower() in GENDER_PREFIXES.keys(),
+                        text.split(' ')[0].lower() in PERSON_TITLE_PREFIXES.keys(),
+
+                        text.split(' ')[0][0].isupper()
+                    ]) and (
+                        text.split(' ')[1][0].isupper()
+                    ):
+                        person = Person(name=text)
+                        if person.name:
+                            people.append(person)
                         continue
-                    else:
-                        print('WAH: %s' % (segment.text))
 
                 # or if already a segment and not a name see the split of ' '
                 if segment.text in NAMES:
                     if not prev_was_first:
-                        prev_was_first = True
-                        people.append(Person(name=segment.text))
+                        person = Person(name=segment.text)
+                        if person.name:
+                            prev_was_first = True
+                            people.append(person)
                     else:
-                        people[-1] += ' ' + segment.text
+                        people[-1].name += ' ' + segment.text
                 else:
                     prev_was_first = False
         # also look for names

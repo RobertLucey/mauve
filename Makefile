@@ -38,3 +38,6 @@ compress_for_later:
 
 restore_from_gz:
 	pigz -dc $(MKFILE_DIR_PATH)archive.tar.gz | pv | tar xf -C / -
+
+download_books:
+	test -s tests/resources/alices_adventures_in_wonderland.txt || wget https://www.gutenberg.org/files/11/11-0.txt -O tests/resources/alices_adventures_in_wonderland.txt

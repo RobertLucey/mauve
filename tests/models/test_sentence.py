@@ -87,10 +87,10 @@ class TestSentence(TestCase):
         self.assertEqual(assignments[0][2].text, 'really sorry')
         self.assertEqual(assignments[0][1].text, 'is')
 
-        s = Sentence('I think Dr. jones is a tool')
+        s = Sentence('I think Dr. Jones is a tool')
         assignments = s.assignments
         self.assertEqual(len(assignments), 1)
-        self.assertEqual(assignments[0][0].text, 'Dr___jones')
+        self.assertEqual(assignments[0][0].text, 'Dr___Jones')
         self.assertEqual(assignments[0][2].text, 'a tool')
         self.assertEqual(assignments[0][1].text, 'is')
 
@@ -137,28 +137,28 @@ class TestSentence(TestCase):
 
     def test_person_extract(self):
 
-        s = Sentence('I want to talk to dr. jones')
-        self.assertEqual([p.name for p in s.people], ['dr jones'])
+        s = Sentence('I want to talk to dr. Jones')
+        self.assertEqual([p.name for p in s.people], ['dr Jones'])
         self.assertEqual(
             [o.text for o in s.segments],
-            ['I', 'want', 'to', 'talk', 'to', 'dr jones']
+            ['I', 'want', 'to', 'talk', 'to', 'dr Jones']
         )
-        s = Sentence('I want to talk to dr jones')
+        s = Sentence('I want to talk to dr Jones')
         self.assertEqual(
             [o.text for o in s.segments],
-            ['I', 'want', 'to', 'talk', 'to', 'dr jones']
+            ['I', 'want', 'to', 'talk', 'to', 'dr Jones']
         )
 
-        s = Sentence('I want to talk to mr jones')
-        self.assertEqual([p.name for p in s.people], ['mr jones'])
+        s = Sentence('I want to talk to mr Jones')
+        self.assertEqual([p.name for p in s.people], ['mr Jones'])
         self.assertEqual(
             [o.text for o in s.segments],
-            ['I', 'want', 'to', 'talk', 'to', 'mr jones']
+            ['I', 'want', 'to', 'talk', 'to', 'mr Jones']
         )
-        s = Sentence('I want to talk to mr. jones')
+        s = Sentence('I want to talk to mr. Jones')
         self.assertEqual(
             [o.text for o in s.segments],
-            ['I', 'want', 'to', 'talk', 'to', 'mr jones']
+            ['I', 'want', 'to', 'talk', 'to', 'mr Jones']
         )
 
         s = Sentence('I want to talk to Tom Jones right now')

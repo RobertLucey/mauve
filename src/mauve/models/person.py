@@ -14,6 +14,25 @@ class Person(Entity):
         '''
         self.name = kwargs['name']
 
+        if self.name.lower().startswith('the '):
+            self.name = self.name[4:]
+
+        wrongs = [
+            'My',
+            'An',
+            'don',
+            'Him',
+            'Her',
+            'So',
+            'Don'
+        ]
+
+        if self.name in wrongs:
+            self.name = ''
+
+        if 'chapter' in self.name.lower():
+            self.name = ''
+
         kwargs.setdefault('etype', 'person')
         super(Person, self).__init__(*args, **kwargs)
 
