@@ -210,14 +210,28 @@ class TestSentence(TestCase):
             ['DT', 'ORDINAL', 'IN', 'dunno']
         )
 
-    def test_lvr(self):
-        lvr = Sentence('This is a weird test if it was failing').get_lvr
+    def test_lvr_boring(self):
+        lvr = Sentence('la la la').lvr
+        self.assertEqual(lvr, [])
+
+    def test_lvr_assignment(self):
+        lvr = Sentence('This is strange').lvr
+        self.assertEqual(len(lvr), 1)
+        self.assertEqual(lvr[0][0].text, 'This')
+        self.assertEqual(lvr[0][1].text, 'is')
+        self.assertEqual(lvr[0][2].text, 'strange')
+
+    def test_lvr_conditional(self):
+        lvr = Sentence('You can have some chocolate if you want').lvr
+        self.assertEqual(lvr[0][0].text, 'you want')
+        self.assertEqual(lvr[0][1].text, 'if')
+        self.assertEqual(lvr[0][2].text, 'You can have some chocolate')
+
+    def test_lvr_assignment_and_conditional(self):
+        lvr = Sentence('This is a weird test if it was failing').lvr
         self.assertEquals(lvr[0][0].text, 'This')
         self.assertEquals(lvr[0][1].text, 'is')
         self.assertEquals(lvr[0][2].text, 'a strange___test if it was failing')
-        self.assertEquals(lvr[0][2].get_lvr[0][0].text, 'it')
-        self.assertEquals(lvr[0][2].get_lvr[0][1].text, 'was')
-        self.assertEquals(lvr[0][2].get_lvr[0][2].text, 'failing')
-
-        lvr = Sentence('la la la').get_lvr
-        self.assertIsNone(lvr)
+        self.assertEquals(lvr[0][2].lvr[0][0].text, 'it')
+        self.assertEquals(lvr[0][2].lvr[0][1].text, 'was')
+        self.assertEquals(lvr[0][2].lvr[0][2].text, 'failing')

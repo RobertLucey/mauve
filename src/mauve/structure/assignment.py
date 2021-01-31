@@ -20,7 +20,7 @@ def extract_assignments(sentence):
             break
 
     if not good:
-        return None
+        return []
 
     deptree = sentence.deptree
 

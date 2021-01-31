@@ -13,7 +13,7 @@ CONDITIONAL_LIST = [
 ]
 
 
-def parse_conditionals(sentence):
+def extract_conditionals(sentence):
     '''
 
     If clause (condition)

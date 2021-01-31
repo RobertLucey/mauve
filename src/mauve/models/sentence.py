@@ -4,6 +4,7 @@ import textacy.ke
 import nltk
 
 from mauve.structure.assignment import extract_assignments
+from mauve.structure.conditional import extract_conditionals
 from mauve.models.speech import extract_speech
 
 from mauve.utils import replace_sub
@@ -203,8 +204,7 @@ class Sentence:
         return extract_speech(self)
 
     @property
-    def get_lvr(self):
-        # TODO: work in conditionals and bits, not just assignments
-
-        return extract_assignments(self)
-        # extraction should be (l,v,r)  r may be a sentence we can get lvr of again
+    def lvr(self):
+        assignments = extract_assignments(self)
+        conditionals = extract_conditionals(self)
+        return assignments + conditionals
