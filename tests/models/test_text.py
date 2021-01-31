@@ -73,9 +73,12 @@ class TestTextBody(TestCase):
 
     def test_alice(self):
         alice = open(os.path.join(RESOURCE_PATH, 'alices_adventures_in_wonderland.txt'), 'r').read()
-        book = TextBody(
-            content=alice
-        )
+        book = TextBody(content=alice)
         people_names = [p.name for p in book.people]
+        print(people_names)
+        print(set(people_names))
+        self.assertTrue('Alice' in people_names)
+        self.assertTrue('Hatter' in people_names)
         self.assertTrue('March Hare' in people_names)
-        self.assertTrue('Caterpillar' in people_names)
+        self.assertTrue('Ada' in people_names)
+        self.assertTrue('Caterpillar' in people_names)  # since it's a noun. Should be able to extract because the Caterpillar speaks

@@ -1,17 +1,21 @@
 from mauve import GENDER_DETECTOR
-
+from mauve.phrases import replace_phrases
 from mauve.models.entity import Entity
-
-from mauve.constants import GENDER_PREFIXES
+from mauve.constants import (
+    NAMES,
+    GENDER_PREFIXES,
+    PERSON_TITLE_PREFIXES,
+    PERSON_PREFIXES
+)
 
 
 class Person(Entity):
 
     def __init__(self, *args, **kwargs):
-        '''
+        """
 
         :kwarg: The person's name
-        '''
+        """
         self.name = kwargs['name']
 
         if self.name.lower().startswith('the '):
@@ -61,3 +65,57 @@ class Person(Entity):
                 gender = None
 
         return gender
+
+
+def extract_people(sentence):
+    # Names can be chained by , and ands but we only get the last
+    sentence.text = sentence.text
+    people = []
+
+    # if a verb after something that could be a name or if X said then X is likely a person
+
+    for segment in sentence.base_segments:
+        if segment.tag == 'PERSON' or (
+            segment.tag == 'dunno' and
+            (
+                any([segment.text.lower().replace('_', ' ').startswith(prefix) for prefix in GENDER_PREFIXES])
+            )
+        ):
+            person = Person(
+                name=' '.join(
+                    [
+                        n for n in segment.text.split(' ') if n[0].isupper() or n.lower() in PERSON_PREFIXES
+                    ]
+                )
+            )
+            if person.name:
+                people.append(person)
+        elif 'minister' in segment.text.lower():
+            if any([
+                'minister for ' in segment.text.lower().replace('_', ' '),
+                'minister of ' in segment.text.lower().replace('_', ' ')
+            ]):
+                person = Person(name=segment.text)
+                if person.name:
+                    people.append(person)
+        else:
+            # do some stuff around caital letters
+            text = segment.text.strip()
+            if ' ' in text:
+                split = text.split(' ')
+                if any([
+                    split[0] in NAMES,
+                    split[0].lower() in GENDER_PREFIXES.keys(),
+                    split[0].lower() in PERSON_TITLE_PREFIXES.keys(),
+
+                    split[0][0].isupper()
+                ]) and (
+                    split[1][0].isupper()
+                ):
+                    person = Person(name=text)
+                    if person.name:
+                        people.append(person)
+                    continue
+
+    # also look for names
+    return people
