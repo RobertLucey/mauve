@@ -3,7 +3,7 @@ from cached_property import cached_property
 import textacy.ke
 import nltk
 
-from mauve.models.assignment import extract_assignments
+from mauve.structure.assignment import extract_assignments
 from mauve.models.speech import extract_speech
 
 from mauve.utils import replace_sub
@@ -114,6 +114,9 @@ class Sentence:
         mapping = {}
 
         for entity in sentence.ents:
+            if '_' in entity.text:
+                # This is one of ours, messes things up often
+                continue
             to_put = entity.text.replace(' ', '___')
             mod_text = mod_text.replace(entity.text, to_put)
             mapping[to_put] = entity.label_
@@ -201,9 +204,7 @@ class Sentence:
 
     @property
     def get_lvr(self):
-        from mauve.models.assignment import extract_assignments
-        return extract_assignments(
-            self,
-            get_node=True
-        )
+        # TODO: work in conditionals and bits, not just assignments
+
+        return extract_assignments(self)
         # extraction should be (l,v,r)  r may be a sentence we can get lvr of again
