@@ -1,4 +1,8 @@
-from mauve.constants import SPEECH_QUOTES
+from mauve.constants import (
+    SPEECH_QUOTES,
+    SPEECH_WORDS,
+    SPEAKERS
+)
 from mauve.models.person import Person
 
 
@@ -54,11 +58,9 @@ class Speech:
 
 def extract_speech(sentence):
 
-    speech_words = ['said', 'says', 'exclaimed', 'whispered', 'wrote', 'continued', 'told', 'shouted', 'called', 'recalled', 'explained', 'admitted', 'remarked', 'bellowed', 'shrieked', 'told', 'ask', 'asked', 'confided', 'fulminated', 'mused', 'rejoined', 'cried', 'panted', 'continued', 'ejaculated', 'replied', 'interrupted', 'remarked', 'declared', 'queried', 'repeated', 'added', 'lied', 'insisted', 'answered']
-    speakers = ['he', 'they', 'she', 'I', 'we']
+    speech_parts = []
 
     within = False
-    within_section = []
     broken_idx = -1
     start_speech_idx = -1
 
@@ -67,71 +69,78 @@ def extract_speech(sentence):
 
     # said the cat, the cat said. We should shuffle and use only one I guess for handiness sake?
 
+    num_breaks = 0
     # starting idx would be handy for he said "shut up"
     for idx, segment in enumerate(sentence.segments):
         if segment.text in SPEECH_QUOTES and within:
+            num_breaks += 1
             within = False
             broken_idx = idx
-            break  # allow for multiple once one works
-
-        if within:
-            within_section.append(segment)
+            if num_breaks % 2 == 1:
+                speech_parts.append((start_speech_idx, broken_idx))
 
         if segment.text in SPEECH_QUOTES and not within:
             start_speech_idx = idx
             within = True
 
-    if not within_section:
-        return
+    if not speech_parts:
+        return []
 
-    after_speech = sentence.segments[broken_idx + 1:broken_idx + 4]
-    pre_speech = sentence.segments[max(start_speech_idx - 4, 0):max(start_speech_idx, 0)]
+    speech = []
 
-    inflection = None
-    speaker = None
+    for start_idx, end_idx in speech_parts:
+        text = sentence.segments[start_idx+1:end_idx]
+        after_speech = sentence.segments[end_idx + 1:end_idx + 4]
+        pre_speech = sentence.segments[max(start_idx - 4, 0):max(start_idx, 0)]
 
-    for interesting_part in [after_speech, pre_speech]:
-        set_inflection = False
-        inflection_intersection = set(
-            [
-                f.text.lower() for f in interesting_part
-            ]
-        ).intersection(set(speech_words))
-        if inflection_intersection != set():
-            # handle if multiple
-            inflection = list(inflection_intersection)[0]
-            set_inflection = True
+        inflection = None
+        speaker = None
 
-        if inflection is not None:
-            try:
-                interesting_part.remove(inflection)
-            except:
-                pass
+        for interesting_part in [after_speech, pre_speech]:
+            set_inflection = False
+            inflection_intersection = set(
+                [
+                    f.text.lower() for f in interesting_part
+                ]
+            ).intersection(SPEECH_WORDS)
+            if inflection_intersection != set():
+                # handle if multiple
+                inflection = list(inflection_intersection)[0]
+                set_inflection = True
 
-        speaker_intersection = set(
-            [
-                f.text.lower() for f in interesting_part
-            ]
-        ).intersection(set(speakers))
-        if speaker_intersection != set():
-            # handle if multiple
-            # also check for names, not just pronouns
-            speaker = list(speaker_intersection)[0]
+            if inflection is not None:
+                try:
+                    interesting_part.remove(inflection)
+                except:
+                    pass
 
-        for i in interesting_part:
-            if i.is_person:
-                speaker = i.text
+            speaker_intersection = set(
+                [
+                    f.text.lower() for f in interesting_part
+                ]
+            ).intersection(SPEAKERS)
+            if speaker_intersection != set():
+                # handle if multiple
+                # also check for names, not just pronouns
+                speaker = list(speaker_intersection)[0]
 
-        ## if has inflected more likely
-        ## also a good sign if there's few words and one of them is the
-        if speaker is None and set_inflection:
-            if len(interesting_part) < 3:
-                speaker = ' '.join([i.text for i in interesting_part])
+            for i in interesting_part:
+                if i.is_person:
+                    speaker = i.text
+
+            ## if has inflected more likely
+            ## also a good sign if there's few words and one of them is the
+            if speaker is None and set_inflection:
+                if len(interesting_part) < 3:
+                    speaker = ' '.join([i.text for i in interesting_part])
+
+        speech_item = Speech(
+            segments=text,
+            speaker=Person(name=speaker),
+            inflection=inflection
+        )
 
         # if we have a name, that's a better speaker
+        speech.append(speech_item)
 
-    return Speech(
-        segments=within_section,
-        speaker=Person(name=speaker),
-        inflection=inflection
-    )
+    return speech

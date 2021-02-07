@@ -10,38 +10,39 @@ from mauve.models.books.book import Book
 from mauve.models.books.review import Reviews, Review
 from mauve.models.books.tag import Tags, Tag
 from mauve import constants
-from mauve.utils import quote_aware_sent_tokenize
+from mauve.utils import quote_aware_sent_tokenize, flatten
 
 from mauve.models.speech import Speech, extract_speech
 
 
 class TestSpeech(TestCase):
 
-    def test_speech_simple(self):
-
-        speech = extract_speech(Sentence('"Shut up" he said'))
+    def test_speech_speech_before(self):
+        speech = extract_speech(Sentence('"Shut up" he said'))[0]
         self.assertEqual(speech.text.strip(), 'Shut up')
         self.assertEqual(speech.inflection.strip(), 'said')
         self.assertEqual(speech.speaker.name.strip(), 'he')
 
-        speech = extract_speech(Sentence('He said "Shut up"'))
+    def test_speech_speech_after(self):
+        speech = extract_speech(Sentence('He said "Shut up"'))[0]
         self.assertEqual(speech.text.strip(), 'Shut up')
         self.assertEqual(speech.inflection.strip(), 'said')
         self.assertEqual(speech.speaker.name.strip(), 'he')
 
-        speech = extract_speech(Sentence('And then Robert exclaimed "Shut up"'))
+    def test_extra_speech_after(self):
+        speech = extract_speech(Sentence('And then Robert exclaimed "Shut up"'))[0]
         self.assertEqual(speech.text.strip(), 'Shut up')
         self.assertEqual(speech.inflection.strip(), 'exclaimed')
         self.assertEqual(speech.speaker.name.strip(), 'Robert')
 
-        speech = extract_speech(Sentence('"Shut up" Robert exclaimed to Mikey'))
+    def test_extra_speech_before(self):
+        speech = extract_speech(Sentence('"Shut up" Robert exclaimed to Mikey'))[0]
         self.assertEqual(speech.text.strip(), 'Shut up')
         self.assertEqual(speech.inflection.strip(), 'exclaimed')
         self.assertEqual(speech.speaker.name.strip(), 'Robert')
 
 
     def test_real_text(self):
-
         content = '''
 Hallward painted away with that marvellous bold touch of his, that had the true refinement and perfect delicacy that in art, at any rate comes only from strength.  He was unconscious of the silence.
 
@@ -52,9 +53,7 @@ Hallward painted away with that marvellous bold touch of his, that had the true 
 
         sentences = [Sentence(s) for s in quote_aware_sent_tokenize(content)]
 
-        speech_parts = [s.speech for s in sentences]
-
-        print([s.serialize() for s in speech_parts if s])
+        speech_parts = flatten([s.speech for s in sentences if s.speech])
 
         self.assertEquals(
             [s.serialize() for s in speech_parts if s],
@@ -62,5 +61,23 @@ Hallward painted away with that marvellous bold touch of his, that had the true 
                 {'text': 'Basil , I am tired of standing ,', 'speaker': {'name': 'Dorian Gray', 'gender': 'male'}, 'inflection': 'cried'},
                 {'text': 'I must go out and sit in the garden . The air is stifling here .', 'speaker': {'name': '', 'gender': None}, 'inflection': None},
                 {'text': "My dear fellow , I am so sorry . When I am painting , I ca n't think of anything else . But you never sat better . You were perfectly calm . And I have caught the put I wanted -- the half-parted lips and the interesting look in the eyes . I do n't know what Harry has been saying to you , but he has certainly made you have the most good expression . I suppose he has been paying you compliments . You must n't think a word that he says .", 'speaker': {'name': '', 'gender': None}, 'inflection': None}
+            ]
+        )
+
+    def test_multiple_speech(self):
+        content = '''
+“If you didn’t sign it,” said the King, “that only makes the matter
+worse. You _must_ have meant some mischief, or else you’d have signed
+your name like an honest man.”
+'''
+        sentences = [Sentence(s) for s in quote_aware_sent_tokenize(content)]
+
+        speech_parts = flatten([s.speech for s in sentences if s.speech])
+
+        self.assertEqual(
+            [s.serialize() for s in speech_parts if s],
+            [
+                {'text': 'If you didn ’ t mark it ,', 'speaker': {'name': 'King', 'gender': 'male'}, 'inflection': 'said'},
+                {'text': 'that only makes the matter worse . You  must  have meant some mischief , or else you ’ d have signed your name love an right man .', 'speaker': {'name': '', 'gender': None}, 'inflection': 'said'}
             ]
         )

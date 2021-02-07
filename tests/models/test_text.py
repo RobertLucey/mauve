@@ -5,6 +5,7 @@ from collections import Counter
 import glob
 import os
 
+from mauve.utils import flatten
 from mauve.models.text import TextBody
 from mauve.models.person import Person
 from mauve.models.segment import Segment
@@ -95,11 +96,40 @@ class TestTextBody(TestCase):
             alice_assignments[0].startswith('beginning to get very tired of sitting by her sister')
         )
 
-    def test_alice_speech(self):
-        alice = open(os.path.join(RESOURCE_PATH, 'alices_adventures_in_wonderland.txt'), 'r').read()
+    #def test_alice_speech(self):
+    #    alice = open(os.path.join(RESOURCE_PATH, 'alices_adventures_in_wonderland.txt'), 'r').read()
 
-        book = TextBody(content=alice)
-        speech_objects = book.get_speech_by_person(Person(name='Alice'))
-        self.assertTrue(
-            {'text': 'which certainly was not here before ,', 'speaker': {'name': 'Alice', 'gender': 'female'}, 'inflection': 'said'} in [s.serialize() for s in speech_objects]
-        )
+    #    book = TextBody(content=alice)
+    #    print([s.serialize() for s in book.speech if s])
+    #    raise Exception()
+    #    #speech_objects = book.get_speech_by_person(Person(name='Alice'))
+    #    #self.assertTrue(
+    #    #    {'text': 'which certainly was not here before ,', 'speaker': {'name': 'Alice', 'gender': 'female'}, 'inflection': 'said'} in [s.serialize() for s in speech_objects]
+    #    #)
+
+    #def test_sentiment_person(self):
+    #    alice = open(os.path.join(RESOURCE_PATH, 'alices_adventures_in_wonderland.txt'), 'r').read()
+
+    #    book = TextBody(content=alice)
+    #    sentiment_by_person = book.get_sentiment_by_person()
+
+
+    #    for person_name, lines in sentiment_by_person.items():
+    #        print(lines)
+    #        print('%s  -  %s' % (person_name, TextBody(content=' .'.join(lines)).sentiment))
+
+    #    raise Exception()
+
+    def test_get_text(self):
+        content = '''
+        Alice folded her hands, and began:—
+
+“You are old, Father William,” the young man said,
+    “And your hair has become very white;
+And yet you incessantly stand on your head—
+    Do you think, at your age, it is right?”
+
+        '''
+
+        book = TextBody(content=content)
+        # [{'text': 'You are old , Father William ,', 'speaker': {'name': 'young man', 'gender': None}, 'inflection': 'said'}, {'text': 'And your hair has become very white ; And yet you incessantly stand on your head— Do you think , at your age , it is right ?', 'speaker': {'name': '', 'gender': None}, 'inflection': 'said'}]

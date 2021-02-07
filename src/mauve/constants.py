@@ -190,7 +190,18 @@ GENDER_PREFIXES = {
 PERSON_TITLE_PREFIXES = {
     'dr': 'Doctor'
 }
-
+PERSON_TRANSLATOR = str.maketrans('', '', '!"#$%&()*+,-/:;<=>?@[\\]^_`{|}~')
 PERSON_PREFIXES = list(GENDER_PREFIXES.keys()) + list(PERSON_TITLE_PREFIXES.keys())
+NOT_NAMES = [
+    'My',
+    'An',
+    'don',
+    'Him',
+    'Her',
+    'So',
+    'Don'
+]
 
 SPEECH_QUOTES = ['`', '‘', '"', '``', '\'\'', '”', '“']
+SPEECH_WORDS = set(['said', 'says', 'exclaimed', 'whispered', 'wrote', 'continued', 'told', 'shouted', 'called', 'recalled', 'explained', 'admitted', 'remarked', 'bellowed', 'shrieked', 'told', 'ask', 'asked', 'confided', 'fulminated', 'mused', 'rejoined', 'cried', 'panted', 'continued', 'ejaculated', 'replied', 'interrupted', 'remarked', 'declared', 'queried', 'repeated', 'added', 'lied', 'insisted', 'answered'])
+SPEAKERS = set(['he', 'they', 'she', 'I', 'we', 'it', 'everyone', 'someone'])

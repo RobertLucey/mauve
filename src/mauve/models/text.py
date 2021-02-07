@@ -1,4 +1,5 @@
 from collections import Counter
+from collections import defaultdict
 
 import statistics
 import random
@@ -10,6 +11,7 @@ from langdetect import detect as langdetect
 
 import nltk
 
+from mauve.utils import flatten
 from mauve.phrases import replace_phrases
 from mauve.utils import quote_aware_sent_tokenize
 from mauve.constants import (
@@ -495,9 +497,9 @@ class TextBody(GenericObject, Tagger):
         if content is None:
             return []
 
-        return [
+        return flatten([
             Sentence(s).speech for s in quote_aware_sent_tokenize(content)
-        ]
+        ])
 
     @property
     def people(self):
@@ -534,3 +536,11 @@ class TextBody(GenericObject, Tagger):
                 if left_text in assignment[0].text.lower():
                     assignments.append(assignment[2].text)
         return assignments
+
+    def get_sentiment_by_person(self):
+        speech_people_map = defaultdict(list)
+        for speech in self.speech:
+            if speech:
+                speech_people_map[speech.speaker.name].append(speech.text)
+
+        return speech_people_map

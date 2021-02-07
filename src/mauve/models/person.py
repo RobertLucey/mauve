@@ -4,9 +4,11 @@ from mauve.models.entity import Entity
 from mauve.models.generic import GenericObjects
 from mauve.constants import (
     NAMES,
+    NOT_NAMES,
     GENDER_PREFIXES,
     PERSON_TITLE_PREFIXES,
-    PERSON_PREFIXES
+    PERSON_PREFIXES,
+    PERSON_TRANSLATOR
 )
 
 
@@ -35,21 +37,14 @@ class Person(Entity):
         if self.name.lower().startswith('the '):
             self.name = self.name[4:]
 
-        wrongs = [
-            'My',
-            'An',
-            'don',
-            'Him',
-            'Her',
-            'So',
-            'Don'
-        ]
-
-        if self.name in wrongs:
+        if self.name in NOT_NAMES:
             self.name = ''
 
         if 'chapter' in self.name.lower():
             self.name = ''
+
+        self.name = self.name.translate(PERSON_TRANSLATOR)
+        self.name = self.name.strip()
 
         kwargs.setdefault('etype', 'person')
         super(Person, self).__init__(*args, **kwargs)

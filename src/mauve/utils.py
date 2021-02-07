@@ -2,6 +2,7 @@ import os
 import random
 import pickle
 from functools import lru_cache
+from itertools import chain
 
 import nltk
 from nltk.corpus import wordnet
@@ -300,3 +301,14 @@ def quote_aware_sent_tokenize(content):
 
 def str_count_multi(string, things_to_count):
     return sum([string.count(thing) for thing in things_to_count])
+
+
+def flatten(lst):
+    '''
+    Given a nested list, flatten it.
+
+    :param lst: list to be flattened
+    :return: Flattened list
+    :rtype: list
+    '''
+    return list(chain.from_iterable(lst))
