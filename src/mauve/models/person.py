@@ -63,7 +63,7 @@ class Person(Entity):
         """
         Try to get the gender based on the name of the perosn
 
-        :return: male or female
+        :return: male, female or None
         """
         if not isinstance(self.name, str):
             return
@@ -120,7 +120,8 @@ def extract_people(sentence):
                     ]
                 )
             )
-            people.append(person)
+            if not person.name.replace(' ', '').isupper():
+                people.append(person)
         elif 'minister' in text.lower():
             if any([
                 'minister for ' in text.lower().replace('_', ' '),
@@ -140,8 +141,7 @@ def extract_people(sentence):
                 ]) and (
                     split[1][0].isupper()
                 ):
-                    people.append(Person(name=text))
-            elif text in NAMES and text[0].isupper():
-                people.append(Person(name=text))
+                    if not text.replace(' ', '').isupper():
+                        people.append(Person(name=text))
 
     return people
