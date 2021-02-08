@@ -42,6 +42,14 @@ class TestTextBody(TestCase):
             sorted(['Robert', 'Carl', 'Mark'])
         )
 
+    def test_people_firstnames_multi_speech(self):
+        people = TextBody(content='“You are not attending!” said the Mouse to Alice severely. “What are you thinking of?”').people
+
+        self.assertEqual(
+            sorted([p.name for p in people]),
+            sorted(['Mouse', 'Alice'])
+        )
+
     def test_people_fullnames(self):
 
         people = TextBody(
