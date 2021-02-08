@@ -513,15 +513,18 @@ class TextBody(GenericObject, Tagger):
                     people.append(person)
         return people
 
-    def get_speech_by_person(self, person):
-        """
-
-        :param person: Person object to get where they are the speaker
-        :return: List of speech objects
-        """
-        return [
-            s for s in self.speech if s and s.speaker.name.lower() == person.name.lower()
-        ]
+    def get_speech_by_people(self, people=None):
+        if people:
+            names = [p.name.lower() for p in people]
+        speech_people_map = defaultdict(list)
+        for speech in self.speech:
+            if speech:
+                if people is not None:
+                    if speech.speaker.name.lower() in names:
+                        speech_people_map[speech.speaker.name].append(speech.text)
+                else:
+                    speech_people_map[speech.speaker.name].append(speech.text)
+        return speech_people_map
 
     def get_assignments_by(self, left_text):
         """
@@ -536,21 +539,8 @@ class TextBody(GenericObject, Tagger):
                     assignments.append(assignment[2].text)
         return assignments
 
-    def get_speech_by_person(self, people=None):
-        if people:
-            names = [p.name.lower() for p in people]
-        speech_people_map = defaultdict(list)
-        for speech in self.speech:
-            if speech:
-                if people is not None:
-                    if speech.speaker.name.lower() in names:
-                        speech_people_map[speech.speaker.name].append(speech.text)
-                else:
-                    speech_people_map[speech.speaker.name].append(speech.text)
-        return speech_people_map
-
     def get_sentiment_by_person(self, people=None):
-        speech = self.get_speech_by_person(people=people)
+        speech = self.get_speech_by_people(people=people)
         return [
             {
                 'name': person_name,
