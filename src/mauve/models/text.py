@@ -2,7 +2,6 @@ from collections import Counter
 from collections import defaultdict
 
 import statistics
-import random
 
 from cached_property import cached_property
 
@@ -179,7 +178,7 @@ class Text(GenericObject, Tagger):
     def sentiment(self):
         return VADER.polarity_scores(
             [
-                a for a in self.sentences if random.random() < 0.05
+                a for a in self.sentences
             ]
         )  # Need more power but this may be an indication
 
@@ -452,7 +451,7 @@ class TextBody(GenericObject, Tagger):
     @cached_property
     def sentiment(self):
         # Need more power but this may be an indication
-        return VADER.polarity_scores([a for a in self.sentences if random.random() < 0.05])
+        return VADER.polarity_scores([a for a in self.sentences])
 
     @cached_property
     def lang(self):
@@ -475,7 +474,7 @@ class TextBody(GenericObject, Tagger):
         except Exception as ex:
             print('Skipping content: %s' % (ex))
 
-    @property
+    @cached_property
     def assignments(self):
         content = self.content
 
@@ -486,7 +485,7 @@ class TextBody(GenericObject, Tagger):
             Sentence(s).assignments for s in nltk.tokenize.sent_tokenize(content)
         ]
 
-    @property
+    @cached_property
     def speech(self):
         """
 
@@ -501,7 +500,7 @@ class TextBody(GenericObject, Tagger):
             Sentence(s).speech for s in quote_aware_sent_tokenize(content)
         ])
 
-    @property
+    @cached_property
     def people(self):
         """
 
@@ -537,10 +536,24 @@ class TextBody(GenericObject, Tagger):
                     assignments.append(assignment[2].text)
         return assignments
 
-    def get_sentiment_by_person(self):
+    def get_speech_by_person(self, people=None):
+        if people:
+            names = [p.name.lower() for p in people]
         speech_people_map = defaultdict(list)
         for speech in self.speech:
             if speech:
-                speech_people_map[speech.speaker.name].append(speech.text)
-
+                if self.people is not None:
+                    if speech.speaker.name.lower() in names:
+                        speech_people_map[speech.speaker.name].append(speech.text)
+                else:
+                    speech_people_map[speech.speaker.name].append(speech.text)
         return speech_people_map
+
+    def get_sentiment_by_person(self, people=None):
+        speech = self.get_speech_by_person(people=people)
+        return [
+            {
+                'name': person_name,
+                'sentiment': TextBody(content=' .'.join(lines)).sentiment
+            } for person_name, lines in speech.items()
+        ]

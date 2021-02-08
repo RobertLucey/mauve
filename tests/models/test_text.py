@@ -107,18 +107,27 @@ class TestTextBody(TestCase):
     #    #    {'text': 'which certainly was not here before ,', 'speaker': {'name': 'Alice', 'gender': 'female'}, 'inflection': 'said'} in [s.serialize() for s in speech_objects]
     #    #)
 
-    #def test_sentiment_person(self):
-    #    alice = open(os.path.join(RESOURCE_PATH, 'alices_adventures_in_wonderland.txt'), 'r').read()
+    def test_sentiment_by_person(self):
+        alice = open(os.path.join(RESOURCE_PATH, 'alices_adventures_in_wonderland.txt'), 'r').read()
 
-    #    book = TextBody(content=alice)
-    #    sentiment_by_person = book.get_sentiment_by_person()
+        book = TextBody(content=alice)
+        sentiment_by_person = book.get_sentiment_by_person(people=[Person(name='Alice'), Person(name='Queen')])
 
+        print(sentiment_by_person)
 
-    #    for person_name, lines in sentiment_by_person.items():
-    #        print(lines)
-    #        print('%s  -  %s' % (person_name, TextBody(content=' .'.join(lines)).sentiment))
+        self.assertEqual(
+            sentiment_by_person[0]['name'],
+            'Alice'
+        )
+        self.assertGreater(
+            sentiment_by_person[0]['sentiment']['compound'],
+            0.5
+        )
+        self.assertLess(
+            sentiment_by_person[1]['sentiment']['compound'],
+            -0.5
+        )
 
-    #    raise Exception()
 
     def test_get_text(self):
         content = '''
