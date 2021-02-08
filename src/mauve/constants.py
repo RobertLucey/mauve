@@ -166,13 +166,13 @@ OIREACHTAS_DIR = os.path.join(BASE_DATA_PATH, 'oireachtas')
 SENTENCE_TERMINATORS = {'.', '?', '!'}
 
 
-LIKELY_PERSON_PREFIXES = [
+LIKELY_PERSON_PREFIXES = set([
     'dr ',
     'mr ',
     'ms ',
     'mrs ',
     'miss '
-]
+])
 
 GENDER_PREFIXES = {
     'mr': 'male',
@@ -192,16 +192,8 @@ PERSON_TITLE_PREFIXES = {
 }
 PERSON_TRANSLATOR = str.maketrans('', '', '!"#$%&()*+,-/:;<=>?@[\\]^_`{|}~')
 PERSON_PREFIXES = list(GENDER_PREFIXES.keys()) + list(PERSON_TITLE_PREFIXES.keys())
-NOT_NAMES = [
-    'My',
-    'An',
-    'don',
-    'Him',
-    'Her',
-    'So',
-    'Don'
-]
+NOT_NAMES = set(['My', 'An', 'don', 'Him', 'Her', 'So', 'Don', 'Said', 'Tut', 'Laughing', 'Little', 'Mystery', 'Christmas'])
 
-SPEECH_QUOTES = ['`', '‘', '"', '``', '\'\'', '”', '“']
+SPEECH_QUOTES = set(['`', '‘', '"', '``', '\'\'', '”', '“'])
 SPEECH_WORDS = set(['said', 'says', 'exclaimed', 'whispered', 'wrote', 'continued', 'told', 'shouted', 'called', 'recalled', 'explained', 'admitted', 'remarked', 'bellowed', 'shrieked', 'told', 'ask', 'asked', 'confided', 'fulminated', 'mused', 'rejoined', 'cried', 'panted', 'continued', 'ejaculated', 'replied', 'interrupted', 'remarked', 'declared', 'queried', 'repeated', 'added', 'lied', 'insisted', 'answered'])
 SPEAKERS = set(['he', 'they', 'she', 'I', 'we', 'it', 'everyone', 'someone'])
