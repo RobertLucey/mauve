@@ -60,6 +60,11 @@ class Person(Entity):
 
     @property
     def gender(self):
+        """
+        Try to get the gender based on the name of the perosn
+
+        :return: male or female
+        """
         if not isinstance(self.name, str):
             return
 
@@ -86,6 +91,12 @@ class Person(Entity):
 
 
 def extract_people(sentence):
+    """
+
+    :param sentence:
+    :return:
+    :rtype: People
+    """
     # Names can be chained by , and ands but we only get the last
     sentence.text = replace_phrases(sentence.text)
     people = People()
@@ -94,6 +105,8 @@ def extract_people(sentence):
 
     for segment in sentence.base_segments:
         text = segment.text.strip()
+
+        # If the entity is defined as a person / it is Mr. Something
         if segment.tag == 'PERSON' or (
             segment.tag == 'dunno' and
             (
@@ -113,11 +126,9 @@ def extract_people(sentence):
                 'minister for ' in text.lower().replace('_', ' '),
                 'minister of ' in text.lower().replace('_', ' ')
             ]):
-                person = Person(name=text)
-                people.append(person)
+                people.append(Person(name=text))
         else:
-            # do some stuff around caital letters
-            text = text.strip()
+            # Do some stuff around caital letters
             if ' ' in text:
                 split = text.split(' ')
                 if any([
@@ -129,11 +140,8 @@ def extract_people(sentence):
                 ]) and (
                     split[1][0].isupper()
                 ):
-                    person = Person(name=text)
-                    people.append(person)
+                    people.append(Person(name=text))
             elif text in NAMES and text[0].isupper():
-                person = Person(name=text)
-                people.append(person)
+                people.append(Person(name=text))
 
-    # also look for names
     return people

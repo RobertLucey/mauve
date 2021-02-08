@@ -506,17 +506,29 @@ class TextBody(GenericObject, Tagger):
     @cached_property
     def people(self):
         """
+        Extract all People from text. This is pretty stupid so includes
+        a lot of false positives
 
         :return People
         """
+        counts = defaultdict(int)
         people = People()
         for sentence in self.sentences:
             for person in Sentence(sentence).people:
+                counts[person.name] += 1
                 if person not in people:
                     people.append(person)
+        # for safety can get where count > something
+        #print(counts)
         return people
 
     def get_speech_by_people(self, people=None):
+        """
+
+        :kwarg people: People object / list of Person objects
+                        None to get speech of all people
+        :return: dict of list of speech {speaker_name: [speech, speech]}
+        """
         if people:
             names = [p.name.lower() for p in people]
         speech_people_map = defaultdict(list)
@@ -543,6 +555,13 @@ class TextBody(GenericObject, Tagger):
         return assignments
 
     def get_sentiment_by_people(self, people=None):
+        """
+        Use vader sentiment to get the sentiment of all a character has said
+
+        :kwarg people: People object / list of Person objects
+                        None to get speech of all people
+        :return: list of dicts {name: something, sentiment: {pos: 0, neg: 0 , neu: 0, compound: 0}}
+        """
         speech = self.get_speech_by_people(people=people)
         return [
             {
