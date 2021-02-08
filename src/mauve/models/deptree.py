@@ -58,8 +58,11 @@ class DepTree():
 
     def get_after_node(self, cmp_node, stop_at_punct=False):
         if stop_at_punct:
-            first_punct = min([n.idx for n in self.nodes if n.text in ['!', '.', '?'] and n.idx > cmp_node.idx])
-            return [node for node in self.nodes if node.idx > cmp_node.idx and node.idx < first_punct]
+            try:
+                first_punct = min([n.idx for n in self.nodes if n.text in ['!', '.', '?'] and n.idx > cmp_node.idx])
+                return [node for node in self.nodes if node.idx > cmp_node.idx and node.idx < first_punct]
+            except:
+                return [node for node in self.nodes if node.idx > cmp_node.idx]
         else:
             return [node for node in self.nodes if node.idx > cmp_node.idx]
 
