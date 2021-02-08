@@ -539,7 +539,7 @@ class TextBody(GenericObject, Tagger):
                     assignments.append(assignment[2].text)
         return assignments
 
-    def get_sentiment_by_person(self, people=None):
+    def get_sentiment_by_people(self, people=None):
         speech = self.get_speech_by_people(people=people)
         return [
             {

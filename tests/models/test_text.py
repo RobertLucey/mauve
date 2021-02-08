@@ -119,7 +119,7 @@ class TestTextBody(TestCase):
         alice = open(os.path.join(RESOURCE_PATH, 'alices_adventures_in_wonderland.txt'), 'r').read()
 
         book = TextBody(content=alice)
-        sentiment_by_person = book.get_sentiment_by_person(people=[Person(name='Alice'), Person(name='Queen')])
+        sentiment_by_person = book.get_sentiment_by_people(people=[Person(name='Alice'), Person(name='Queen')])
 
         print(sentiment_by_person)
 
