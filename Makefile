@@ -10,7 +10,7 @@ MKFILE_DIR_PATH := $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
 env: $(ENV_DIR)
 
 dependencies:
-	apt install calibre
+	apt install calibre || true
 
 setup: dependencies
 	$(PYTHON) -m virtualenv -p $(PYTHON) $(ENV_DIR)
@@ -41,3 +41,4 @@ restore_from_gz:
 
 download_books:
 	test -s tests/resources/alices_adventures_in_wonderland.txt || wget https://www.gutenberg.org/files/11/11-0.txt -O tests/resources/alices_adventures_in_wonderland.txt
+	test -s tests/resources/dr_jekyll_and_mr_hyde.txt || wget https://www.gutenberg.org/files/43/43-0.txt -O tests/resources/dr_jekyll_and_mr_hyde.txt
