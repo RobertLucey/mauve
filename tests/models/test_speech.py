@@ -78,6 +78,6 @@ your name like an honest man.”
             [s.serialize() for s in speech_parts if s],
             [
                 {'text': 'If you didn ’ t mark it ,', 'speaker': {'name': 'King', 'gender': 'male'}, 'inflection': 'said'},
-                {'text': 'that only makes the matter worse . You  must  have meant some mischief , or else you ’ d have signed your name love an right man .', 'speaker': {'name': '', 'gender': None}, 'inflection': 'said'}
+                {'text': 'that only makes the matter worse . You  must  have meant some mischief , or else you ’ d have signed your name love an right man .', 'speaker': {'name': 'King', 'gender': 'male'}, 'inflection': 'said'}
             ]
         )

@@ -122,7 +122,7 @@ class TestSentence(TestCase):
         assignments = s.assignments
         self.assertEqual(len(assignments), 1)
         self.assertEqual(assignments[0][0].text, 'What')
-        self.assertEqual(assignments[0][2].text, 'you thinking ?')
+        self.assertEqual(assignments[0][2].text, 'you thinking')
         self.assertEqual(assignments[0][1].text, 'are')
 
         s = Sentence('Equally disturbing to Robert is the thought that it is difficult to explain Tippit’s death unless it was an attempt to escape arrest for the assassination of the president')
