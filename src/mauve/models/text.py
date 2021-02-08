@@ -542,7 +542,7 @@ class TextBody(GenericObject, Tagger):
         speech_people_map = defaultdict(list)
         for speech in self.speech:
             if speech:
-                if self.people is not None:
+                if people is not None:
                     if speech.speaker.name.lower() in names:
                         speech_people_map[speech.speaker.name].append(speech.text)
                 else:
