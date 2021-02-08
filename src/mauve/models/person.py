@@ -143,5 +143,7 @@ def extract_people(sentence):
                 ):
                     if not text.replace(' ', '').isupper():
                         people.append(Person(name=text))
+            elif text in NAMES and text[0].isupper():
+                people.append(Person(name=text))
 
     return people
