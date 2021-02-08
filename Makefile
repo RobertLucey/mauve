@@ -23,7 +23,7 @@ test: setup
 	$(IN_ENV) $(TEST_CONTEXT) python `which nosetests` -q -s tests/ --with-coverage --cover-erase --cover-package=src
 	$(IN_ENV) coverage report -m
 
-quick_test:
+quick_test: download_books
 	$(IN_ENV) $(TEST_CONTEXT) `which nosetests` --with-coverage --cover-package=mauve --cover-erase
 	$(IN_ENV) coverage report -m
 
@@ -41,5 +41,6 @@ restore_from_gz:
 	pigz -dc $(MKFILE_DIR_PATH)archive.tar.gz | pv | tar xf -C / -
 
 download_books:
+	mkdir -p tests/resources
 	test -s tests/resources/alices_adventures_in_wonderland.txt || wget https://www.gutenberg.org/files/11/11-0.txt -O tests/resources/alices_adventures_in_wonderland.txt
 	test -s tests/resources/dr_jekyll_and_mr_hyde.txt || wget https://www.gutenberg.org/files/43/43-0.txt -O tests/resources/dr_jekyll_and_mr_hyde.txt
