@@ -19,5 +19,6 @@ defaultdict(<class 'list'>, {'Mouse': ['You are not attending !'], '': ['What ar
 The assignment is that "You" "are" "not attending"
 
 >> text = TextBody(content='“Bad no this sucks” said the Mouse to Alice. Alice replied, “Happy Love”')
+>> print(text.get_sentiment_by_person())
 [{'name': 'Mouse', 'sentiment': {'neg': 0.647, 'neu': 0.114, 'pos': 0.24, 'compound': -0.5559}}, {'name': 'Alice', 'sentiment': {'neg': 0.0, 'neu': 0.0, 'pos': 1.0, 'compound': 0.836}}]
 ```
