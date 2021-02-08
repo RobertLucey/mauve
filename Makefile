@@ -1,4 +1,4 @@
-PYTHON=python
+PYTHON=python3
 
 ENV_DIR=.env_$(PYTHON)
 IN_ENV=. $(ENV_DIR)/bin/activate &&
