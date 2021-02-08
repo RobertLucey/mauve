@@ -17,6 +17,7 @@ setup: dependencies
 	$(PYTHON) -m virtualenv $(ENV_DIR)
 	$(IN_ENV) python -m pip install -r requirements.txt
 	$(IN_ENV) $(PYTHON) -m pip install --editable .
+	$(IN_ENV) $(PYTHON) -c "import nltk; nltk.download('averaged_perceptron_tagger')"
 
 test: setup
 	$(IN_ENV) python -m pip install nose coverage mock

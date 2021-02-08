@@ -7,11 +7,7 @@ import gender_guesser.detector as gender
 from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
 
 import nltk
-try:
-    from nltk.tag.perceptron import PerceptronTagger
-except:
-    nltk.download('averaged_perceptron_tagger')
-    from nltk.tag.perceptron import PerceptronTagger
+from nltk.tag.perceptron import PerceptronTagger
 
 from mauve.wps import WPS
 
