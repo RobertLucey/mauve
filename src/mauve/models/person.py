@@ -132,8 +132,8 @@ def extract_people(sentence):
                     person = Person(name=text)
                     people.append(person)
             elif text in NAMES and text[0].isupper():
-                    person = Person(name=text)
-                    people.append(person)
+                person = Person(name=text)
+                people.append(person)
 
     # also look for names
     return people
