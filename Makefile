@@ -1,4 +1,4 @@
-PYTHON=python3.6
+PYTHON=python3
 
 ENV_DIR=.env_$(PYTHON)
 IN_ENV=. $(ENV_DIR)/bin/activate &&
@@ -10,19 +10,20 @@ MKFILE_DIR_PATH := $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
 env: $(ENV_DIR)
 
 dependencies:
-	apt install calibre
+	apt install calibre || true
 
 setup: dependencies
-	$(PYTHON) -m virtualenv -p $(PYTHON) $(ENV_DIR)
+	pip install virtualenv
+	$(PYTHON) -m virtualenv $(ENV_DIR)
 	$(IN_ENV) python -m pip install -r requirements.txt
 	$(IN_ENV) $(PYTHON) -m pip install --editable .
 
-test: setup
+test: setup download_books
 	$(IN_ENV) python -m pip install nose coverage mock
 	$(IN_ENV) $(TEST_CONTEXT) python `which nosetests` -q -s tests/ --with-coverage --cover-erase --cover-package=src
 	$(IN_ENV) coverage report -m
 
-quick_test:
+quick_test: download_books
 	$(IN_ENV) $(TEST_CONTEXT) `which nosetests` --with-coverage --cover-package=mauve --cover-erase
 	$(IN_ENV) coverage report -m
 
@@ -40,4 +41,6 @@ restore_from_gz:
 	pigz -dc $(MKFILE_DIR_PATH)archive.tar.gz | pv | tar xf -C / -
 
 download_books:
+	mkdir -p tests/resources
 	test -s tests/resources/alices_adventures_in_wonderland.txt || wget https://www.gutenberg.org/files/11/11-0.txt -O tests/resources/alices_adventures_in_wonderland.txt
+	test -s tests/resources/dr_jekyll_and_mr_hyde.txt || wget https://www.gutenberg.org/files/43/43-0.txt -O tests/resources/dr_jekyll_and_mr_hyde.txt
