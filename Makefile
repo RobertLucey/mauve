@@ -18,7 +18,7 @@ setup: dependencies
 	$(IN_ENV) python -m pip install -r requirements.txt
 	$(IN_ENV) $(PYTHON) -m pip install --editable .
 
-test: setup
+test: setup download_books
 	$(IN_ENV) python -m pip install nose coverage mock
 	$(IN_ENV) $(TEST_CONTEXT) python `which nosetests` -q -s tests/ --with-coverage --cover-erase --cover-package=src
 	$(IN_ENV) coverage report -m
