@@ -1,3 +1,5 @@
+import string
+
 from mauve.constants import (
     SPEECH_QUOTES,
     SPEECH_WORDS,
@@ -97,6 +99,7 @@ def extract_speech(sentence):
         speaker = None
 
         for interesting_part in [after_speech, pre_speech]:
+            interesting_part = [c for c in interesting_part if c.text not in string.punctuation]
             set_inflection = False
             inflection_intersection = set(
                 [
