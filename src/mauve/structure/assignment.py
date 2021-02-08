@@ -53,7 +53,7 @@ def extract_assignments(sentence):
             (
                 left,
                 equal_node,
-                Sentence(' '.join([d.text for d in deptree.get_after_node(equal_node)]))
+                Sentence(' '.join([d.text for d in deptree.get_after_node(equal_node, stop_at_punct=True)]))
             )
         )
 

@@ -56,8 +56,13 @@ class DepTree():
     def get_before_node(self, cmp_node):
         return [node for node in self.nodes if node.idx < cmp_node.idx]
 
-    def get_after_node(self, cmp_node):
-        return [node for node in self.nodes if node.idx > cmp_node.idx]
+    def get_after_node(self, cmp_node, stop_at_punct=False):
+        if stop_at_punct:
+            first_punct = min([n.idx for n in self.nodes if n.text in ['!', '.', '?'] and n.idx > cmp_node.idx])
+            return [node for node in self.nodes if node.idx > cmp_node.idx and node.idx < first_punct]
+        else:
+            return [node for node in self.nodes if node.idx > cmp_node.idx]
+
 
     def get_closest_after(self, cmp_node, dep=None, text=None):
         if dep is not None:
@@ -67,7 +72,6 @@ class DepTree():
                 return DepNode.get_empty_node()
         if text is not None:
             try:
-                print([n.text for n in self.nodes])
                 return [node for node in self.nodes if node.idx > cmp_node.idx and node.text in text][0]
             except IndexError:
                 return DepNode.get_empty_node()
