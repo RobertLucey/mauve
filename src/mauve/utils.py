@@ -312,3 +312,9 @@ def flatten(lst):
     :rtype: list
     '''
     return list(chain.from_iterable(lst))
+
+
+def clean_gutenberg(content):
+    lines = content.split('\n')
+    start, end = sorted([idx for idx, line in enumerate(lines) if '***' in line and 'START OF THIS PROJECT GUTENBERG EBOOK' in line or 'END OF THIS PROJECT GUTENBERG EBOOK' in line])
+    return '\n'.join(lines[start + 1:end])

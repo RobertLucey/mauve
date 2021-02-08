@@ -10,7 +10,7 @@ from langdetect import detect as langdetect
 
 import nltk
 
-from mauve.utils import flatten
+from mauve.utils import flatten, clean_gutenberg
 from mauve.phrases import replace_phrases
 from mauve.utils import quote_aware_sent_tokenize
 from mauve.constants import (
@@ -432,11 +432,11 @@ class TextBody(GenericObject, Tagger):
     @property
     def content(self):
         if self._content is not None:
-            return self._content
+            content = self._content
 
         if self.content_path is not None:
             try:
-                return open(
+                content = open(
                     self.content_path,
                     'r',
                     encoding='latin1'
@@ -444,9 +444,12 @@ class TextBody(GenericObject, Tagger):
             except Exception as ex:
                 print('BAD FILE: %s' % (self.content_path))
                 print(ex)
-                return ''
+                content = ''
 
-        return
+        if 'PROJECT GUTENBERG EBOOK' in content:
+            content = clean_gutenberg(content)
+
+        return content
 
     @cached_property
     def sentiment(self):
