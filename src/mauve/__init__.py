@@ -7,11 +7,32 @@ import gender_guesser.detector as gender
 from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
 
 import nltk
-from nltk.tag.perceptron import PerceptronTagger
-
 from mauve.wps import WPS
 
 from mauve.models.synonym import Synonym
+
+try:
+    nltk.data.find('corpora/words')
+except LookupError:
+    nltk.download('words')
+
+try:
+    nltk.data.find('corpora/wordnet')
+except LookupError:
+    nltk.download('wordnet')
+
+try:
+    nltk.data.find('tokenizers/punkt')
+except LookupError:
+    nltk.download('punkt')
+
+try:
+    nltk.data.find('taggers/averaged_perceptron_tagger')
+except LookupError:
+    nltk.download('averaged_perceptron_tagger')
+
+
+from nltk.tag.perceptron import PerceptronTagger
 
 
 GENDER_DETECTOR = gender.Detector()
