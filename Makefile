@@ -13,7 +13,7 @@ dependencies:
 	apt install calibre || true
 
 setup: dependencies
-	$(PYTHON) -m pip install virtualenv
+	pip install virtualenv
 	$(PYTHON) -m virtualenv $(ENV_DIR)
 	$(IN_ENV) python -m pip install -r requirements.txt
 	$(IN_ENV) $(PYTHON) -m pip install --editable .
