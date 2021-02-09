@@ -251,7 +251,7 @@ class TextBody(GenericObject, Tagger):
         return [
             {
                 'name': person_name,
-                'sentiment': TextBody(content=' .'.join(lines)).get_profanity_score()
+                'profanity': TextBody(content=' .'.join(lines)).get_profanity_score()
             } for person_name, lines in speech.items()
         ]
 
