@@ -87,19 +87,25 @@ class TextBody(GenericObject, Tagger):
             return float(len(set(self.dictionary_words))) / len(self.dictionary_words)
         return float(len(set(self.words))) / len(self.words)
 
+    @property
+    def words(self):
+        return nltk.word_tokenize(self.content)
+
     def get_profanity_score(self):
         word_counts = {}
         words = []
 
         original_len = len(self.words)
 
-        tree = create(self.words)
+        lower_words = [i.lower() for i in self.words]
+
+        tree = create(lower_words)
         for curse in PROFANITY_LIST:
             if search(tree, curse) != (0, 0):
                 words.append(curse)
 
         for word in words:
-            word_counts[word] = self.words.count(word)
+            word_counts[word.lower()] = lower_words.count(word.lower())
 
         if not words:
             return 0
@@ -239,6 +245,15 @@ class TextBody(GenericObject, Tagger):
                 if left_text in assignment[0].text.lower():
                     assignments.append(assignment[2].text)
         return assignments
+
+    def get_profanity_by_people(self, people=None):
+        speech = self.get_speech_by_people(people=people)
+        return [
+            {
+                'name': person_name,
+                'sentiment': TextBody(content=' .'.join(lines)).get_profanity_score()
+            } for person_name, lines in speech.items()
+        ]
 
     def get_sentiment_by_people(self, people=None):
         """

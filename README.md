@@ -23,4 +23,9 @@ The assignment is that "You" "are" "not attending"
 >> text = TextBody(content='“Bad no this sucks” said the Mouse to Alice. Alice replied, “Happy Love”')
 >> text.get_sentiment_by_people()
 [{'name': 'Mouse', 'sentiment': {'neg': 0.647, 'neu': 0.114, 'pos': 0.24, 'compound': -0.5559}}, {'name': 'Alice', 'sentiment': {'neg': 0.0, 'neu': 0.0, 'pos': 1.0, 'compound': 0.836}}]
+
+>> TextBody(content='“This is a load of ass!” said the Mouse').get_profanity_score()
+833.3333333333334
+>> TextBody(content='“This is a load of ass!” said the Mouse to Alice severely. “That\'s rude my dude” whispered Alice').get_profanity_by_person()
+[{'name': 'Mouse', 'sentiment': 1428.5714285714287}, {'name': 'Alice', 'sentiment': 0}]
 ```
