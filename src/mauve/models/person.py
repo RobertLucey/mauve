@@ -10,7 +10,8 @@ from mauve.constants import (
     GENDER_PREFIXES,
     PERSON_TITLE_PREFIXES,
     PERSON_PREFIXES,
-    PERSON_TRANSLATOR
+    PERSON_TRANSLATOR,
+    EXTENDED_PUNCTUATION
 )
 
 
@@ -35,6 +36,12 @@ class Person(Entity):
         :kwarg: The person's name
         """
         self.name = kwargs['name'] if kwargs['name'] else ''
+
+        self.name = ' '.join(
+            [
+                c for c in self.name.split(' ') if c not in EXTENDED_PUNCTUATION
+            ]
+        ).strip()
 
         if self.name.lower().startswith('the '):
             self.name = self.name[4:]

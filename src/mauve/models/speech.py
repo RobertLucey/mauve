@@ -3,7 +3,8 @@ import string
 from mauve.constants import (
     SPEECH_QUOTES,
     SPEECH_WORDS,
-    SPEAKERS
+    SPEAKERS,
+    EXTENDED_PUNCTUATION
 )
 from mauve.models.person import Person
 
@@ -99,7 +100,7 @@ def extract_speech(sentence):
         speaker = None
 
         for interesting_part in [after_speech, pre_speech]:
-            interesting_part = [c for c in interesting_part if c.text not in string.punctuation]
+            interesting_part = [c for c in interesting_part if c.text not in EXTENDED_PUNCTUATION]
             set_inflection = False
             inflection_intersection = set(
                 [

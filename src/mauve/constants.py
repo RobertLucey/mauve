@@ -1,4 +1,5 @@
 import os
+import string
 
 from mauve.profanity import PROFANITY_LIST
 from mauve.names import NAMES
@@ -163,7 +164,9 @@ CLEAN_EPUB_PATH = os.path.join(BASE_DATA_PATH, 'clean_books')
 OIREACHTAS_DIR = os.path.join(BASE_DATA_PATH, 'oireachtas')
 
 
-SENTENCE_TERMINATORS = {'.', '?', '!'}
+SENTENCE_TERMINATORS = set(['.', '?', '!'])
+SPEECH_QUOTES = set(['`', '‘', '"', '``', '\'\'', '”', '“'])
+EXTENDED_PUNCTUATION = list(string.punctuation) + list(SPEECH_QUOTES)
 
 
 LIKELY_PERSON_PREFIXES = set([
@@ -194,7 +197,6 @@ PERSON_TRANSLATOR = str.maketrans('', '', '!"#$%&()*+,-/:;<=>?@[\\]^_`{|}~')
 PERSON_PREFIXES = list(GENDER_PREFIXES.keys()) + list(PERSON_TITLE_PREFIXES.keys())
 NOT_NAMES = set(['My', 'An', 'don', 'Him', 'Her', 'So', 'Don', 'Said', 'Tut', 'Laughing', 'Little', 'Mystery', 'Christmas'])
 
-SPEECH_QUOTES = set(['`', '‘', '"', '``', '\'\'', '”', '“'])
 SPEECH_WORDS = set(['said', 'says', 'exclaimed', 'whispered', 'wrote', 'continued', 'told', 'shouted', 'called', 'recalled', 'explained', 'admitted', 'remarked', 'bellowed', 'shrieked', 'told', 'ask', 'asked', 'confided', 'fulminated', 'mused', 'rejoined', 'cried', 'panted', 'continued', 'ejaculated', 'replied', 'interrupted', 'remarked', 'declared', 'queried', 'repeated', 'added', 'lied', 'insisted', 'answered'])
 SPEAKERS = set(['he', 'they', 'she', 'I', 'we', 'it', 'everyone', 'someone'])
 
