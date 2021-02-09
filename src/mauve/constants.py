@@ -197,3 +197,5 @@ NOT_NAMES = set(['My', 'An', 'don', 'Him', 'Her', 'So', 'Don', 'Said', 'Tut', 'L
 SPEECH_QUOTES = set(['`', '‘', '"', '``', '\'\'', '”', '“'])
 SPEECH_WORDS = set(['said', 'says', 'exclaimed', 'whispered', 'wrote', 'continued', 'told', 'shouted', 'called', 'recalled', 'explained', 'admitted', 'remarked', 'bellowed', 'shrieked', 'told', 'ask', 'asked', 'confided', 'fulminated', 'mused', 'rejoined', 'cried', 'panted', 'continued', 'ejaculated', 'replied', 'interrupted', 'remarked', 'declared', 'queried', 'repeated', 'added', 'lied', 'insisted', 'answered'])
 SPEAKERS = set(['he', 'they', 'she', 'I', 'we', 'it', 'everyone', 'someone'])
+
+ASSIGNMENT_WORDS = set(['is', 'are', 'am', 'was', 'were', 'be'])

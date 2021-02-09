@@ -1,5 +1,7 @@
 import copy
+
 from mauve.models.deptree import DepTree
+from mauve.constants import ASSIGNMENT_WORDS
 
 
 # TODO: only extract first assignment, then feed the tail into a parser that may analyse again in the tree
@@ -11,10 +13,8 @@ def extract_assignments(sentence):
     :return:
     """
 
-    joining_words = ['is', 'are', 'am', 'was', 'were', 'be']
-
     good = False
-    for joining_word in joining_words:
+    for joining_word in ASSIGNMENT_WORDS:
         if ' ' + joining_word + ' ' in sentence.text:
             good = True
             break

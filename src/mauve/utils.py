@@ -202,6 +202,15 @@ def iter_books(source='goodreads'):
 
 @lru_cache(maxsize=100000)
 def get_stem(word):
+    """
+    Cachey getting the stem of a word
+
+    >> get_stem('lovely')
+    'love'
+
+    :return: The stem of the word according to nltk
+    :rtype: str
+    """
     return STEMMER.stem(word)
 
 
@@ -233,6 +242,11 @@ def find_sub_idx(original, repl_list, start=0):
 
 
 def replace_sub(original, repl_list, new_list):
+    """
+    Replace a subset of a list with some other subset
+    >> replace_sub([1,2,3,4], [2,3], [5,6])
+    [1,5,6,4]
+    """
     length = len(new_list)
     idx = 0
     for start, end in iter(lambda: find_sub_idx(original, repl_list, idx), None):
@@ -280,6 +294,14 @@ def get_wordnet_pos(tag):
 
 
 def quote_aware_sent_tokenize(content):
+    """
+    Get sentences but make sure that if they're in one speech part
+    that the sentences do not get split away from each other.
+
+    :param content: str content
+    :return: list of quote aware sentences
+    :rtype: list
+    """
     sentences = nltk.tokenize.sent_tokenize(content)
 
     final_sentences = []
@@ -300,6 +322,13 @@ def quote_aware_sent_tokenize(content):
 
 
 def str_count_multi(string, things_to_count):
+    """
+    >> str_count_multi('one two three two one', ['one', 'three'])
+    3
+
+    :return: The occurances of multiple things in a string
+    :rtype: int
+    """
     return sum([string.count(thing) for thing in things_to_count])
 
 
@@ -315,6 +344,25 @@ def flatten(lst):
 
 
 def clean_gutenberg(content):
+    """
+    Project Gutenberg texts come with headers and footers that
+    have legal stuff in them and some other bits we don't want.
+    This should clean up most of the rubbish.
+
+    :param content: str content
+    :return: The string content with Gutenberg boilerplace removed
+    :rtype: str
+    """
     lines = content.split('\n')
-    start, end = sorted([idx for idx, line in enumerate(lines) if '***' in line and 'START OF THIS PROJECT GUTENBERG EBOOK' in line or 'END OF THIS PROJECT GUTENBERG EBOOK' in line])
+    start, end = sorted(
+        [
+            idx for idx, line in enumerate(lines) if all([
+                '***' in line,
+                any([
+                    'START OF THIS PROJECT GUTENBERG EBOOK' in line,
+                    'END OF THIS PROJECT GUTENBERG EBOOK' in line
+                ])
+            ])
+        ]
+    )
     return '\n'.join(lines[start + 1:end])
