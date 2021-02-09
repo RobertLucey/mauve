@@ -147,16 +147,6 @@ class TestBook(TestCase):
         book.set_content_location('/tmp/mauve/isbn___Something Author___title.txt')
         self.assertFalse(book.safe_to_use)
 
-    def test_author_gender(self):
-        book = Book(title='t', author='Arthur', year_published=2020, num_ratings=100)
-        self.assertEqual(book.author_gender, 'male')
-
-        book = Book(title='t', author='Alice McArthur', year_published=2020, num_ratings=100)
-        self.assertEqual(book.author_gender, 'female')
-
-        book = Book(title='t', author=None, year_published=2020, num_ratings=100)
-        self.assertEqual(book.author_gender, None)
-
     def test_set_reviews(self):
         book = Book(
             title='t',
@@ -192,7 +182,7 @@ class TestBook(TestCase):
             book.serialize(),
             {
                 'analysis_version': int(constants.ANALYSIS_VERSION),
-                'author_similarity': False,
+                'author_similarity': True,
                 'title': 't',
                 'author': 'Arthur',
                 'author_gender': 'male',
@@ -221,7 +211,7 @@ class TestBook(TestCase):
                 'crawford_score': -5.4,
                 'vader_pos': 0.0,
                 'vader_neg': 0.0,
-                'vader_neu': 0.0,
+                'vader_neu': 1.0,
                 'vader_compound': 0.0
             }
         )

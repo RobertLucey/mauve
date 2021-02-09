@@ -1,3 +1,5 @@
+import difflib
+
 from mauve import GENDER_DETECTOR
 from mauve.phrases import replace_phrases
 from mauve.models.entity import Entity
@@ -51,6 +53,32 @@ class Person(Entity):
 
     def __hash__(self):
         return hash(self.name)
+
+    def is_similar_to(self, cmp_person):
+
+        def matches(first_string, second_string):
+            s = difflib.SequenceMatcher(None, first_string, second_string)
+            match = [first_string[i:i+n] for i, _, n in s.get_matching_blocks() if n > 0]
+            return match
+
+        try:
+            if max([
+                len(m) for m in matches(
+                    self.name.lower(),
+                    cmp_person.name.lower()
+                )
+            ]) >= max([
+                len(self.name.lower()),
+                len(cmp_person.name.lower())
+            ]) / 3:
+                return True
+        except:
+            return False
+
+        if self.name.lower() == cmp_person.name.lower():
+            return True
+
+        return False
 
     def serialize(self):
         return {

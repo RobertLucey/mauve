@@ -10,7 +10,7 @@ import nltk
 
 from mauve.utils import get_file_content
 from mauve.constants import OIREACHTAS_DIR
-from mauve.models.text import Text
+from mauve.models.text import TextBody
 
 
 def merge_paras(paras):
@@ -24,27 +24,26 @@ def merge_paras(paras):
     return Para(content='\n\n'.join([m.content for m in paras]))
 
 
-class Para(Text):
+class Para(TextBody):
     '''
     Paragraph object, has a title, id, and content.
 
     Inherits from Text which has all the text analysis bits
     '''
 
-    def __init__(self, title=None, eid=None, content=None):
+    def __init__(self, *args, **kwargs):
         '''
 
         :kwarg title: Sometimes a paragraph has a title, not often
         :kwarg eid: Incremented id of the paragraph
         :kwarg content: The str text content
         '''
-        self.title = title
-        self.eid = eid
-        self.content = content
+        self.title = kwargs.get('title', None)
+        self.eid = kwargs.get('eid', None)
 
         self.source = 'oireachtas'
         self.sourcetype = 'debate'
-        super(Para, self).__init__()
+        super(Para, self).__init__(*args, **kwargs)
 
     @cached_property
     def words(self):

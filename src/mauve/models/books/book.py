@@ -2,6 +2,8 @@ import pickle
 import difflib
 import os
 import random
+import statistics
+from collections import Counter
 
 from cached_property import cached_property
 
@@ -11,11 +13,14 @@ from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
 
 from mauve.decorators import kwarg_validator
 from mauve.models.generic import GenericObjects
+from mauve.models.person import Person
 from mauve.models.books.tag import Tags
 from mauve.models.books.review import Reviews
 from mauve.splunk_push import StreamSubmit
-from mauve.models.text import Text
+from mauve.models.text import TextBody
 from mauve.constants import (
+    ENG_WORDS,
+    SIMPLE_TOKEN_MAP,
     TOKEN_VERSION,
     ANALYSIS_VERSION
 )
@@ -23,12 +28,13 @@ from mauve.utils import (
     get_file_content,
     get_loose_filepath
 )
+from mauve import GENDER_DETECTOR
 
 
 VADER = SentimentIntensityAnalyzer()
 
 
-class Book(Text):
+class Book(TextBody):
 
     @kwarg_validator('title', 'author', 'year_published',)
     def __init__(
@@ -46,7 +52,10 @@ class Book(Text):
         num_ratings=None
     ):
         self.title = title
-        self.author = author  # should support multiple authors
+        if not isinstance(author, Person):
+            self.author = Person(name=author)  # should support multiple authors
+        else:
+            self.author = author
         self.year_published = year_published
         self.tags = tags
         self.publisher = publisher
@@ -85,13 +94,13 @@ class Book(Text):
         )
 
     def serialize(self):
-        vader_stats = VADER.polarity_scores([a for a in self.sentences if random.random() < 0.05])  # Need more power but this may be an indication
+        vader_stats = VADER.polarity_scores([a for a in self.sentences])  # Need more power but this may be an indication
         return {
             'analysis_version': int(ANALYSIS_VERSION),
             'author_similarity': self.author_similarity,
             'title': self.title,
-            'author': self.author,
-            'author_gender': self.author_gender,
+            'author': self.author.name,
+            'author_gender': self.author.gender,
             'year_published': int(self.year_published),
             'publisher': self.publisher,
             'isbn': self.isbn,
@@ -197,7 +206,7 @@ class Book(Text):
             # Can change stats if a book / series is split
             return False
 
-        if ' and ' in self.author.lower() or '&' in self.author.lower():
+        if ' and ' in self.author.name.lower() or '&' in self.author.name.lower():
             # multiple authors makes things a bit messier for some stats
             # At some point should support multiple authors
             return False
@@ -210,38 +219,106 @@ class Book(Text):
 
     @property
     def author_similarity(self):
-
-        def matches(first_string, second_string):
-            s = difflib.SequenceMatcher(None, first_string, second_string)
-            match = [first_string[i:i+n] for i, j, n in s.get_matching_blocks() if n > 0]
-            return match
-
-        meta_author = self.author.replace('.', '').lower()
         filename_author = os.path.basename(self.content_path).split('___')[1].replace('.', '').lower()
-
-        try:
-            if max([
-                len(m) for m in matches(
-                    meta_author,
-                    filename_author
-                )
-            ]) > max([
-                len(meta_author),
-                len(filename_author)
-            ]) / 3:
-                return True
-        except:
-            return False
-
-        if meta_author == filename_author:
-            return True
-
-        return False
+        return self.author.is_similar_to(Person(name=filename_author))
 
     @property
     def pickle_path(self):
         return self.content_path + '.tokenv{}.pickle'.format(TOKEN_VERSION)
 
+    def get_avg_word_len(self, only_dictionary_words=False):
+        '''
+
+        :kwargs only_dictionary_words:
+        :return:
+        :rtype:
+        '''
+        if only_dictionary_words:
+            return statistics.mean([len(i) for i in self.dictionary_words])
+        return statistics.mean([len(i) for i in self.words])
+
+    def get_avg_sentence_word_len(self):
+        return statistics.mean(
+            [len(nltk.word_tokenize(i)) for i in self.sentences]
+        )
+
+    def get_avg_sentence_char_len(self):
+        return statistics.mean(
+            [len(i) for i in self.sentences]
+        )
+
+    def get_top_adjectives(self, num_to_get):
+        adjs = Counter(
+            [a.lower() for a in self.adjectives]
+        ).most_common(num_to_get * 2)
+        return dict(
+            [
+                a for a in adjs if all([
+                a[0] in self.dictionary_words,
+                'â' not in str(a),
+                a != 'n'
+            ])
+            ][0:num_to_get]
+        )
+
+    def get_top_nouns(self, num_to_get):
+        nouns = Counter(
+            [a.lower() for a in self.nouns]
+        ).most_common(num_to_get * 2)
+        return dict(
+            [
+                a for a in nouns if all([
+                a[0] in self.dictionary_words,
+                'â' not in str(a),
+                a != 'n'
+            ])
+            ][0:num_to_get]
+        )
+
+    def get_top_verbs(self, num_to_get):
+        verbs = Counter(
+            [a.lower() for a in self.verbs]
+        ).most_common(num_to_get * 2)
+        return dict(
+            [
+                a for a in verbs if all([
+                a[0] in self.dictionary_words,
+                'â' not in str(a),
+                a != 'n'
+            ])
+            ][0:num_to_get]
+        )
+
+    def get_token_type_score(self, token_type):
+        assert (token_type in SIMPLE_TOKEN_MAP.values())
+        div = len(self.words) / 10000.
+        return len([m for m in self.tokens if SIMPLE_TOKEN_MAP[m[1]] == token_type]) / div
+
+    @cached_property
+    def adverbs(self):
+        return [m[0] for m in self.tokens if SIMPLE_TOKEN_MAP[m[1]] == 'adverb']
+
+    @cached_property
+    def adjectives(self):
+        return [m[0] for m in self.tokens if SIMPLE_TOKEN_MAP[m[1]] == 'adjective']
+
+    @cached_property
+    def nouns(self):
+        return [m[0] for m in self.tokens if SIMPLE_TOKEN_MAP[m[1]] == 'noun']
+
+    @cached_property
+    def proper_nouns(self):
+        return [m[0] for m in self.tokens if SIMPLE_TOKEN_MAP[m[1]] == 'proper noun']
+
+    @cached_property
+    def verbs(self):
+        return [m[0] for m in self.tokens if SIMPLE_TOKEN_MAP[m[1]] == 'verb']
+
+    @cached_property
+    def dictionary_words(self):
+        return [
+            w.lower() for w in self.words if w.lower() in ENG_WORDS and w.isalpha()
+        ]
 
 class Books(GenericObjects):
 
