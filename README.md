@@ -26,6 +26,6 @@ The assignment is that "You" "are" "not attending"
 
 >> TextBody(content='“This is a load of ass!” said the Mouse').get_profanity_score()
 833.3333333333334
->> TextBody(content='“This is a load of ass!” said the Mouse to Alice severely. “That\'s rude my dude” whispered Alice').get_profanity_by_person()
+>> TextBody(content='“This is a load of ass!” said the Mouse to Alice severely. “That\'s rude my dude” whispered Alice').get_profanity_by_people()
 [{'name': 'Mouse', 'profanity': 1428.5714285714287}, {'name': 'Alice', 'profanity': 0}]
 ```
