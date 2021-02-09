@@ -17,10 +17,10 @@ Load of things you can do, I'll just include some interesting ones here.
 >> text.get_speech_by_people()
 defaultdict(<class 'list'>, {'Mouse': ['You are not attending !'], '': ['What are you thinking of ?']})
 >> assignment = text.assignments[0][0]
->> print('The assignment is that "{variable}" "{assigning_word}" "{value}"'.format(variable=assignment[0].text, assigning_word=assignment[1].text, value=assignment[2].text))
+>> 'The assignment is that "{variable}" "{assigning_word}" "{value}"'.format(variable=assignment[0].text, assigning_word=assignment[1].text, value=assignment[2].text)
 The assignment is that "You" "are" "not attending"
 
 >> text = TextBody(content='“Bad no this sucks” said the Mouse to Alice. Alice replied, “Happy Love”')
->> print(text.get_sentiment_by_people())
+>> text.get_sentiment_by_people()
 [{'name': 'Mouse', 'sentiment': {'neg': 0.647, 'neu': 0.114, 'pos': 0.24, 'compound': -0.5559}}, {'name': 'Alice', 'sentiment': {'neg': 0.0, 'neu': 0.0, 'pos': 1.0, 'compound': 0.836}}]
 ```
