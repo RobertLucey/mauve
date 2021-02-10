@@ -165,7 +165,7 @@ OIREACHTAS_DIR = os.path.join(BASE_DATA_PATH, 'oireachtas')
 
 
 SENTENCE_TERMINATORS = set(['.', '?', '!'])
-SPEECH_QUOTES = set(['`', '‘', '"', '``', '\'\'', '”', '“'])
+SPEECH_QUOTES = set(['`', '‘', '"', '``', '”', '“'])
 EXTENDED_PUNCTUATION = list(string.punctuation) + list(SPEECH_QUOTES)
 
 
@@ -195,6 +195,7 @@ GENDER_PREFIXES = {
 PERSON_TITLE_PREFIXES = {
     'dr': 'Doctor'
 }
+
 PERSON_TRANSLATOR = str.maketrans('', '', ''.join(list('!"#$%&()*+,-/:;<=>?@[\\]^_`{|}~') + list(SPEECH_QUOTES)))
 PERSON_PREFIXES = list(GENDER_PREFIXES.keys()) + list(PERSON_TITLE_PREFIXES.keys())
 NOT_NAMES = set(['I', 'My', 'An', 'don', 'Him', 'Her', 'So', 'Don', 'Said', 'Tut', 'Laughing', 'Little', 'Mystery', 'Christmas'])
