@@ -32,6 +32,8 @@ RESOURCE_PATH = os.path.join(
 
 class TestTextBody(TestCase):
 
+    ALICE = TextBody(content=open(os.path.join(RESOURCE_PATH, 'alices_adventures_in_wonderland.txt'), 'r').read())
+
     def test_people_firstnames(self):
         people = TextBody(
             content='Robert went to the shop. He then saw Carl talking to Mark.'
@@ -78,24 +80,21 @@ class TestTextBody(TestCase):
 
         self.assertEqual(
             sorted([p.name for p in people]),
-            sorted(["Dr O'Malley", 'Mr C Lucey', 'Mr Somethingorother'])
+            sorted(["O'Malley", 'C Lucey', 'Somethingorother']),
         )
 
     def test_alice_people(self):
-        alice = open(os.path.join(RESOURCE_PATH, 'alices_adventures_in_wonderland.txt'), 'r').read()
-        book = TextBody(content=alice)
-        people_names = [p.name for p in book.people]
-        self.assertTrue('Alice' in people_names)
-        self.assertTrue('Hatter' in people_names)
-        self.assertTrue('March Hare' in people_names)
-        self.assertTrue('Ada' in people_names)
-        #self.assertTrue('Caterpillar' in people_names)  # since it's a noun. Should be able to extract because the Caterpillar speaks
+        people_names = [p.name for p in self.ALICE.people]
+        all_names = 'all names: %s' % people_names
+        self.assertTrue('Alice' in people_names, all_names)
+        self.assertTrue('Hatter' in people_names, all_names)
+        self.assertTrue('March Hare' in people_names, all_names)
+        self.assertTrue('Ada' in people_names, all_names)
+        #self.assertTrue('Caterpillar' in people_names, all_names)  # since it's a noun. Should be able to extract because the Caterpillar speaks
 
     def test_alice_assignments(self):
-        alice = open(os.path.join(RESOURCE_PATH, 'alices_adventures_in_wonderland.txt'), 'r').read()
-        book = TextBody(content=alice)
         alice_assignments = []
-        for sentence_assignments in book.assignments:
+        for sentence_assignments in self.ALICE.assignments:
             for assignment in sentence_assignments:
                 if 'alice' in assignment[0].text.lower():
                     alice_assignments.append(assignment[2].text)
@@ -104,49 +103,22 @@ class TestTextBody(TestCase):
             alice_assignments[0].startswith('beginning to get very tired of sitting by her sister')
         )
 
-    #def test_alice_speech(self):
-    #    alice = open(os.path.join(RESOURCE_PATH, 'alices_adventures_in_wonderland.txt'), 'r').read()
-
-    #    book = TextBody(content=alice)
-    #    print([s.serialize() for s in book.speech if s])
-    #    raise Exception()
-    #    #speech_objects = book.get_speech_by_person(Person(name='Alice'))
-    #    #self.assertTrue(
-    #    #    {'text': 'which certainly was not here before ,', 'speaker': {'name': 'Alice', 'gender': 'female'}, 'inflection': 'said'} in [s.serialize() for s in speech_objects]
-    #    #)
+    def test_alice_speech(self):
+        speech_objects = self.ALICE.get_speech_by_people([Person(name='Alice')])
+        print(speech_objects)
+        
+        self.assertTrue(
+            'Who cares for you ?' in [s.text for s in speech_objects['Alice']]
+        )
 
     def test_sentiment_by_person(self):
-        alice = open(os.path.join(RESOURCE_PATH, 'alices_adventures_in_wonderland.txt'), 'r').read()
+        sentiment_by_person = self.ALICE.get_sentiment_by_people(people=[Person(name='Alice'), Person(name='Queen')])
 
-        book = TextBody(content=alice)
-        sentiment_by_person = book.get_sentiment_by_people(people=[Person(name='Alice'), Person(name='Queen')])
-
-        print(sentiment_by_person)
-
-        self.assertEqual(
-            sentiment_by_person[0]['name'],
-            'Alice'
-        )
         self.assertGreater(
-            sentiment_by_person[0]['sentiment']['compound'],
+            sentiment_by_person['Alice']['compound'],
             0.5
         )
         self.assertLess(
-            sentiment_by_person[1]['sentiment']['compound'],
+            sentiment_by_person['Queen']['compound'],
             -0.5
         )
-
-
-    def test_get_text(self):
-        content = '''
-        Alice folded her hands, and began:—
-
-“You are old, Father William,” the young man said,
-    “And your hair has become very white;
-And yet you incessantly stand on your head—
-    Do you think, at your age, it is right?”
-
-        '''
-
-        book = TextBody(content=content)
-        # [{'text': 'You are old , Father William ,', 'speaker': {'name': 'young man', 'gender': None}, 'inflection': 'said'}, {'text': 'And your hair has become very white ; And yet you incessantly stand on your head— Do you think , at your age , it is right ?', 'speaker': {'name': '', 'gender': None}, 'inflection': 'said'}]

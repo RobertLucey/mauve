@@ -138,7 +138,7 @@ class TestSentence(TestCase):
     def test_person_extract(self):
 
         s = Sentence('I want to talk to dr. Jones')
-        self.assertEqual([p.name for p in s.people], ['dr Jones'])
+        self.assertEqual([p.name for p in s.people], ['Jones'])
         self.assertEqual(
             [o.text for o in s.segments],
             ['I', 'want', 'to', 'talk', 'to', 'dr Jones']
@@ -150,7 +150,7 @@ class TestSentence(TestCase):
         )
 
         s = Sentence('I want to talk to mr Jones')
-        self.assertEqual([p.name for p in s.people], ['mr Jones'])
+        self.assertEqual([p.name for p in s.people], ['Jones'])
         self.assertEqual(
             [o.text for o in s.segments],
             ['I', 'want', 'to', 'talk', 'to', 'mr Jones']
