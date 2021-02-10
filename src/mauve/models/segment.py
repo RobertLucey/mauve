@@ -84,14 +84,14 @@ class Segment(Tagger, GenericObject):
 
     @property
     def is_person(self):
-        return self.tag == 'PERSON' or self.is_titled_noun
+        return self.tag == 'PERSON' or self.is_titled_proper_noun
 
     @property
     def is_titled_proper_noun(self):
         """
         A titled noun is mr X or Dr Y
         """
-        return self.text.lower().split(' ').replace('.', '')[0] in LIKELY_PERSON_PREFIXES
+        return self.text.lower().split(' ')[0].replace('.', '') in LIKELY_PERSON_PREFIXES
 
     @property
     def is_noun(self):
