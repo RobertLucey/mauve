@@ -87,8 +87,11 @@ class Segment(Tagger, GenericObject):
         return self.tag == 'PERSON' or self.is_titled_noun
 
     @property
-    def is_titled_noun(self):
-        return any([self.text.lower().startswith(prefix) for prefix in LIKELY_PERSON_PREFIXES])
+    def is_titled_proper_noun(self):
+        """
+        A titled noun is mr X or Dr Y
+        """
+        return self.text.lower().split(' ').replace('.', '')[0] in LIKELY_PERSON_PREFIXES
 
     @property
     def is_noun(self):
@@ -99,7 +102,7 @@ class Segment(Tagger, GenericObject):
         return any([
             (tag[0] == 'N' and not self.is_entity),
             tag in ['EVENT', 'ORG', 'PERSON', 'PRODUCT', 'NORP', 'FAC', 'GPE', 'LOC', 'WORK_OF_ART', 'LANGUAGE'],
-            self.is_titled_noun,
+            self.is_titled_proper_noun,
             self.is_person
         ])
 

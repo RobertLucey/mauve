@@ -170,12 +170,12 @@ EXTENDED_PUNCTUATION = list(string.punctuation) + list(SPEECH_QUOTES)
 
 
 LIKELY_PERSON_PREFIXES = set([
-    'dr ',
-    'mr ',
-    'ms ',
-    'mrs ',
-    'miss ',
-    'sir '
+    'dr',
+    'mr',
+    'ms',
+    'mrs',
+    'miss',
+    'sir'
 ])
 
 GENDER_PREFIXES = {

@@ -28,7 +28,7 @@ def clean_name(name):
             c for c in name.split(' ') if all(
                 [
                     c not in EXTENDED_PUNCTUATION,
-                    c.lower().replace('.', '') + ' ' not in LIKELY_PERSON_PREFIXES
+                    c.lower().replace('.', '') not in LIKELY_PERSON_PREFIXES
                 ]
             )
         ]
