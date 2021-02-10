@@ -23,6 +23,7 @@ from mauve.constants import (
 
 from mauve.models.generic import GenericObject
 from mauve.models.person import People
+from mauve.profanity import PROFANITY_TREE
 from mauve.bst import (
     create,
     search
@@ -99,10 +100,10 @@ class TextBody(GenericObject, Tagger):
 
         lower_words = [i.lower() for i in self.words]
 
-        tree = create(lower_words)
-        for curse in PROFANITY_LIST:
-            if search(tree, curse) != (0, 0):
-                words.append(curse)
+        tree = PROFANITY_TREE
+        for word in lower_words:
+            if search(tree, word) != (0, 0):
+                words.append(word)
 
         for word in words:
             word_counts[word.lower()] = lower_words.count(word.lower())
@@ -228,9 +229,9 @@ class TextBody(GenericObject, Tagger):
             if speech:
                 if people is not None:
                     if speech.speaker.name.lower() in names:
-                        speech_people_map[speech.speaker.name].append(speech.text)
+                        speech_people_map[speech.speaker.name].append(speech)
                 else:
-                    speech_people_map[speech.speaker.name].append(speech.text)
+                    speech_people_map[speech.speaker.name].append(speech)
         return speech_people_map
 
     def get_assignments_by(self, left_text):
@@ -248,12 +249,9 @@ class TextBody(GenericObject, Tagger):
 
     def get_profanity_by_people(self, people=None):
         speech = self.get_speech_by_people(people=people)
-        return [
-            {
-                'name': person_name,
-                'profanity': TextBody(content=' .'.join(lines)).get_profanity_score()
-            } for person_name, lines in speech.items()
-        ]
+        return {
+            person_name: TextBody(content=' .'.join([s.text for s in speech_items])).get_profanity_score() for person_name, speech_items in speech.items()
+        }
 
     def get_sentiment_by_people(self, people=None):
         """
@@ -264,12 +262,9 @@ class TextBody(GenericObject, Tagger):
         :return: list of dicts {name: something, sentiment: {pos: 0, neg: 0 , neu: 0, compound: 0}}
         """
         speech = self.get_speech_by_people(people=people)
-        return [
-            {
-                'name': person_name,
-                'sentiment': TextBody(content=' .'.join(lines)).sentiment
-            } for person_name, lines in speech.items()
-        ]
+        return {
+            person_name: TextBody(content=' .'.join([s.text for s in speech_items])).sentiment for person_name, speech_items in speech.items()
+        }
 
     @cached_property
     def sentences_tokens(self):
