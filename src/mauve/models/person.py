@@ -11,8 +11,47 @@ from mauve.constants import (
     PERSON_TITLE_PREFIXES,
     PERSON_PREFIXES,
     PERSON_TRANSLATOR,
-    EXTENDED_PUNCTUATION
+    EXTENDED_PUNCTUATION,
+    LIKELY_PERSON_PREFIXES
 )
+
+
+def clean_name(name):
+    """
+
+    :param name: A string of a name or loose name
+    :return: A name with unnecessary parts removed
+    :rtype: str
+    """
+    name = ' '.join(
+        [
+            c for c in name.split(' ') if all(
+                [
+                    c not in EXTENDED_PUNCTUATION,
+                    c.lower().replace('.', '') + ' ' not in LIKELY_PERSON_PREFIXES
+                ]
+            )
+        ]
+    ).strip()
+
+    if name.lower().startswith('the '):
+        name = name[4:]
+
+    if name.lower().startswith('a '):
+        name = name[2:]
+
+    if any(
+        [
+            name in NOT_NAMES,
+            'chapter' in [n.lower() for n in name.split()],
+            'part' in [n.lower() for n in name.split()],
+            'section' in [n.lower() for n in name.split()],
+        ]
+    ):
+        name = ''
+
+    return name.translate(PERSON_TRANSLATOR).strip()
+
 
 
 class People(GenericObjects):
@@ -33,30 +72,16 @@ class Person(Entity):
     def __init__(self, *args, **kwargs):
         """
 
-        :kwarg: The person's name
+        :kwarg name: The person / character's name
         """
-        self.name = kwargs['name'] if kwargs['name'] else ''
-
-        self.name = ' '.join(
-            [
-                c for c in self.name.split(' ') if c not in EXTENDED_PUNCTUATION
-            ]
-        ).strip()
-
-        if self.name.lower().startswith('the '):
-            self.name = self.name[4:]
-
-        if self.name in NOT_NAMES:
-            self.name = ''
-
-        if 'chapter' in self.name.lower():
-            self.name = ''
-
-        self.name = self.name.translate(PERSON_TRANSLATOR)
-        self.name = self.name.strip()
+        self.dirty_name = kwargs['name'] if kwargs['name'] else ''
 
         kwargs.setdefault('etype', 'person')
         super(Person, self).__init__(*args, **kwargs)
+
+    @property
+    def name(self):
+        return clean_name(self.dirty_name)
 
     def __hash__(self):
         return hash(self.name)
@@ -67,6 +92,9 @@ class Person(Entity):
             s = difflib.SequenceMatcher(None, first_string, second_string)
             match = [first_string[i:i+n] for i, _, n in s.get_matching_blocks() if n > 0]
             return match
+
+        if self.name.lower() == cmp_person.name.lower():
+            return True
 
         try:
             if max([
@@ -81,9 +109,6 @@ class Person(Entity):
                 return True
         except:
             return False
-
-        if self.name.lower() == cmp_person.name.lower():
-            return True
 
         return False
 
@@ -106,7 +131,7 @@ class Person(Entity):
         # TODO: if name is "Mr Jones" it should be obvious it's a male
 
         gender = None
-        name_split = self.name.split(' ')
+        name_split = self.dirty_name.split(' ')
 
         if name_split[0].lower() in GENDER_PREFIXES.keys():
             return GENDER_PREFIXES[name_split[0].lower()]
@@ -114,7 +139,7 @@ class Person(Entity):
         if '.' in name_split[0]:
             # Should attempt to do something here
             gender = None
-        elif ' and ' in self.name.lower() or '&' in self.name.lower():
+        elif ' and ' in self.dirty_name.lower() or '&' in self.dirty_name.lower():
             # more than one person, should do something about this before it gets here
             gender = None
         else:

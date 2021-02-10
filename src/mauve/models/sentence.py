@@ -7,14 +7,16 @@ from mauve.structure.assignment import extract_assignments
 from mauve.structure.conditional import extract_conditionals
 from mauve.models.speech import extract_speech
 
-from mauve.utils import replace_sub
+from mauve.utils import (
+    replace_sub,
+    get_en_core_web_sm
+)
 
 from mauve.phrases import replace_phrases
 from mauve.models.deptree import DepTree, DepNode
 from mauve.models.person import extract_people
 from mauve.models.segment import Segment
 from mauve import (
-    ENCORE,
     SYNONYM
 )
 
@@ -32,7 +34,7 @@ class Sentence:
 
     @property
     def deptree(self):
-        doc = ENCORE(self.get_unsplit_text)
+        doc = get_en_core_web_sm(self.get_unsplit_text)
         return DepTree([
             DepNode(
                 token.text,
@@ -60,7 +62,7 @@ class Sentence:
     def get_unsplit_text(self):
         self.text = self.preprocess_text(replace_phrases(self.text))
 
-        sentence = ENCORE(self.text)
+        sentence = get_en_core_web_sm(self.text)
 
         mod_text = self.text
         mapping = {}
@@ -97,7 +99,7 @@ class Sentence:
     def base_segments(self):
         self.text = self.preprocess_text(self.text)
 
-        sentence = ENCORE(self.text)
+        sentence = get_en_core_web_sm(self.text)
 
         mod_text = self.text
         mapping = {}

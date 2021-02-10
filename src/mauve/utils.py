@@ -15,6 +15,7 @@ from compress_pickle import (
     load
 )
 
+from mauve import ENCORE, ENCORE_LG
 from mauve.models.books.tag import (
     Tag,
     Tags
@@ -200,7 +201,16 @@ def iter_books(source='goodreads'):
         yield book
 
 
-@lru_cache(maxsize=100000)
+@lru_cache(maxsize=1000)
+def get_en_core_web_sm(text):
+    return ENCORE(text)
+
+@lru_cache(maxsize=1000)
+def get_en_core_web_lg(text):
+    return ENCORE_LG(text)
+
+
+@lru_cache(maxsize=10000)
 def get_stem(word):
     """
     Cachey getting the stem of a word
@@ -214,7 +224,7 @@ def get_stem(word):
     return STEMMER.stem(word)
 
 
-@lru_cache(maxsize=100000)
+@lru_cache(maxsize=10000)
 def get_lem(word, pos=None):
     if not word:
         return word
@@ -293,6 +303,22 @@ def get_wordnet_pos(tag):
         return tag_dict.get(tag, wordnet.NOUN)
 
 
+def paragraphs(content):
+    """
+    Split content into paragraphs. Handy to isolate issues to a
+    paragraph rather than let it compound over future paragraphs,
+
+    :param content: string to split into paragraphs
+    :return: List split by two newlines
+    :rtype: list
+    """
+    return content.split('\n\n')
+
+
+def sentences(content):
+    return [nltk.tokenize.sent_tokenize(para) for para in paragraphs(content)]
+
+
 def quote_aware_sent_tokenize(content):
     """
     Get sentences but make sure that if they're in one speech part
@@ -302,23 +328,29 @@ def quote_aware_sent_tokenize(content):
     :return: list of quote aware sentences
     :rtype: list
     """
-    sentences = nltk.tokenize.sent_tokenize(content)
+    sentences = []
+    for paragraph in paragraphs(content):
+        paragraph_sentences = nltk.tokenize.sent_tokenize(paragraph)
 
-    final_sentences = []
-    inside_quote = False
-    for sentence in sentences:
-        if inside_quote:
-            final_sentences[-1] += ' ' + sentence
-        else:
-            final_sentences.append(sentence)
+        inside_quote = False
+        for sentence in paragraph_sentences:
+            if inside_quote:
+                sentences[-1] += ' ' + sentence
+            else:
+                sentences.append(sentence)
 
-        # FIXME: might not be "
-        if str_count_multi(sentence, SPEECH_QUOTES) % 2 != 0 and not inside_quote:
-            inside_quote = True
-        elif str_count_multi(sentence, SPEECH_QUOTES) % 2 != 0 and inside_quote:
-            inside_quote = False
+            if all([
+                    str_count_multi(sentence, SPEECH_QUOTES) % 2 != 0,
+                    not inside_quote
+            ]):
+                inside_quote = True
+            elif all([
+                    str_count_multi(sentence, SPEECH_QUOTES) % 2 != 0,
+                    inside_quote
+            ]):
+                inside_quote = False
 
-    return final_sentences
+    return sentences
 
 
 def str_count_multi(string, things_to_count):

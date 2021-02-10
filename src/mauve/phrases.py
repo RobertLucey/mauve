@@ -1,15 +1,11 @@
 import spacy
 from spacy.matcher import Matcher
 from mauve.structure.conditional import CONDITIONAL_LIST
+from mauve.utils import get_en_core_web_sm
+from mauve import ENCORE_LG
 
-try:
-    NLP = spacy.load('en_core_web_lg')
-except:  # pragma: nocover
-    from spacy.cli import download
-    download('en_core_web_lg')
-    NLP = spacy.load('en_core_web_lg')
 
-M_TOOL = Matcher(NLP.vocab)
+M_TOOL = Matcher(ENCORE_LG.vocab)
 
 
 OTHER_REPLACEMENTS = {
@@ -112,7 +108,7 @@ for idiom in PHRASES:
 
 def replace_phrases(text):
 
-    sentence = NLP(text)
+    sentence = get_en_core_web_sm(text)
 
     phrase_matches = M_TOOL(sentence)
 

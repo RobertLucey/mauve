@@ -174,10 +174,12 @@ LIKELY_PERSON_PREFIXES = set([
     'mr ',
     'ms ',
     'mrs ',
-    'miss '
+    'miss ',
+    'sir '
 ])
 
 GENDER_PREFIXES = {
+    'sir': 'male',
     'mr': 'male',
     'mister': 'male',
     'mr.': 'male',
@@ -195,7 +197,7 @@ PERSON_TITLE_PREFIXES = {
 }
 PERSON_TRANSLATOR = str.maketrans('', '', '!"#$%&()*+,-/:;<=>?@[\\]^_`{|}~')
 PERSON_PREFIXES = list(GENDER_PREFIXES.keys()) + list(PERSON_TITLE_PREFIXES.keys())
-NOT_NAMES = set(['My', 'An', 'don', 'Him', 'Her', 'So', 'Don', 'Said', 'Tut', 'Laughing', 'Little', 'Mystery', 'Christmas'])
+NOT_NAMES = set(['I', 'My', 'An', 'don', 'Him', 'Her', 'So', 'Don', 'Said', 'Tut', 'Laughing', 'Little', 'Mystery', 'Christmas'])
 
 SPEECH_WORDS = set(['said', 'says', 'exclaimed', 'whispered', 'wrote', 'continued', 'told', 'shouted', 'called', 'recalled', 'explained', 'admitted', 'remarked', 'bellowed', 'shrieked', 'told', 'ask', 'asked', 'confided', 'fulminated', 'mused', 'rejoined', 'cried', 'panted', 'continued', 'ejaculated', 'replied', 'interrupted', 'remarked', 'declared', 'queried', 'repeated', 'added', 'lied', 'insisted', 'answered'])
 SPEAKERS = set(['he', 'they', 'she', 'I', 'we', 'it', 'everyone', 'someone'])

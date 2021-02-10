@@ -28,7 +28,9 @@ class Synonym:
 
     def get_synonyms(self, word, method='wordnet'):
         if method == 'wordnet':
-            token = self.nlp(word)[0]
+
+            from mauve.utils import get_en_core_web_sm
+            token = get_en_core_web_sm(word)[0]
 
             token._.wordnet.synsets()
             token._.wordnet.lemmas()
@@ -75,9 +77,3 @@ class Synonym:
                     return text
             except:
                 return text
-
-    @cached_property
-    def nlp(self):
-        nlp = spacy.load('en')
-        nlp.add_pipe(WordnetAnnotator(nlp.lang), after='tagger')
-        return nlp

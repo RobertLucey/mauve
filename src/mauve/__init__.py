@@ -44,6 +44,15 @@ except:  # pragma: nocover
     from spacy.cli import download
     download('en')
     ENCORE = spacy.load('en_core_web_sm')
+
+try:
+    ENCORE_LG = spacy.load('en_core_web_lg')
+except:  # pragma: nocover
+    from spacy.cli import download
+    download('en_core_web_lg')
+    ENCORE_LG = spacy.load('en_core_web_lg')
+
+
 WPS = WPS(print_rate=10000)
 SYNONYM = Synonym()
 
