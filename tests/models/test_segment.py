@@ -45,7 +45,7 @@ class TestSegment(TestCase):
 
     def test_is_adj(self):
         self.assertTrue(
-            Segment('blue').is_adj
+            Segment('big').is_adj
         )
         self.assertFalse(
             Segment('house').is_adj
