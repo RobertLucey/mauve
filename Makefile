@@ -18,6 +18,11 @@ setup: dependencies
 	$(IN_ENV) python -m pip install -r requirements.txt
 	$(IN_ENV) $(PYTHON) -m pip install --editable .
 
+travis_test: setup download_books
+	$(IN_ENV) python -m pip install nose coverage mock
+	$(IN_ENV) $(TEST_CONTEXT) TRAVIS=True python `which nosetests` -q -s tests/ --with-coverage --cover-erase --cover-package=src
+	$(IN_ENV) coverage report -m
+
 test: setup download_books
 	$(IN_ENV) python -m pip install nose coverage mock
 	$(IN_ENV) $(TEST_CONTEXT) python `which nosetests` -q -s tests/ --with-coverage --cover-erase --cover-package=src
