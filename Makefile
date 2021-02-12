@@ -43,4 +43,5 @@ restore_from_gz:
 download_books:
 	mkdir -p tests/resources
 	test -s tests/resources/alices_adventures_in_wonderland.txt || wget https://www.gutenberg.org/files/11/11-0.txt -O tests/resources/alices_adventures_in_wonderland.txt
+	test -s tests/resources/alices_adventures_in_wonderland.mobi || wget https://filesamples.com/samples/ebook/mobi/Alices%20Adventures%20in%20Wonderland.mobi -O tests/resources/alices_adventures_in_wonderland.mobi
 	test -s tests/resources/dr_jekyll_and_mr_hyde.txt || wget https://www.gutenberg.org/files/43/43-0.txt -O tests/resources/dr_jekyll_and_mr_hyde.txt

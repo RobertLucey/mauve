@@ -122,3 +122,35 @@ class TestTextBody(TestCase):
             sentiment_by_person['Queen']['compound'],
             -0.5
         )
+
+    def test_words(self):
+        self.assertEqual(
+            TextBody(content='I\'m here now.').words,
+            ['I', 'am', 'here', 'now']
+        )
+
+        self.assertEqual(
+            TextBody(content='“Jekyll,” said Utterson,').words,
+            ['Jekyll', 'said', 'Utterson']
+        )
+
+
+    def test_lang(self):
+        self.assertEqual(
+            TextBody(content='I like to ride my bicycle.').lang,
+            'en'
+        )
+        self.assertEqual(
+            TextBody(content='Encantado de conocerte.').lang,
+            'es'
+        )
+
+    def test_get_assignments_by(self):
+        self.assertEqual(
+            TextBody(content='Ducks are cute. You are ugly').get_assignments_by('ducks'),
+            ['cute']
+        )
+        self.assertEqual(
+            TextBody(content='Ducks are cute. You are ugly').get_assignments_by('you'),
+            ['ugly']
+        )

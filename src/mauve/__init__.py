@@ -74,5 +74,3 @@ class Tagger():
                     TAGGER.tagdict[tok] = tag
 
         return tagged_tokens
-
-

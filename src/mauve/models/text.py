@@ -18,8 +18,10 @@ from mauve.constants import (
     PROFANITY_LIST,
     SENTENCE_TERMINATORS,
     SIMPLE_TOKEN_MAP,
-    ANALYSIS_VERSION
+    ANALYSIS_VERSION,
+    EXTENDED_PUNCTUATION
 )
+from mauve.contractions import replace_contractions
 
 from mauve.models.generic import GenericObject
 from mauve.models.person import People
@@ -90,7 +92,7 @@ class TextBody(GenericObject, Tagger):
 
     @property
     def words(self):
-        return nltk.word_tokenize(self.content)
+        return [w for w in nltk.word_tokenize(self.content) if w not in EXTENDED_PUNCTUATION]
 
     def get_profanity_score(self):
         word_counts = {}
@@ -142,7 +144,7 @@ class TextBody(GenericObject, Tagger):
         if 'PROJECT GUTENBERG EBOOK' in content:
             content = clean_gutenberg(content)
 
-        return content
+        return replace_contractions(content)
 
     @cached_property
     def sentiment(self):
