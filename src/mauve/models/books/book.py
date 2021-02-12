@@ -16,7 +16,6 @@ from mauve.models.generic import GenericObjects
 from mauve.models.person import Person
 from mauve.models.books.tag import Tags
 from mauve.models.books.review import Reviews
-from mauve.splunk_push import StreamSubmit
 from mauve.models.text import TextBody
 from mauve.constants import (
     ENG_WORDS,
@@ -84,14 +83,6 @@ class Book(TextBody):
 
     def is_genre(self, genre_name):
         return self.tags.contains(genre_name)
-
-    def push_to_splunk(self):
-        StreamSubmit().submit(
-            'books',
-            self.serialize(),
-            source='books',
-            tourcetype='books'
-        )
 
     def serialize(self):
         vader_stats = VADER.polarity_scores([a for a in self.sentences])  # Need more power but this may be an indication
