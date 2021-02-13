@@ -400,6 +400,6 @@ def clean_gutenberg(content):
     content = '\n'.join(lines[start + 1:end])
 
     content = content.replace('\n\n', 'MAUVE_REPLACE_NEWLINE')
-    content = content.replace('\n', '').replace('MAUVE_REPLACE_NEWLINE', '\n')
+    content = content.replace('\n', ' ').replace('MAUVE_REPLACE_NEWLINE', '\n')
 
     return content
