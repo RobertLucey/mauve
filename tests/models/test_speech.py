@@ -66,9 +66,7 @@ Hallward painted away with that marvellous bold touch of his, that had the true 
 
     def test_multiple_speech(self):
         content = '''
-“If you didn’t sign it,” said the King, “that only makes the matter
-worse. You _must_ have meant some mischief, or else you’d have signed
-your name like an honest man.”
+“If you didn’t sign it,” said the King, “that only makes the matter worse. You _must_ have meant some mischief, or else you’d have signed your name like an honest man.”
 '''
         sentences = [Sentence(s) for s in quote_aware_sent_tokenize(content)]
 

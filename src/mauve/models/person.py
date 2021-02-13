@@ -190,6 +190,7 @@ def extract_people(sentence):
                 people.append(Person(name=text))
         else:
             # Do some stuff around caital letters
+            text = text.replace('  ', ' ')
             if ' ' in text:
                 split = text.split(' ')
                 if any([
