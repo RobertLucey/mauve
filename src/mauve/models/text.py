@@ -250,7 +250,7 @@ class TextBody(GenericObject, Tagger):
         """
         assignments = []
         for assignment in self.assignments:
-            if left_text in assignment[0].text.lower():
+            if left_text.lower() in assignment[0].text.lower():
                 assignments.append(assignment[2].text)
         return assignments
 

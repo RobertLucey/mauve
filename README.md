@@ -20,6 +20,9 @@ Load of things you can do, I'll just include some interesting ones here.
 >> 'The assignment is that "{variable}" "{assigning_word}" "{value}"'.format(variable=assignment[0].text, assigning_word=assignment[1].text, value=assignment[2].text)
 The assignment is that "You" "are" "not attending"
 
+>> TextBody(content='London is the capital of Paris, and Paris is the capital of Rome').get_assignments_by('Paris')
+['the capital of Rome']
+
 >> text = TextBody(content='“Bad no this sucks” said the Mouse to Alice. Alice replied, “Happy Love”')
 >> text.get_sentiment_by_people()
 {'Mouse': {'neg': 0.647, 'neu': 0.114, 'pos': 0.24, 'compound': -0.5559}, 'Alice': {'neg': 0.0, 'neu': 0.0, 'pos': 1.0, 'compound': 0.836}}
