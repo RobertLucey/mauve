@@ -96,21 +96,27 @@ class TextBody(GenericObject, Tagger):
 
     def get_profanity_score(self):
         word_counts = {}
-        words = []
+        profane_words = []
 
-        original_len = len(self.words)
+        content = self.content
+        for p in PROFANITY_LIST:
+            content = content.replace(p, p.replace(' ', '_'))
 
-        lower_words = [i.lower() for i in self.words]
+        words = [w for w in nltk.word_tokenize(content) if w not in EXTENDED_PUNCTUATION]
+
+        original_len = len(words)
+
+        lower_words = [i.lower().replace('_', ' ') for i in words]
 
         tree = PROFANITY_TREE
         for word in lower_words:
             if search(tree, word) != (0, 0):
-                words.append(word)
+                profane_words.append(word)
 
-        for word in words:
+        for word in profane_words:
             word_counts[word.lower()] = lower_words.count(word.lower())
 
-        if not words:
+        if not profane_words:
             return 0
 
         div = original_len / 10000.

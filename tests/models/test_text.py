@@ -154,3 +154,9 @@ class TestTextBody(TestCase):
             TextBody(content='Ducks are cute. You are ugly').get_assignments_by('you'),
             ['ugly']
         )
+
+    def test_wordy_profanity(self):
+        self.assertEqual(
+            TextBody(content='eat my ass').get_profanity_score(),
+            10000
+        )
