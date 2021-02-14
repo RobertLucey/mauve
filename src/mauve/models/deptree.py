@@ -1,4 +1,5 @@
 from mauve.structure.conditional import CONDITIONAL_LIST
+from mauve.constants import ASSIGNMENT_WORDS
 
 
 def serialize_children(children):
@@ -97,8 +98,7 @@ class DepTree():
 
     @property
     def equals(self):
-        eqs = ['is', 'are', 'am', 'was', 'were', 'be']
-        return [node for node in self.nodes if node.text in eqs]
+        return [node for node in self.nodes if node.text in list(set(list(ASSIGNMENT_WORDS) + [w.replace(' ', '_') for w in ASSIGNMENT_WORDS]))]
 
     @property
     def text(self):

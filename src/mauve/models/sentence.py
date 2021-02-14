@@ -35,6 +35,7 @@ class Sentence:
     @property
     def deptree(self):
         doc = get_en_core_web_sm(self.get_unsplit_text)
+
         return DepTree([
             DepNode(
                 token.text,

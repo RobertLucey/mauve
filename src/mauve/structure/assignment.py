@@ -9,9 +9,16 @@ def extract_assignments(sentence):
     """
     Given segments, pull out the assignments made in the segments
 
+    Issue around is not where the assignment join doesn't contain the negation. Not too worried though
+
     :param sentence: Sentence object
     :return:
     """
+
+    text = sentence.text
+
+    for a_word in ASSIGNMENT_WORDS:
+        text = text.replace(a_word, a_word.replace(' ', '_'))
 
     good = False
     for joining_word in ASSIGNMENT_WORDS:
@@ -22,7 +29,8 @@ def extract_assignments(sentence):
     if not good:
         return []
 
-    deptree = sentence.deptree
+    from mauve.models.sentence import Sentence
+    deptree = Sentence(text).deptree
 
     assignments = []
 
@@ -34,7 +42,7 @@ def extract_assignments(sentence):
 
         left = deptree.get_closest_before(
             equal_node,
-            dep=['nsubj', 'dobj', 'pobj', 'nsubj', 'expl']
+            dep=['nsubj', 'dobj', 'pobj', 'nsubj', 'expl', 'compound']
         )
 
         people = sentence.people
@@ -43,7 +51,7 @@ def extract_assignments(sentence):
             not left.segment.is_noun,
             not left.segment.is_prp,
             left.segment.text not in people,
-            left.dep not in ['nsubj', 'dobj', 'pobj', 'nsubj', 'expl']
+            left.dep not in ['nsubj', 'dobj', 'pobj', 'nsubj', 'expl', 'compound']
         ]):
             continue
 
