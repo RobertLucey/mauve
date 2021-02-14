@@ -22,7 +22,7 @@ def extract_assignments(sentence):
 
     good = False
     for joining_word in ASSIGNMENT_WORDS:
-        if ' ' + joining_word + ' ' in sentence.text:
+        if ' ' + joining_word.replace(' ', '_') + ' ' in text:
             good = True
             break
 
