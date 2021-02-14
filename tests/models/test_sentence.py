@@ -235,3 +235,9 @@ class TestSentence(TestCase):
         self.assertEquals(lvr[0][2].lvr[0][0].text, 'it')
         self.assertEquals(lvr[0][2].lvr[0][1].text, 'was')
         self.assertEquals(lvr[0][2].lvr[0][2].text, 'failing')
+
+    def test_get_assignments_multiple_words_joiner(self):
+        ass = Sentence('The dog should not eat human food').assignments[0]
+        self.assertEqual(ass[0].text, 'dog')
+        self.assertEqual(ass[1].text, 'should not')
+        self.assertEqual(ass[2].text, 'eat human___food')

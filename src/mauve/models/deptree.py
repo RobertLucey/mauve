@@ -54,6 +54,43 @@ class DepTree():
     def __init__(self, nodes):
         self.nodes = nodes
 
+    def join_words(self, multiword_list):
+        for multiwordstr in multiword_list:
+            dn = DepNode(
+                multiwordstr,
+                '',
+                multiwordstr,
+                None,
+                [],
+                -1
+            )
+
+            self.nodes = self.replace_sub(self.nodes, multiwordstr.split(' '), [dn])
+            self.reindex()
+
+    def reindex(self):
+        for idx, node in enumerate(self.nodes):
+            node.idx = idx
+
+    def find_sub_idx(self, original, repl_list, start=0):
+        length = len(repl_list)
+        for idx in range(start, len(original)):
+            if [i.text for i in original[idx:idx + length]] == repl_list:
+                return idx, idx + length
+
+    def replace_sub(self, original, repl_list, new_list):
+        """
+        Replace a subset of a list with some other subset
+        >> replace_sub([1,2,3,4], [2,3], [5,6])
+        [1,5,6,4]
+        """
+        length = len(new_list)
+        idx = 0
+        for start, end in iter(lambda: self.find_sub_idx(original, repl_list, idx), None):
+            original[start:end] = new_list
+            idx = start + length
+        return original
+
     def get_before_node(self, cmp_node):
         return [node for node in self.nodes if node.idx < cmp_node.idx]
 
@@ -98,7 +135,7 @@ class DepTree():
 
     @property
     def equals(self):
-        return [node for node in self.nodes if node.text in list(set(list(ASSIGNMENT_WORDS) + [w.replace(' ', '_') for w in ASSIGNMENT_WORDS]))]
+        return [node for node in self.nodes if node.text in ASSIGNMENT_WORDS]
 
     @property
     def text(self):

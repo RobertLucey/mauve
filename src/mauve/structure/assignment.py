@@ -17,12 +17,9 @@ def extract_assignments(sentence):
 
     text = sentence.text
 
-    for a_word in ASSIGNMENT_WORDS:
-        text = text.replace(a_word, a_word.replace(' ', '_'))
-
     good = False
     for joining_word in ASSIGNMENT_WORDS:
-        if ' ' + joining_word.replace(' ', '_') + ' ' in text:
+        if ' ' + joining_word + ' ' in text:
             good = True
             break
 
@@ -31,6 +28,8 @@ def extract_assignments(sentence):
 
     from mauve.models.sentence import Sentence
     deptree = Sentence(text).deptree
+
+    deptree.join_words([a for a in ASSIGNMENT_WORDS if ' ' in a])
 
     assignments = []
 
