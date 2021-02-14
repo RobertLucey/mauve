@@ -94,10 +94,9 @@ class TestTextBody(TestCase):
 
     def test_alice_assignments(self):
         alice_assignments = []
-        for sentence_assignments in self.ALICE.assignments:
-            for assignment in sentence_assignments:
-                if 'alice' in assignment[0].text.lower():
-                    alice_assignments.append(assignment[2].text)
+        for assignment in self.ALICE.assignments:
+            if 'alice' in assignment[0].text.lower():
+                alice_assignments.append(assignment[2].text)
         # First assignment in the book
         self.assertTrue(
             alice_assignments[0].startswith('beginning to get very tired of sitting by her sister')

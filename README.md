@@ -16,7 +16,7 @@ Load of things you can do, I'll just include some interesting ones here.
 [{'name': 'Mouse', 'gender': None}, {'name': 'Alice', 'gender': 'female'}]
 >> text.get_speech_by_people()['Mouse'][0].serialize()
 {'text': 'You are not attending !', 'speaker': {'name': 'Mouse', 'gender': None}, 'inflection': 'said'}
->> assignment = text.assignments[0][0]
+>> assignment = text.assignments[0]
 >> 'The assignment is that "{variable}" "{assigning_word}" "{value}"'.format(variable=assignment[0].text, assigning_word=assignment[1].text, value=assignment[2].text)
 The assignment is that "You" "are" "not attending"
 

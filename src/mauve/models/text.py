@@ -185,9 +185,9 @@ class TextBody(GenericObject, Tagger):
         if content is None:
             return []
 
-        return [
+        return flatten([
             Sentence(s).assignments for s in nltk.tokenize.sent_tokenize(content)
-        ]
+        ])
 
     @cached_property
     def speech(self):
@@ -249,10 +249,9 @@ class TextBody(GenericObject, Tagger):
         :param left_text: whatever is being assigned. left_text is something
         """
         assignments = []
-        for sentence_assignments in self.assignments:
-            for assignment in sentence_assignments:
-                if left_text in assignment[0].text.lower():
-                    assignments.append(assignment[2].text)
+        for assignment in self.assignments:
+            if left_text in assignment[0].text.lower():
+                assignments.append(assignment[2].text)
         return assignments
 
     def get_profanity_by_people(self, people=None):
