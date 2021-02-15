@@ -70,6 +70,7 @@ class DepTree():
 
         :param multiwordstr: list of wordy strings to join depnodes on
         """
+        multiword_list = [words for words in multiword_list if ' ' in words]
         for multiwordstr in multiword_list:
             self.nodes = DepTree.replace_sub(
                 self.nodes,
@@ -162,8 +163,8 @@ class DepTree():
 
     @property
     def equals(self):
-        self.join_words([a for a in ASSIGNMENT_WORDS if ' ' in a])
-        return [node for node in self.nodes if node.text in ASSIGNMENT_WORDS]
+        self.join_words(ASSIGNMENT_WORDS)
+        return [node.get_clean() for node in self.nodes if node.text.lower().replace('_', ' ') in ASSIGNMENT_WORDS]
 
     @property
     def text(self):
@@ -171,5 +172,5 @@ class DepTree():
 
     @property
     def conditionals(self):  # prob move this to sentence... and then move to segments
-        self.join_words([a for a in CONDITIONAL_LIST if ' ' in a])
+        self.join_words(CONDITIONAL_LIST)
         return [node.get_clean() for node in self.nodes if node.text.lower().replace('_', ' ') in CONDITIONAL_LIST]
