@@ -60,9 +60,18 @@ class DepTree():
         self.nodes = nodes
 
     def join_words(self, multiword_list):
+        """
+
+        >> [n.text for n in deptree.nodes]
+        ['this', 'is', 'a', 'thing']
+        >> deptree.join_words(['a thing'])
+        >> [n.text for n in deptree.nodes]
+        ['this', 'is', 'a thing']
+
+        :param multiwordstr: list of wordy strings to join depnodes on
+        """
         for multiwordstr in multiword_list:
-            print(multiwordstr)
-            self.nodes = self.replace_sub(
+            self.nodes = DepTree.replace_sub(
                 self.nodes,
                 multiwordstr.split(' '),
                 [
@@ -79,20 +88,24 @@ class DepTree():
             self.reindex()
 
     def reindex(self):
+        """
+        Reindex nodes in the deptree for when the content changes
+        """
         for idx, node in enumerate(self.nodes):
             if idx != 0:
                 node.idx = self.nodes[idx - 1].idx + len(self.nodes[idx - 1].text) + 1
             else:
                 node.idx = 0
 
-
-    def find_sub_idx(self, original, repl_list, start=0):
+    @staticmethod
+    def find_sub_idx(original, repl_list, start=0):
         length = len(repl_list)
         for idx in range(start, len(original)):
             if [i.text for i in original[idx:idx + length]] == repl_list:
                 return idx, idx + length
 
-    def replace_sub(self, original, repl_list, new_list):
+    @staticmethod
+    def replace_sub(original, repl_list, new_list):
         """
         Replace a subset of a list with some other subset
         >> replace_sub([1,2,3,4], [2,3], [5,6])
@@ -100,7 +113,7 @@ class DepTree():
         """
         length = len(new_list)
         idx = 0
-        for start, end in iter(lambda: self.find_sub_idx(original, repl_list, idx), None):
+        for start, end in iter(lambda: DepTree.find_sub_idx(original, repl_list, idx), None):
             original[start:end] = new_list
             idx = start + length
         return original
