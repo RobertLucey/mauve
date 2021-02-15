@@ -38,5 +38,5 @@ class TestConditional(TestCase):
             Sentence('as long as you fed him, he would be cooperative')
         )[0]
         self.assertEqual(node[0].text, 'as_long_as you fed him')
-        self.assertEqual(node[1].text, 'as_long_as')
+        self.assertEqual(node[1].text, 'as long as')
         self.assertEqual(node[2].text, 'he would be cooperative')

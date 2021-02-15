@@ -41,12 +41,17 @@ class DepNode:
             'head': self.head,
             'pos': self.pos,
             'children': serialize_children(self.children),
-            'segment': self.segment.serialize()
+            'segment': self.segment.serialize(),
+            'idx': self.idx
         }
 
     @staticmethod
     def get_empty_node():
         return DepNode('', '', '', '', [], 0)
+
+    def get_clean(self):
+        self.text = self.text.replace('_', ' ')
+        return self
 
 
 class DepTree():
@@ -56,21 +61,30 @@ class DepTree():
 
     def join_words(self, multiword_list):
         for multiwordstr in multiword_list:
-            dn = DepNode(
-                multiwordstr,
-                '',
-                multiwordstr,
-                None,
-                [],
-                -1
+            print(multiwordstr)
+            self.nodes = self.replace_sub(
+                self.nodes,
+                multiwordstr.split(' '),
+                [
+                    DepNode(
+                        multiwordstr,
+                        '',
+                        multiwordstr,
+                        None,
+                        [],
+                        -1
+                    )
+                ]
             )
-
-            self.nodes = self.replace_sub(self.nodes, multiwordstr.split(' '), [dn])
             self.reindex()
 
     def reindex(self):
         for idx, node in enumerate(self.nodes):
-            node.idx = idx
+            if idx != 0:
+                node.idx = self.nodes[idx - 1].idx + len(self.nodes[idx - 1].text) + 1
+            else:
+                node.idx = 0
+
 
     def find_sub_idx(self, original, repl_list, start=0):
         length = len(repl_list)
@@ -135,6 +149,7 @@ class DepTree():
 
     @property
     def equals(self):
+        self.join_words([a for a in ASSIGNMENT_WORDS if ' ' in a])
         return [node for node in self.nodes if node.text in ASSIGNMENT_WORDS]
 
     @property
@@ -143,4 +158,5 @@ class DepTree():
 
     @property
     def conditionals(self):  # prob move this to sentence... and then move to segments
-        return [node for node in self.nodes if node.text.lower() in CONDITIONAL_LIST]
+        self.join_words([a for a in CONDITIONAL_LIST if ' ' in a])
+        return [node.get_clean() for node in self.nodes if node.text.lower().replace('_', ' ') in CONDITIONAL_LIST]

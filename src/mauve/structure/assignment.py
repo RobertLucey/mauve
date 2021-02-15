@@ -29,8 +29,6 @@ def extract_assignments(sentence):
     from mauve.models.sentence import Sentence
     deptree = Sentence(text).deptree
 
-    deptree.join_words([a for a in ASSIGNMENT_WORDS if ' ' in a])
-
     assignments = []
 
     # Still interesting things around -ly and wordy things

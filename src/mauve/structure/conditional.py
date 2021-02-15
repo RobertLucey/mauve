@@ -1,11 +1,8 @@
 CONDITIONAL_LIST = [
     'if',
     'as long as',  # loose - "they have been there as long as anyone can remember"
-    'as_long_as',  # loose - "they have been there as long as anyone can remember"
     'so long as',
-    'so_long_as',
     'in case',  # might want to think about this one
-    'in_case',  # might want to think about this one
     'provided',  # loose
     'providing',  # loose
     'unless',  # neg

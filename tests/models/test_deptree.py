@@ -22,7 +22,8 @@ class TestDepNode(TestCase):
                     'text': '',
                     'tag': '',
                     'lem_stem': ''
-                }
+                },
+                'idx': 0
             }
         )
 
@@ -49,7 +50,8 @@ class TestDepNode(TestCase):
                     'text': 'window',
                     'tag': 'NOUN',
                     'lem_stem': 'window'
-                }
+                },
+                'idx': 0
             }
         )
 
@@ -148,6 +150,7 @@ class TestDepTree(TestCase):
             [{'children': [],
               'dep': 'det',
               'head': 'window',
+              'idx': 0,
               'pos': 'NOUN',
               'segment': {'lem_stem': 'the', 'tag': 'NOUN', 'text': 'The'},
               'text': 'The'},
@@ -159,6 +162,7 @@ class TestDepTree(TestCase):
                             'text': 'The'}],
               'dep': 'nsubj',
               'head': 'is',
+              'idx': 4,
               'pos': 'AUX',
               'segment': {'lem_stem': 'window', 'tag': 'AUX', 'text': 'window'},
               'text': 'window'},
@@ -181,12 +185,14 @@ class TestDepTree(TestCase):
                             'text': 'cold'}],
               'dep': 'ROOT',
               'head': 'is',
+              'idx': 11,
               'pos': 'AUX',
               'segment': {'lem_stem': 'is', 'tag': 'AUX', 'text': 'is'},
               'text': 'is'},
              {'children': [],
               'dep': 'acomp',
               'head': 'is',
+              'idx': 14,
               'pos': 'AUX',
               'segment': {'lem_stem': 'cool', 'tag': 'AUX', 'text': 'cool'},
               'text': 'cold'}]
