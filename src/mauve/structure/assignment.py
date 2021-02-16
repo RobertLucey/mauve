@@ -35,6 +35,8 @@ def extract_assignments(sentence):
 
     for equal_node in deptree.equals:
 
+        # FIXME: Do not bridge over punctuation (and possibly find examples where it's appropriate)
+
         # expl can usually be second part of an assignment?
 
         left = deptree.get_closest_before(

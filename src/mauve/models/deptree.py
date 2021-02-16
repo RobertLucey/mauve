@@ -164,6 +164,9 @@ class DepTree():
     @property
     def equals(self):
         self.join_words(ASSIGNMENT_WORDS)
+
+        # FIXME: Exclude things like 'what is' if the is we are using is within the 'what is'
+
         return [node.get_clean() for node in self.nodes if node.text.lower().replace('_', ' ') in ASSIGNMENT_WORDS]
 
     @property
@@ -171,6 +174,6 @@ class DepTree():
         return ' '.join([n.text for n in self.nodes])
 
     @property
-    def conditionals(self):  # prob move this to sentence... and then move to segments
+    def conditionals(self):
         self.join_words(CONDITIONAL_LIST)
         return [node.get_clean() for node in self.nodes if node.text.lower().replace('_', ' ') in CONDITIONAL_LIST]
