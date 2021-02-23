@@ -69,6 +69,20 @@ class People(GenericObjects):
     def get_trustworthy_people(self):
         return [person for person in self if person.is_trustworthy]
 
+    def get_count_of(self, person):
+        return len([p.name for p in self if p.name == person.name])
+
+    def remove_near_duplicates(self):
+        for base in self:
+            for comparison in self:
+                if base == comparison:
+                    continue
+                if base.is_similar_to(comparison):
+                    if self.get_count_of(base) < self.get_count_of(comparison):
+                        comparison.dirty_name = base.dirty_name
+                    else:
+                        base.dirty_name = comparison.dirty_name
+
 
 class Person(Entity):
 
@@ -106,10 +120,13 @@ class Person(Entity):
                     self.name.lower(),
                     cmp_person.name.lower()
                 )
-            ]) >= max([
+            ]) > max([
                 len(self.name.lower()),
                 len(cmp_person.name.lower())
-            ]) / 3:
+            ]) / 1.5 and min([
+                len(self.name.lower()),
+                len(cmp_person.name.lower())
+            ]) > 5:
                 return True
         except:
             return False
