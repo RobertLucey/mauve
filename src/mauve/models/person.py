@@ -79,8 +79,10 @@ class People(GenericObjects):
                     continue
                 if base.is_similar_to(comparison):
                     if self.get_count_of(base) > self.get_count_of(comparison):
+                        print('%s -> %s' % (comparison.name, base.dirty_name))
                         comparison.dirty_name = base.dirty_name
                     else:
+                        print('%s -> %s' % (base.dirty_name, comparison.name))
                         base.dirty_name = comparison.dirty_name
 
 
@@ -126,7 +128,7 @@ class Person(Entity):
             ]) / 1.5 and min([
                 len(self.name.lower()),
                 len(cmp_person.name.lower())
-            ]) > 5:
+            ]) > 4:
                 return True
         except:
             return False
