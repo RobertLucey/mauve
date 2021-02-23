@@ -78,7 +78,7 @@ class People(GenericObjects):
                 if base == comparison:
                     continue
                 if base.is_similar_to(comparison):
-                    if self.get_count_of(base) < self.get_count_of(comparison):
+                    if self.get_count_of(base) > self.get_count_of(comparison):
                         comparison.dirty_name = base.dirty_name
                     else:
                         base.dirty_name = comparison.dirty_name
