@@ -119,32 +119,32 @@ class TestBook(TestCase):
         self.assertTrue(book.author_similarity)
 
         book = Book(title='t', author='Author', year_published=1)
-        book.set_content_location('/tmp/mauve/isbn___Author Something___title.txt')
+        book.set_content_location('/tmp/mauve/isbn___Author M___title.txt')
         self.assertTrue(book.author_similarity)
 
         book = Book(title='t', author='Author', year_published=1)
-        book.set_content_location('/tmp/mauve/isbn___Something Author___title.txt')
+        book.set_content_location('/tmp/mauve/isbn___Author M___title.txt')
         self.assertTrue(book.author_similarity)
 
         book = Book(title='t', author='Arthur', year_published=1)
-        book.set_content_location('/tmp/mauve/isbn___Something Author___title.txt')
+        book.set_content_location('/tmp/mauve/isbn___Author___title.txt')
         self.assertFalse(book.author_similarity)
 
     def test_safe_to_use(self):
         book = Book(title='t', author='Author', year_published=2020, num_ratings=100)
-        book.set_content_location('/tmp/mauve/isbn___Something Author___title.txt')
+        book.set_content_location('/tmp/mauve/isbn___Author___title.txt')
         self.assertTrue(book.safe_to_use)
 
         book = Book(title='t', author='Author', year_published=2020, num_ratings=0)
-        book.set_content_location('/tmp/mauve/isbn___Something Author___title.txt')
+        book.set_content_location('/tmp/mauve/isbn___Author___title.txt')
         self.assertFalse(book.safe_to_use)
 
         book = Book(title='t', author='Author', year_published=1700, num_ratings=100)
-        book.set_content_location('/tmp/mauve/isbn___Something Author___title.txt')
+        book.set_content_location('/tmp/mauve/isbn___Author___title.txt')
         self.assertFalse(book.safe_to_use)
 
         book = Book(title='t', author='Arthur', year_published=2020, num_ratings=100)
-        book.set_content_location('/tmp/mauve/isbn___Something Author___title.txt')
+        book.set_content_location('/tmp/mauve/isbn___Author___title.txt')
         self.assertFalse(book.safe_to_use)
 
     def test_set_reviews(self):
@@ -178,11 +178,12 @@ class TestBook(TestCase):
         #       want to be aware if it changes
         book = Book(title='t', author='Arthur', year_published=2020, num_ratings=100)
         book.set_content_location('/tmp/mauve_tok/NOPE___AUTHOR___TITLE.txt')
+
         self.assertEqual(
             book.serialize(),
             {
                 'analysis_version': int(constants.ANALYSIS_VERSION),
-                'author_similarity': True,
+                'author_similarity': False,
                 'title': 't',
                 'author': 'Arthur',
                 'author_gender': 'male',
