@@ -66,6 +66,9 @@ class People(GenericObjects):
             name = person.name
         return name in [p.name for p in self]
 
+    def get_trustworthy_people(self):
+        return [person for person in self if person.is_trustworthy]
+
 
 class Person(Entity):
 
@@ -75,6 +78,7 @@ class Person(Entity):
         :kwarg name: The person / character's name
         """
         self.dirty_name = kwargs['name'] if kwargs['name'] else ''
+        self.trustworthy = kwargs.get('trustworthy', False)
 
         kwargs.setdefault('etype', 'person')
         super(Person, self).__init__(*args, **kwargs)
@@ -149,6 +153,11 @@ class Person(Entity):
 
         return gender
 
+    @property
+    def is_trustworthy(self):
+        # TODO: can do some more bits from the name I guess
+        return self.trustworthy
+
 
 def extract_people(sentence):
     """
@@ -178,7 +187,8 @@ def extract_people(sentence):
                     [
                         n for n in text.split(' ') if n[0].isupper() or n.lower() in PERSON_PREFIXES
                     ]
-                )
+                ),
+                trustworthy=False
             )
             if not person.name.replace(' ', '').isupper():
                 people.append(person)
@@ -187,7 +197,7 @@ def extract_people(sentence):
                 'minister for ' in text.lower().replace('_', ' '),
                 'minister of ' in text.lower().replace('_', ' ')
             ]):
-                people.append(Person(name=text))
+                people.append(Person(name=text, trustworthy=False))
         else:
             # Do some stuff around caital letters
             text = text.replace('  ', ' ')
@@ -197,14 +207,24 @@ def extract_people(sentence):
                     split[0] in NAMES,
                     split[0].lower() in GENDER_PREFIXES.keys(),
                     split[0].lower() in PERSON_TITLE_PREFIXES.keys(),
+                ]) and (
+                    split[1][0].isupper()
+                ):
+                    if not text.replace(' ', '').isupper():
+                        people.append(Person(name=text, trustworthy=False))
+                elif any([
+                    split[0] in NAMES,
+                    split[0].lower() in GENDER_PREFIXES.keys(),
+                    split[0].lower() in PERSON_TITLE_PREFIXES.keys(),
 
                     split[0][0].isupper()
                 ]) and (
                     split[1][0].isupper()
                 ):
                     if not text.replace(' ', '').isupper():
-                        people.append(Person(name=text))
+                        people.append(Person(name=text, trustworthy=True))
+
             elif text in NAMES and text[0].isupper():
-                people.append(Person(name=text))
+                people.append(Person(name=text, trustworthy=False))
 
     return people
