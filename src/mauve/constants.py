@@ -203,4 +203,4 @@ NOT_NAMES = set(['I', 'My', 'An', 'don', 'Him', 'Her', 'So', 'Don', 'Said', 'Tut
 SPEECH_WORDS = set(['said', 'says', 'exclaimed', 'whispered', 'wrote', 'continued', 'told', 'shouted', 'called', 'recalled', 'explained', 'admitted', 'remarked', 'bellowed', 'shrieked', 'told', 'ask', 'asked', 'confided', 'fulminated', 'mused', 'rejoined', 'cried', 'panted', 'continued', 'ejaculated', 'replied', 'interrupted', 'remarked', 'declared', 'queried', 'repeated', 'added', 'lied', 'insisted', 'answered', 'returned', 'sighed', 'added', 'resumed', 'echoed', 'screamed', 'observed'])  # Need to include the ings, prob should use the stems
 SPEAKERS = set(['he', 'they', 'she', 'I', 'we', 'it', 'everyone', 'someone'])
 
-ASSIGNMENT_WORDS = set(['is', 'are', 'am', 'was', 'were', 'be', 'better not', 'should not'])
+ASSIGNMENT_WORDS = set(['is', 'are', 'am', 'was', 'were', 'be', 'better not', 'should not', 'became'])
