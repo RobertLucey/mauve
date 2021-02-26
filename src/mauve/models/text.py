@@ -92,9 +92,19 @@ class TextBody(GenericObject, Tagger):
 
     @property
     def words(self):
+        """
+
+        :return:
+        :rtype: list
+        """
         return [w for w in nltk.word_tokenize(self.content) if w not in EXTENDED_PUNCTUATION]
 
     def get_profanity_score(self):
+        """
+
+        :return: How profane the current piece of text is
+        :rtype: float
+        """
         word_counts = {}
         profane_words = []
 
@@ -217,10 +227,7 @@ class TextBody(GenericObject, Tagger):
         for sentence in self.sentences:
             for person in Sentence(sentence).people:
                 counts[person.name] += 1
-                if person not in people:
-                    people.append(person)
-        # for safety can get where count > something
-        #print(counts)
+                people.append(person)
         return people
 
     def get_speech_by_people(self, people=None):
@@ -275,6 +282,11 @@ class TextBody(GenericObject, Tagger):
 
     @cached_property
     def sentences_tokens(self):
+        """
+
+        :return:
+        :rtype: list
+        """
         size = len(self.tokens)
         idx_list = [
             idx + 1 for idx, val in enumerate(self.tokens) if val[0] in SENTENCE_TERMINATORS
@@ -289,4 +301,9 @@ class TextBody(GenericObject, Tagger):
 
     @property
     def word_count(self):
+        """
+
+        :return: the number of individual words in the piece of text
+        :rtype: int
+        """
         return len(self.words)

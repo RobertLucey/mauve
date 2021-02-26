@@ -53,7 +53,6 @@ def clean_name(name):
     return name.translate(PERSON_TRANSLATOR).strip()
 
 
-
 class People(GenericObjects):
 
     def __init__(self, *args, **kwargs):
@@ -66,6 +65,18 @@ class People(GenericObjects):
             name = person.name
         return name in [p.name for p in self]
 
+    def append(self, obj):
+        if not isinstance(obj, self.child_class):
+            raise TypeError('Bad type: %s' % (type(obj)))
+
+        if any([obj.name == i.name for i in self]):
+            for p in self:
+                if p.name == obj.name:
+                    p.inc_references()
+        else:
+            obj.inc_references()
+            self._data.append(obj)
+
     def get_trustworthy_people(self):
         return [person for person in self if person.is_trustworthy]
 
@@ -73,6 +84,7 @@ class People(GenericObjects):
         return len([p.name for p in self if p.name == person.name])
 
     def remove_near_duplicates(self):
+        to_remove = []
         for base in self:
             for comparison in self:
                 if base == comparison:
@@ -80,8 +92,15 @@ class People(GenericObjects):
                 if base.is_similar_to(comparison):
                     if self.get_count_of(base) > self.get_count_of(comparison):
                         comparison.dirty_name = base.dirty_name
+                        comparison.references += base.references
+                        to_remove.append(base)
                     else:
                         base.dirty_name = comparison.dirty_name
+                        base.references += comparison.references
+                        to_remove.append(comparison)
+
+        for i in to_remove:
+            self.remove(i)
 
 
 class Person(Entity):
@@ -92,7 +111,8 @@ class Person(Entity):
         :kwarg name: The person / character's name
         """
         self.dirty_name = kwargs['name'] if kwargs['name'] else ''
-        self.trustworthy = kwargs.get('trustworthy', False)
+        self.trustworthy = kwargs.get('trustworthy', True)
+        self.references = 0
 
         kwargs.setdefault('etype', 'person')
         super(Person, self).__init__(*args, **kwargs)
@@ -113,6 +133,15 @@ class Person(Entity):
 
         if self.name.lower() == cmp_person.name.lower():
             return True
+
+        # If one has a name that is the last part of a split they
+        #     should be the same person
+        # Hyde == Edward Hyde
+
+        # FIXME this dups items need to merge occurances or whatever they're called
+        if ' ' in self.name and ' ' not in cmp_person.name:
+            if self.name.split(' ')[-1].lower() == cmp_person.name.lower():
+                return True
 
         try:
             if max([
@@ -173,7 +202,10 @@ class Person(Entity):
     @property
     def is_trustworthy(self):
         # TODO: can do some more bits from the name I guess
-        return self.trustworthy
+        return self.trustworthy or self.references > 2
+
+    def inc_references(self):
+        self.references += 1
 
 
 def extract_people(sentence):
@@ -204,8 +236,7 @@ def extract_people(sentence):
                     [
                         n for n in text.split(' ') if n[0].isupper() or n.lower() in PERSON_PREFIXES
                     ]
-                ),
-                trustworthy=False
+                )
             )
             if not person.name.replace(' ', '').isupper():
                 people.append(person)
@@ -214,7 +245,7 @@ def extract_people(sentence):
                 'minister for ' in text.lower().replace('_', ' '),
                 'minister of ' in text.lower().replace('_', ' ')
             ]):
-                people.append(Person(name=text, trustworthy=False))
+                people.append(Person(name=text))
         else:
             # Do some stuff around caital letters
             text = text.replace('  ', ' ')
@@ -228,7 +259,7 @@ def extract_people(sentence):
                     split[1][0].isupper()
                 ):
                     if not text.replace(' ', '').isupper():
-                        people.append(Person(name=text, trustworthy=False))
+                        people.append(Person(name=text))
                 elif any([
                     split[0] in NAMES,
                     split[0].lower() in GENDER_PREFIXES.keys(),
@@ -239,9 +270,9 @@ def extract_people(sentence):
                     split[1][0].isupper()
                 ):
                     if not text.replace(' ', '').isupper():
-                        people.append(Person(name=text, trustworthy=True))
+                        people.append(Person(name=text))
 
             elif text in NAMES and text[0].isupper():
-                people.append(Person(name=text, trustworthy=False))
+                people.append(Person(name=text))
 
     return people

@@ -36,9 +36,7 @@ class GenericObjects(object):
         :param objs:
         '''
         for obj in objs:
-            if not isinstance(obj, self.child_class):
-                raise TypeError('Bad type: %s' % (type(obj)))
-        self._data.extend(objs)
+            self.append(obj)
 
     def serialize(self):
         return [obj.serialize() for obj in self.data]
@@ -50,6 +48,11 @@ class GenericObjects(object):
         '''
         self._data = [
             self.child_class(data=obj.data) for obj in self.data if len(obj.data) > 0
+        ]
+
+    def remove(self, obj):
+        self._data = [
+            o for o in self._data if o.id != obj.id
         ]
 
     @property
