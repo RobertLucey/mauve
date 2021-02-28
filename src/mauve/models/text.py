@@ -206,10 +206,7 @@ class TextBody(GenericObject, Tagger):
 
     @cached_property
     def sentences(self):
-        content = self.content
-        for terminator in list(SENTENCE_TERMINATORS) + ['\n']:
-            content = content.replace(terminator, terminator + '___mauve_terminator___')
-        return content.split('___mauve_terminator___')
+        return nltk.sent_tokenize(self.content)
 
     @cached_property
     def quote_aware_sentences(self):
