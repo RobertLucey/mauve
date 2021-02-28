@@ -330,7 +330,7 @@ class TextBody(GenericObject, Tagger):
             else:
                 return self.basic_content.split(' ').count(phrase)
 
-    def get_pre_post(self, phrase):
+    def get_pre_post(self, phrase, simple=False):
         """
         Get the segments pre and post a phrase pair
 
@@ -340,6 +340,10 @@ class TextBody(GenericObject, Tagger):
         # TODO multi instances in sentence. Don't care enough for the moment
 
         pairs = defaultdict(list)
+
+        if phrase not in self.basic_content:
+            return pairs
+
         for sentence in self.basic_sentences:
             if phrase in sentence:
 
@@ -347,8 +351,11 @@ class TextBody(GenericObject, Tagger):
 
                 unsplit_phrase = phrase.replace(' ', '_')
 
-                s = Sentence(sentence.replace(phrase, unsplit_phrase))
-                texts = [i.text.lower() for i in s.segments]
+                if simple:
+                    texts = sentence.split(' ')
+                else:
+                    s = Sentence(sentence.replace(phrase, unsplit_phrase))
+                    texts = [i.text.lower() for i in s.segments]
                 try:
                     idx = texts.index(unsplit_phrase)
 
