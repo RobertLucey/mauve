@@ -141,6 +141,29 @@ class TextBody(GenericObject, Tagger):
         self.content_path = content_path
 
     @property
+    def basic_content(self):
+        content = ''
+        if self._content is not None:
+            content = self._content
+
+        if self.content_path is not None:
+            try:
+                content = open(
+                    self.content_path,
+                    'r',
+                    encoding='latin1'
+                ).read()
+            except Exception as ex:
+                print('BAD FILE: %s' % (self.content_path))
+                print(ex)
+                content = ''
+
+        if 'PROJECT GUTENBERG EBOOK' in content:
+            content = clean_gutenberg(content)
+
+        return content
+
+    @property
     def content(self):
         content = ''
         if self._content is not None:
@@ -175,8 +198,18 @@ class TextBody(GenericObject, Tagger):
         return langdetect(self.content)
 
     @cached_property
+    def basic_sentences(self):
+        content = self.basic_content
+        for terminator in list(SENTENCE_TERMINATORS) + ['\n']:
+            content = content.replace(terminator, terminator + '___mauve_terminator___')
+        return content.split('___mauve_terminator___')
+
+    @cached_property
     def sentences(self):
-        return nltk.tokenize.sent_tokenize(self.content)
+        content = self.content
+        for terminator in list(SENTENCE_TERMINATORS) + ['\n']:
+            content = content.replace(terminator, terminator + '___mauve_terminator___')
+        return content.split('___mauve_terminator___')
 
     @cached_property
     def quote_aware_sentences(self):
@@ -281,7 +314,23 @@ class TextBody(GenericObject, Tagger):
             person_name: TextBody(content=' .'.join([s.text for s in speech_items])).sentiment for person_name, speech_items in speech.items()
         }
 
-    def get_pairs(self, phrase):
+    def count_phrase_usage(self, phrase):
+
+        if isinstance(phrase, (list, set)):
+            count = 0
+            for word in self.basic_content.split(' '):
+                if word in phrase:
+                    print(word)
+                    count += 1
+            return count
+        else:
+
+            if ' ' in phrase:
+                return self.basic_content.replace(phrase, phrase.replace(' ', '_')).count(phrase)
+            else:
+                return self.basic_content.split(' ').count(phrase)
+
+    def get_pre_post(self, phrase):
         """
         Get the segments pre and post a phrase pair
 
@@ -291,7 +340,7 @@ class TextBody(GenericObject, Tagger):
         # TODO multi instances in sentence. Don't care enough for the moment
 
         pairs = defaultdict(list)
-        for sentence in self.sentences:
+        for sentence in self.basic_sentences:
             if phrase in sentence:
 
                 # TODO: make the phrase a segment if multi word
@@ -300,21 +349,24 @@ class TextBody(GenericObject, Tagger):
 
                 s = Sentence(sentence.replace(phrase, unsplit_phrase))
                 texts = [i.text.lower() for i in s.segments]
-                idx = texts.index(unsplit_phrase)
+                try:
+                    idx = texts.index(unsplit_phrase)
 
-                pre = texts[idx - 1]
-                if idx == 0:
-                    pre = None
+                    pre = texts[idx - 1]
+                    if idx == 0:
+                        pre = None
 
-                post = texts[idx + 1]
-                if idx + 1 == len(texts):
-                    post = None
+                    post = texts[idx + 1]
+                    if idx + 1 == len(texts):
+                        post = None
 
-                if pre is not None and pre not in EXTENDED_PUNCTUATION:
-                    pairs['pre'].append(pre)
+                    if pre is not None and pre not in EXTENDED_PUNCTUATION:
+                        pairs['pre'].append(pre)
 
-                if post is not None and post not in EXTENDED_PUNCTUATION:
-                    pairs['post'].append(post)
+                    if post is not None and post not in EXTENDED_PUNCTUATION:
+                        pairs['post'].append(post)
+                except (ValueError, IndexError):
+                    continue
 
         return pairs
 
