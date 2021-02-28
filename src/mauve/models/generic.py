@@ -51,6 +51,8 @@ class GenericObjects(object):
         ]
 
     def remove(self, obj):
+        if not isinstance(obj, self.child_class):
+            raise TypeError('Bad type: %s' % (type(obj)))
         self._data = [
             o for o in self._data if o.id != obj.id
         ]

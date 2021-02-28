@@ -143,8 +143,13 @@ class Sentence:
         for person in people:
             segments = replace_sub(  # keep the object
                 segments,
-                [Segment(p) for p in person.name.split(' ')],
-                [Segment(person.name, tag='PERSON')]
+                [Segment(p) for p in person.dirty_name.split(' ')],
+                [Segment(person.dirty_name, tag='PERSON')]
+            )
+            segments = replace_sub(
+                segments,
+                ['the'] + [Segment(p) for p in person.dirty_name.split(' ')],
+                [Segment('the ' + person.dirty_name, tag='PERSON')]
             )
 
         return segments

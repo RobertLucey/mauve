@@ -1,4 +1,3 @@
-from collections import Counter
 from collections import defaultdict
 
 import statistics
@@ -101,6 +100,8 @@ class TextBody(GenericObject, Tagger):
 
     def get_profanity_score(self):
         """
+        Return how many instances of profanity were used every 10000 words
+        A profane phrase may be many words so not exactly every 10000 words
 
         :return: How profane the current piece of text is
         :rtype: float
@@ -222,11 +223,9 @@ class TextBody(GenericObject, Tagger):
 
         :return People
         """
-        counts = defaultdict(int)
         people = People()
         for sentence in self.sentences:
             for person in Sentence(sentence).people:
-                counts[person.name] += 1
                 people.append(person)
         return people
 
@@ -264,7 +263,9 @@ class TextBody(GenericObject, Tagger):
     def get_profanity_by_people(self, people=None):
         speech = self.get_speech_by_people(people=people)
         return {
-            person_name: TextBody(content=' .'.join([s.text for s in speech_items])).get_profanity_score() for person_name, speech_items in speech.items()
+            person_name: TextBody(
+                content=' .'.join([s.text for s in speech_items])
+            ).get_profanity_score() for person_name, speech_items in speech.items()
         }
 
     def get_sentiment_by_people(self, people=None):
@@ -279,6 +280,43 @@ class TextBody(GenericObject, Tagger):
         return {
             person_name: TextBody(content=' .'.join([s.text for s in speech_items])).sentiment for person_name, speech_items in speech.items()
         }
+
+    def get_pairs(self, phrase):
+        """
+        Get the segments pre and post a phrase pair
+
+        :param phrase: str can be a word or many or whatever
+        """
+
+        # TODO multi instances in sentence. Don't care enough for the moment
+
+        pairs = defaultdict(list)
+        for sentence in self.sentences:
+            if phrase in sentence:
+
+                # TODO: make the phrase a segment if multi word
+
+                unsplit_phrase = phrase.replace(' ', '_')
+
+                s = Sentence(sentence.replace(phrase, unsplit_phrase))
+                texts = [i.text.lower() for i in s.segments]
+                idx = texts.index(unsplit_phrase)
+
+                pre = texts[idx - 1]
+                if idx == 0:
+                    pre = None
+
+                post = texts[idx + 1]
+                if idx + 1 == len(texts):
+                    post = None
+
+                if pre is not None and pre not in EXTENDED_PUNCTUATION:
+                    pairs['pre'].append(pre)
+
+                if post is not None and post not in EXTENDED_PUNCTUATION:
+                    pairs['post'].append(post)
+
+        return pairs
 
     @cached_property
     def sentences_tokens(self):

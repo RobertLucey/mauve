@@ -203,6 +203,7 @@ class Book(TextBody):
             return False
 
         if not self.author_similarity:
+            print('SIMILARITY BAD')
             # Likely not the same author
             return False
 
@@ -211,6 +212,8 @@ class Book(TextBody):
     @property
     def author_similarity(self):
         filename_author = os.path.basename(self.content_path).split('___')[1].replace('.', '').lower()
+        print(self.author.name)
+        print(filename_author)
         return self.author.is_similar_to(Person(name=filename_author))
 
     @property

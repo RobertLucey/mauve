@@ -160,6 +160,11 @@ class TestTextBody(TestCase):
             10000
         )
 
+    def test_get_pre_post(self):
+        pairs = self.ALICE.get_pairs('shouted')
+        self.assertEqual(pairs['pre'], ['and', 'soldiers', 'the queen'])
+        self.assertEqual(pairs['post'], ['out', 'the queen', 'in', 'the queen', 'alice', 'the queen', 'the queen', 'the gryphon', 'at'])
+
 #class TestTheQuickBrownFix(TestCase):
 #
 #    def test_brown_fox_things(self):

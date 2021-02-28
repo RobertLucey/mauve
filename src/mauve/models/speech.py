@@ -36,7 +36,7 @@ class Speech:
     def sentences(self):
         # the sentences of the text since there can be multiple
         # sentences from quote_aware_sent_tokenize
-        return
+        raise NotImplementedError()
 
     @property
     def text(self):
@@ -132,8 +132,8 @@ def extract_speech(sentence):
                 if i.is_person:
                     speaker = i.text
 
-            ## if has inflected more likely
-            ## also a good sign if there's few words and one of them is the
+            # if has inflected more likely
+            # also a good sign if there's few words and one of them is the
             if speaker is None and set_inflection:
                 if len(interesting_part) < 3:
                     speaker = ' '.join([i.text for i in interesting_part])

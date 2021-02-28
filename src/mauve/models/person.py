@@ -18,6 +18,8 @@ from mauve.constants import (
 
 def clean_name(name):
     """
+    Clean up a name by removing parts we don't care about or set
+    to empty if the name is untrustworthy.
 
     :param name: A string of a name or loose name
     :return: A name with unnecessary parts removed
@@ -60,10 +62,9 @@ class People(GenericObjects):
         super(People, self).__init__(*args, **kwargs)
 
     def __contains__(self, person):
-        name = person
-        if isinstance(person, Person):
-            name = person.name
-        return name in [p.name for p in self]
+        if not isinstance(person, Person):
+            person = Person(name=person)
+        return any([p.is_similar_to(person) for p in self])
 
     def append(self, obj):
         if not isinstance(obj, self.child_class):
@@ -84,6 +85,11 @@ class People(GenericObjects):
         return len([p.name for p in self if p.name == person.name])
 
     def remove_near_duplicates(self):
+        """
+        Replace near name duplicates with the more commonly used
+        variant. Also sum the references into the more commonly
+        used name.
+        """
         to_remove = []
         for base in self:
             for comparison in self:
@@ -109,22 +115,26 @@ class Person(Entity):
         """
 
         :kwarg name: The person / character's name
+        :kwarg trustworthy:
+        :kwarg references: The number of references made to this person
         """
         self.dirty_name = kwargs['name'] if kwargs['name'] else ''
         self.trustworthy = kwargs.get('trustworthy', True)
-        self.references = 0
+        self.references = kwargs.get('trustworthy', 0)
 
         kwargs.setdefault('etype', 'person')
         super(Person, self).__init__(*args, **kwargs)
-
-    @property
-    def name(self):
-        return clean_name(self.dirty_name)
 
     def __hash__(self):
         return hash(self.name)
 
     def is_similar_to(self, cmp_person):
+        """
+        Return if a person is similar enough to this person
+        This is based on the cleaned name
+
+        :param cmp_person: Person object to compare to
+        """
 
         def matches(first_string, second_string):
             s = difflib.SequenceMatcher(None, first_string, second_string)
@@ -162,6 +172,9 @@ class Person(Entity):
 
         return False
 
+    def inc_references(self):
+        self.references += 1
+
     def serialize(self):
         return {
             'name': self.name,
@@ -195,7 +208,12 @@ class Person(Entity):
         else:
             gender = GENDER_DETECTOR.get_gender(name_split[0])
             if gender != 'male' and gender != 'female':
-                gender = None
+                gender = GENDER_DETECTOR.get_gender(self.name)
+                if gender != 'male' and gender != 'female':
+                    gender = GENDER_DETECTOR.get_gender(self.dirty_name)
+
+        if gender == 'unknown':
+            gender = None
 
         return gender
 
@@ -204,8 +222,12 @@ class Person(Entity):
         # TODO: can do some more bits from the name I guess
         return self.trustworthy or self.references > 2
 
-    def inc_references(self):
-        self.references += 1
+    @property
+    def name(self):
+        """
+        Get the cleaned name of the person
+        """
+        return clean_name(self.dirty_name)
 
 
 def extract_people(sentence):
