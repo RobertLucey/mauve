@@ -61,6 +61,9 @@ class Speech:
 
 def extract_speech(sentence):
 
+    if not any([q in sentence.text for q in SPEECH_QUOTES]):
+        return []
+
     speech_parts = []
 
     within = False
