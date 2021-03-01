@@ -403,3 +403,19 @@ def clean_gutenberg(content):
     content = content.replace('\n', ' ').replace('MAUVE_REPLACE_NEWLINE', '\n')
 
     return content
+
+
+def intersperse(lst, item):
+    result = [item] * (len(lst) * 2 - 1)
+    result[0::2] = lst
+    return result
+
+
+def split_include(lst, splitter):
+    output = []
+    for text_part in lst:
+        if splitter in text_part:
+            output.extend(intersperse(text_part.split(splitter), splitter))
+        else:
+            output.append(text_part)
+    return [o for o in output if o]

@@ -9,7 +9,7 @@ from langdetect import detect as langdetect
 
 import nltk
 
-from mauve.utils import flatten, clean_gutenberg
+from mauve.utils import flatten, clean_gutenberg, intersperse, split_include
 from mauve.phrases import replace_phrases
 from mauve.utils import quote_aware_sent_tokenize
 from mauve.constants import (
@@ -349,7 +349,13 @@ class TextBody(GenericObject, Tagger):
                 unsplit_phrase = phrase.replace(' ', '_')
 
                 if simple:
-                    texts = sentence.split(' ')
+                    texts = split_include(
+                        split_include(
+                            sentence.split(' '),
+                            ','
+                        ),
+                        '.'
+                    )
                 else:
                     s = Sentence(sentence.replace(phrase, unsplit_phrase))
                     texts = [i.text.lower() for i in s.segments]
