@@ -165,6 +165,11 @@ class TestTextBody(TestCase):
         self.assertEqual(pairs['pre'], ['and', 'soldiers', 'the queen'])
         self.assertEqual(pairs['post'], ['out', 'the queen', 'in', 'the queen', 'alice', 'the queen', 'the queen', 'the gryphon', 'at'])
 
+        pairs = self.ALICE.get_pre_post('shouted', simple=True)
+        self.assertEqual(pairs['pre'], ['and', 'soldiers', 'Queen'])  # warning, cause other split would give ” so would be removed
+        self.assertEqual(pairs['post'], ['out', 'the', 'in', 'the', 'Alice', 'the', 'the', 'the', 'at'])
+
+
 #class TestTheQuickBrownFix(TestCase):
 #
 #    def test_brown_fox_things(self):
