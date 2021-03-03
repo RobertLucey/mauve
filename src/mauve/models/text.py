@@ -151,7 +151,7 @@ class TextBody(GenericObject, Tagger):
                 content = open(
                     self.content_path,
                     'r',
-                    encoding='latin1'
+                    encoding='utf8'
                 ).read()
             except Exception as ex:
                 print('BAD FILE: %s' % (self.content_path))
@@ -174,7 +174,7 @@ class TextBody(GenericObject, Tagger):
                 content = open(
                     self.content_path,
                     'r',
-                    encoding='latin1'
+                    encoding='utf8'
                 ).read()
             except Exception as ex:
                 print('BAD FILE: %s' % (self.content_path))
