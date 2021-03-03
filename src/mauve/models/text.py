@@ -314,15 +314,35 @@ class TextBody(GenericObject, Tagger):
             person_name: TextBody(content=' .'.join([s.text for s in speech_items])).sentiment for person_name, speech_items in speech.items()
         }
 
-    def count_phrase_usage(self, phrase):
+    def count_usage(self, phrase, split_multi=False, nosplit=False):
+
+
+        """  USE THIS THING
+                    texts = split_include(
+                        split_include(
+                            sentence.split(' '),
+                            ','
+                        ),
+                        '.'
+                    )
+        """
+
+        if nosplit:
+            return self.content.count(phrase)
 
         if isinstance(phrase, (list, set)):
-            count = 0
-            for word in self.basic_content.split(' '):
-                if word in phrase:
-                    print(word)
-                    count += 1
-            return count
+            if split_multi:
+                values = defaultdict(int)
+                for word in self.basic_content.split(' '):
+                    if word in phrase:
+                        values[word] += 1
+                return values
+            else:
+                count = 0
+                for word in self.basic_content.split(' '):
+                    if word in phrase:
+                        count += 1
+                return count
         else:
             if ' ' in phrase:
                 return self.basic_content.replace(phrase, phrase.replace(' ', '_')).count(phrase)
