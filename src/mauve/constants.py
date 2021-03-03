@@ -204,3 +204,6 @@ SPEECH_WORDS = set(['said', 'says', 'exclaimed', 'whispered', 'wrote', 'continue
 SPEAKERS = set(['he', 'they', 'she', 'I', 'we', 'it', 'everyone', 'someone'])
 
 ASSIGNMENT_WORDS = set(['is', 'are', 'am', 'was', 'were', 'be', 'better not', 'should not', 'became'])
+
+MALE_WORDS = set(['himself', 'he', 'him', 'uncle', 'son', 'husband', 'dad', 'father', 'man', 'boy'])
+FEMALE_WORDS = set(['herself', 'she', 'her', 'aunt', 'daughter', 'wife', 'mam', 'mother', 'woman', 'girl'])

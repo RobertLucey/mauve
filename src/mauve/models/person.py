@@ -5,6 +5,8 @@ from mauve.phrases import replace_phrases
 from mauve.models.entity import Entity
 from mauve.models.generic import GenericObjects
 from mauve.constants import (
+    MALE_WORDS,
+    FEMALE_WORDS,
     NAMES,
     NOT_NAMES,
     GENDER_PREFIXES,
@@ -190,6 +192,11 @@ class Person(Entity):
         """
         if not isinstance(self.name, str):
             return
+
+        if self.name in MALE_WORDS:
+            return 'male'
+        elif self.name in FEMALE_WORDS:
+            return 'female'
 
         # TODO: if name is "Mr Jones" it should be obvious it's a male
 
