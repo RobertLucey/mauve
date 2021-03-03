@@ -195,7 +195,10 @@ class TextBody(GenericObject, Tagger):
     def lang(self):
         # TODO: update metadata and use as a cache since this can't be very good
         # Also only go far enough until we're certain. Don't need to process entire books
-        return langdetect(self.content)
+        try:
+            return langdetect(self.content)
+        except:
+            return 'unknown'
 
     @cached_property
     def basic_sentences(self):
@@ -321,7 +324,6 @@ class TextBody(GenericObject, Tagger):
                     count += 1
             return count
         else:
-
             if ' ' in phrase:
                 return self.basic_content.replace(phrase, phrase.replace(' ', '_')).count(phrase)
             else:
