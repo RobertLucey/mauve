@@ -219,7 +219,7 @@ class Person(Entity):
                 if gender != 'male' and gender != 'female':
                     gender = GENDER_DETECTOR.get_gender(self.dirty_name)
 
-        if gender == 'unknown':
+        if gender in {'unknown', 'andy'}:
             gender = None
 
         return gender
