@@ -10,7 +10,6 @@ import nltk
 from mauve.wps import WPS
 
 from mauve.models.synonym import Synonym
-from mauve.tagger import Tagger
 
 try:
     nltk.data.find('corpora/words')
