@@ -9,7 +9,6 @@ import nltk
 from mauve.wps import WPS
 
 from mauve.models.synonym import Synonym
-from mauve.nltk_load import load_nltk
 from mauve.tagger import Tagger
 
 try:
