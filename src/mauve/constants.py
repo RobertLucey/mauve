@@ -159,6 +159,7 @@ ANALYSIS_VERSION = '7'
 TOKEN_VERSION = '2'
 BASE_DATA_PATH = '/opt/mauve/' if os.getenv('TEST_ENV', 'False') == 'False' else '/tmp/mauve'
 GOODREADS_METADATA_PATH = os.path.join(BASE_DATA_PATH, 'metadata')
+AUTHOR_METADATA_PATH = os.path.join(GOODREADS_METADATA_PATH, 'author_metadata.json')
 TEXT_PATH = os.path.join(BASE_DATA_PATH, 'txt')
 EPUB_PATH = os.path.join(BASE_DATA_PATH, 'epub')
 CLEAN_EPUB_PATH = os.path.join(BASE_DATA_PATH, 'clean_books')
@@ -212,5 +213,7 @@ FEMALE_WORDS = set(['herself', 'she', 'her', 'aunt', 'daughter', 'wife', 'mam', 
 EXTRA_FEMALE_NAMES = ['Mary', 'Kaylea', 'Isobelle', 'Kim', 'Luanne', 'Erin', 'Lauren', 'Connie', 'Glyn', 'Alyxandra', 'Carol', 'Kimberla']
 
 
-AUTHOR_METADATA_PATH = '/opt/mauve/metadata/author_metadata.json'
-AUTHOR_METADATA = json.loads(open(AUTHOR_METADATA_PATH, 'r').read())
+try:
+    AUTHOR_METADATA = json.loads(open(AUTHOR_METADATA_PATH, 'r').read())
+except FileNotFoundError:
+    AUTHOR_METADATA = {}
