@@ -79,7 +79,10 @@ class TextBody(GenericObject, Tagger):
             'dictionary_words',
             'words',
             'all_tokens',
-            'word_tokens'
+            'word_tokens',
+            'basic_content',
+            'raw_content',
+            'content',
         ]
 
         for attr in attrs_to_del:
@@ -106,7 +109,14 @@ class TextBody(GenericObject, Tagger):
         :return:
         :rtype: list
         """
-        return [w for w in nltk.word_tokenize(self.content) if w not in EXTENDED_PUNCTUATION]
+        txt = self.content.translate(
+            str.maketrans(
+                '',
+                '',
+                ''.join(['\n', '\n\n'] + EXTENDED_PUNCTUATION)
+            )
+        )
+        return [i for i in txt.split(' ') if i]
 
     def get_profanity_score(self):
         """
@@ -151,27 +161,19 @@ class TextBody(GenericObject, Tagger):
         self.content_path = content_path
 
     @property
+    def has_content(self):
+        return self.raw_content is not ''
+
+    @cached_property
     def basic_content(self):
-        content = ''
-        if self._content is not None:
-            content = self._content
+        return clean_gutenberg(self.raw_content)
 
-        if self.content_path is not None:
-            try:
-                content = open(
-                    self.content_path,
-                    'r',
-                    encoding='utf8'
-                ).read()
-            except Exception as ex:
-                print('BAD FILE: %s' % (self.content_path))
-                print(ex)
-                content = ''
-
-        return clean_gutenberg(content)
-
-    @property
+    @cached_property
     def content(self):
+        return replace_contractions(self.basic_content)
+
+    @cached_property
+    def raw_content(self):
         content = ''
         if self._content is not None:
             content = self._content
@@ -187,11 +189,7 @@ class TextBody(GenericObject, Tagger):
                 print('BAD FILE: %s' % (self.content_path))
                 print(ex)
                 content = ''
-
-        if 'PROJECT GUTENBERG EBOOK' in content:
-            content = clean_gutenberg(content)
-
-        return replace_contractions(content)
+        return content
 
     @cached_property
     def sentiment(self):

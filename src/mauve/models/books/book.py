@@ -13,7 +13,10 @@ from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
 
 from mauve.decorators import kwarg_validator
 from mauve.models.generic import GenericObjects
-from mauve.models.person import Person
+from mauve.models.person import (
+    Author,
+    Person
+)
 from mauve.models.books.tag import Tags
 from mauve.models.books.review import Reviews
 from mauve.models.text import TextBody
@@ -51,10 +54,7 @@ class Book(TextBody):
         num_ratings=None
     ):
         self.title = title
-        if not isinstance(author, Person):
-            self.author = Person(name=author)  # should support multiple authors
-        else:
-            self.author = author
+        self.author = Author(name=getattr(author, 'name', author))  # should support multiple authors
         self.year_published = int(year_published) if year_published is not None else None
         self.tags = tags
         self.publisher = publisher
@@ -92,6 +92,8 @@ class Book(TextBody):
             'title': self.title,
             'author': self.author.name,
             'author_gender': self.author.gender,
+            'author_nationality': self.author.nationality,
+            'author_birth_year': self.author.birth_year,
             'year_published': int(self.year_published),
             'publisher': self.publisher,
             'isbn': self.isbn,
@@ -114,7 +116,8 @@ class Book(TextBody):
             'top_nouns': self.get_top_nouns(10),
             'top_verbs': self.get_top_verbs(10),
             'flesch_reading_ease_score': textstat.flesch_reading_ease(self.content),
-            'crawford_score': textstat.crawford(self.content),
+            'reading_difficulty': self.reading_difficulty,
+            'reading_time': textstat.reading_time(self.content),
             'vader_pos': vader_stats['pos'],
             'vader_neg': vader_stats['neg'],
             'vader_neu': vader_stats['neu'],
@@ -136,7 +139,10 @@ class Book(TextBody):
             'dictionary_words',
             'words',
             'all_tokens',
-            'word_tokens'
+            'word_tokens',
+            'basic_content',
+            'raw_content',
+            'content',
         ]
 
         for attr in attrs_to_del:
@@ -144,6 +150,16 @@ class Book(TextBody):
                 delattr(self, attr)
             except:
                 pass
+ 
+    @property
+    def reading_difficulty(self):
+        scores = []
+        for sentence in self.sentences:
+            total_words = textstat.textstat.lexicon_count(sentence)
+            total_syllables = textstat.textstat.syllable_count(sentence)
+            syllables_per_words = (total_syllables / total_words)
+            scores.append(syllables_per_words)
+        return statistics.mean(scores)
 
     @property
     def safe_to_use(self):
