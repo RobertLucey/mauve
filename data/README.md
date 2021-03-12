@@ -11,5 +11,7 @@ I'll update whenever an attribute is added or improved
 [Here's a set of fiction books you can use as a plaything](fiction.csv)
 
 For more complete data:
+
 [TODO Here's all the books](books.csv)
+
 [TODO Here's all the genres associated with the book](genres.csv)

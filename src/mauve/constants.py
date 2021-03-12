@@ -1,4 +1,5 @@
 import os
+import json
 import string
 
 from mauve.profanity import PROFANITY_LIST
@@ -206,4 +207,10 @@ SPEAKERS = set(['he', 'they', 'she', 'I', 'we', 'it', 'everyone', 'someone'])
 ASSIGNMENT_WORDS = set(['is', 'are', 'am', 'was', 'were', 'be', 'better not', 'should not', 'became'])
 
 MALE_WORDS = set(['himself', 'he', 'him', 'uncle', 'son', 'husband', 'dad', 'father', 'man', 'boy'])
+EXTRA_MALE_NAMES = ['Chris', 'Éric', 'Bear', 'Ray', 'Dashiell', 'Vernor', 'Ishmael']
 FEMALE_WORDS = set(['herself', 'she', 'her', 'aunt', 'daughter', 'wife', 'mam', 'mother', 'woman', 'girl'])
+EXTRA_FEMALE_NAMES = ['Mary', 'Kaylea', 'Isobelle', 'Kim', 'Luanne', 'Erin', 'Lauren', 'Connie', 'Glyn', 'Alyxandra', 'Carol', 'Kimberla']
+
+
+AUTHOR_METADATA_PATH = '/opt/mauve/metadata/author_metadata.json'
+AUTHOR_METADATA = json.loads(open(AUTHOR_METADATA_PATH, 'r').read())

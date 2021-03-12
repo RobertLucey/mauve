@@ -5,6 +5,9 @@ from mauve.phrases import replace_phrases
 from mauve.models.entity import Entity
 from mauve.models.generic import GenericObjects
 from mauve.constants import (
+    EXTRA_MALE_NAMES,
+    EXTRA_FEMALE_NAMES,
+    AUTHOR_METADATA,
     MALE_WORDS,
     FEMALE_WORDS,
     NAMES,
@@ -203,6 +206,11 @@ class Person(Entity):
         gender = None
         name_split = self.dirty_name.split(' ')
 
+        if name_split[0] in EXTRA_MALE_NAMES:
+            return 'male'
+        elif name_split[0] in EXTRA_FEMALE_NAMES:
+            return 'female'
+
         if name_split[0].lower() in GENDER_PREFIXES.keys():
             return GENDER_PREFIXES[name_split[0].lower()]
 
@@ -235,6 +243,32 @@ class Person(Entity):
         Get the cleaned name of the person
         """
         return clean_name(self.dirty_name)
+
+
+class Author(Person):
+
+    @property
+    def nationality(self):
+        if self.name in AUTHOR_METADATA:
+            return AUTHOR_METADATA[self.name]['nationality']
+
+        if len(self.name.split(' ')) > 2:
+            first_last = '%s %s' % (self.name.split(' ')[0], self.name.split(' ')[-1])
+            if first_last in AUTHOR_METADATA:
+                return AUTHOR_METADATA[first_last]['nationality']
+
+    @property
+    def birth_year(self):
+        if self.name in AUTHOR_METADATA:
+            return AUTHOR_METADATA[self.name]['born']
+
+    def serialize(self):
+        return {
+            'name': self.name,
+            'gender': self.gender,
+            'nationality': self.nationality,
+            'birth_year': self.birth_year
+        }
 
 
 def extract_people(sentence):
