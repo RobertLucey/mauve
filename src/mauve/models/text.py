@@ -158,10 +158,7 @@ class TextBody(GenericObject, Tagger):
                 print(ex)
                 content = ''
 
-        if 'PROJECT GUTENBERG EBOOK' in content:
-            content = clean_gutenberg(content)
-
-        return content
+        return clean_gutenberg(content)
 
     @property
     def content(self):

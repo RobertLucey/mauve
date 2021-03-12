@@ -385,6 +385,10 @@ def clean_gutenberg(content):
     :return: The string content with Gutenberg boilerplace removed
     :rtype: str
     """
+
+    if 'PROJECT GUTENBERG EBOOK' not in content:
+        return content
+
     lines = content.split('\n')
     start, end = sorted(
         [
