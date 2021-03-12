@@ -47,10 +47,13 @@ def clean_person(person):
     }
 
 
-def get_wikipedia_person(result):
+def get_wikipedia_person(href):
+    """
+        Problematic /wiki/Glen_Cook
+    """
     soup = bs4.BeautifulSoup(
         urlopen(
-            'https://wikipedia.org' + result.a.get('href')
+            'https://wikipedia.org' + href
         ),
         'html.parser'
     )
@@ -62,7 +65,10 @@ def get_wikipedia_person(result):
 
         info = soup.find('table', {'class': 'infobox vcard'})
         if info is None:
-            return
+            return {
+                'born': birth_year,
+                'nationality': nationality
+            }
 
         for row in info.find_all('tr'):
             if row.text.lower().startswith('born'):
@@ -121,12 +127,17 @@ def get_wikipedia_person(result):
             'nationality': nationality
         }
 
+    return {
+        'born': None,
+        'nationality': None
+    }
+
 
 def get_wikisearch_people(stop_after=1000):
     people = {}
     with open(AUTHOR_METADATA_PATH, 'r') as f:
         for k, v in json.loads(f.read()).items():
-            people[k] = clean_person(clean_person(v))
+            people[k] = clean_person(v)
 
     for idx, book in enumerate(iter_books()):
         if idx == stop_after:
@@ -151,11 +162,11 @@ def get_wikisearch_people(stop_after=1000):
 
         person = None
         if authors:
-            person = get_wikipedia_person(authors[0])
+            person = get_wikipedia_person(authors[0].a.get('href'))
         else:
             for result in results:
                 if result.text.strip() == book.author.name.strip():
-                    person = get_wikipedia_person(result)
+                    person = get_wikipedia_person(result.a.get('href'))
 
         if isinstance(person, dict):
             people[book.author.name] = clean_person({

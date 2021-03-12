@@ -437,6 +437,9 @@ class TextBody(GenericObject, Tagger):
 
     @cached_property
     def all_tokens(self):
+        if self.all_tokens_pickle_path is None:
+            return self.pos_tag(nltk.word_tokenize(self.content))
+
         data = []
         if get_loose_filepath(self.all_tokens_pickle_path):
             data = get_file_content(self.all_tokens_pickle_path)
@@ -453,7 +456,12 @@ class TextBody(GenericObject, Tagger):
 
     @cached_property
     def word_tokens(self):
+        """
+        """
         # TODO: Get wordtokens from alltokens when care enough
+
+        if self.word_tokens_pickle_path is None:
+            return self.pos_tag(self.words)
 
         data = []
         if get_loose_filepath(self.word_tokens_pickle_path):
@@ -471,8 +479,12 @@ class TextBody(GenericObject, Tagger):
 
     @property
     def all_tokens_pickle_path(self):
+        if self.content_path is None:
+            return None
         return self.content_path + '.all_tokenv{}.pickle'.format(TOKEN_VERSION)
 
     @property
     def word_tokens_pickle_path(self):
+        if self.content_path is None:
+            return None
         return self.content_path + '.word_tokenv{}.pickle'.format(TOKEN_VERSION)

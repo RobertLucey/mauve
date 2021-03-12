@@ -52,10 +52,8 @@ def get_id_from_isbn(data):
 def get_id_from_title(data):
     try:
         title = data['title']
-        author = data['original_filename'].split('___')[1]
         wrds = title.split(' ')  # + author.split(' ')
         source = urlopen('https://www.goodreads.com/search?&query=%s' % ('+'.join(wrds)))
-        print('SEARCH: %s' % ('https://www.goodreads.com/search?&query=%s' % ('+'.join(wrds))))
         soup = bs4.BeautifulSoup(source, 'html.parser')
         return (
             title,
@@ -183,6 +181,7 @@ def scrape_book(book_id):
 
 def get_title_id_cache():
     '''
+    It's actually an id title map... should change that
 
     :return:
     :rtype: dict

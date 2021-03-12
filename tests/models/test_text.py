@@ -143,6 +143,10 @@ class TestTextBody(TestCase):
             TextBody(content='Encantado de conocerte.').lang,
             'es'
         )
+        self.assertEqual(
+            TextBody(content='"').lang,
+            'unknown'
+        )
 
     def test_get_assignments_by(self):
         self.assertEqual(
@@ -169,6 +173,30 @@ class TestTextBody(TestCase):
         self.assertEqual(pairs['pre'], ['and', 'soldiers', 'Queen'])  # warning, cause other split would give ” so would be removed
         self.assertEqual(pairs['post'], ['out', 'the', 'in', 'the', 'Alice', 'the', 'the', 'the', 'at'])
 
+    def test_has_content(self):
+        self.assertFalse(TextBody(content='').has_content)
+        self.assertTrue(TextBody(content='a').has_content)
+
+    def test_count_usage(self):
+        self.assertEqual(
+            TextBody(content='One two three four three two one').count_usage('one'),
+            1
+        )
+        self.assertEqual(
+            TextBody(content='One two three four three two one').count_usage('One two'),
+            0
+        )
+
+        self.assertEqual(
+            TextBody(content='One two three four three two one').count_usage(['two', 'One']),
+            3
+        )
+        self.assertEqual(
+            dict(TextBody(content='One two three four three two one').count_usage(['two', 'One'], split_multi=True)),
+            {'One': 1, 'two': 2}
+        )
+
+        #split_multi=False, nosplit=False
 
 #class TestTheQuickBrownFix(TestCase):
 #

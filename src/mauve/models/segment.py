@@ -7,8 +7,7 @@ from mauve.constants import LIKELY_PERSON_PREFIXES
 from mauve import (
     WPS,
     SYNONYM,
-    Tagger,
-    ALL
+    Tagger
 )
 
 from mauve.utils import (
@@ -54,7 +53,6 @@ class Segment(Tagger, GenericObject):
             text = self._data.text
         if '___' in text:
             text = text.replace('___', ' ')
-        ALL[text] += 1
         self._text = SYNONYM.get_word(text.replace(' ', '_'))
         self._tag = kwargs.get('tag', None)
         WPS.update()
