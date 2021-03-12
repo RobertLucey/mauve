@@ -65,9 +65,13 @@ class TestCompressFiles(TestCase):
     def test_compress_files(self):
         process_filenames(num_processes=1)
 
-        self.assertTrue(os.path.exists(self.text_path_1 + '.tokenv2.pickle'))
-        self.assertTrue(os.path.exists(self.text_path_2 + '.tokenv2.pickle'))
-        self.assertTrue(os.path.exists(self.text_path_3 + '.tokenv2.pickle'))
+        self.assertTrue(os.path.exists(self.text_path_1 + '.all_tokenv2.pickle'))
+        self.assertTrue(os.path.exists(self.text_path_2 + '.all_tokenv2.pickle'))
+        self.assertTrue(os.path.exists(self.text_path_3 + '.all_tokenv2.pickle'))
 
-        content = get_file_content(self.text_path_1 + '.tokenv2.pickle')
+        self.assertTrue(os.path.exists(self.text_path_1 + '.word_tokenv2.pickle'))
+        self.assertTrue(os.path.exists(self.text_path_2 + '.word_tokenv2.pickle'))
+        self.assertTrue(os.path.exists(self.text_path_3 + '.word_tokenv2.pickle'))
+
+        content = get_file_content(self.text_path_1 + '.all_tokenv2.pickle')
         self.assertEquals(content, [('blah', 'NN'), ('blah', 'NN'), ('blah', 'NN')])

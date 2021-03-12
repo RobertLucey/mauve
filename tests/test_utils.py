@@ -152,7 +152,6 @@ class TestUtils(TestCase):
             )
         )
 
-
     def test_loose_exists(self):
         self.assertTrue(loose_exists(os.path.join(EPUB_PATH, 'Another Great Title.epub')))
         # TODO: when more files generated do some more of this
@@ -160,13 +159,14 @@ class TestUtils(TestCase):
     def test_compress_file(self):
         book = Book(title='t', author='a', year_published=0)
         book.set_content_location(self.clean_epub_1)
-        book.tokens  # Load the tokens file
+        book.all_tokens
+        book.word_tokens
 
-        compress_file(book.pickle_path)
-        self.assertTrue(os.path.exists(book.pickle_path + '.bz'))
+        compress_file(book.all_tokens_pickle_path)
+        self.assertTrue(os.path.exists(book.all_tokens_pickle_path + '.bz'))
 
-        content_pickle = get_file_content(book.pickle_path)
-        content_bz = get_file_content(book.pickle_path + '.bz')
+        content_pickle = get_file_content(book.all_tokens_pickle_path)
+        content_bz = get_file_content(book.all_tokens_pickle_path + '.bz')
 
         self.assertEqual(content_pickle, content_bz)
 
@@ -188,7 +188,6 @@ class TestUtils(TestCase):
 
         with self.assertRaises(Exception):
             get_metadata(source='blahblah')
-
 
     def test_iter_books_goodreads(self):
         books = [b for b in iter_books()]
@@ -225,7 +224,6 @@ Hallward painted away with that marvellous bold touch of his, that had the true 
             ]
         )
 
-
     def test_previous_current_next(self):
         self.assertEquals(
             list(previous_current_next(
@@ -248,4 +246,3 @@ Hallward painted away with that marvellous bold touch of his, that had the true 
             lower({}),
             {}
         )
-

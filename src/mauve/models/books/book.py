@@ -55,14 +55,14 @@ class Book(TextBody):
             self.author = Person(name=author)  # should support multiple authors
         else:
             self.author = author
-        self.year_published = year_published
+        self.year_published = int(year_published) if year_published is not None else None
         self.tags = tags
         self.publisher = publisher
         self.isbn = isbn
         self.isbn13 = isbn13
         self.subtitle = subtitle
-        self.avg_rating = avg_rating
-        self.num_ratings = num_ratings
+        self.avg_rating = float(avg_rating) if avg_rating is not None else None
+        self.num_ratings = int(num_ratings) if num_ratings is not None else None
 
         if tags is None:
             self.tags = Tags()
@@ -135,7 +135,8 @@ class Book(TextBody):
             'content',
             'dictionary_words',
             'words',
-            'tokens'
+            'all_tokens',
+            'word_tokens'
         ]
 
         for attr in attrs_to_del:
@@ -144,42 +145,11 @@ class Book(TextBody):
             except:
                 pass
 
-    @cached_property
-    def words(self):
-        # TODO: optional preprocess to make it's it is and all that
-
-        if self.content_path is None:
-            return []
-
-        if os.path.exists(self.pickle_path):
-            return [i[0] for i in self.tokens]
-        else:
-            return nltk.word_tokenize(self.content)
-
-    @cached_property
-    def tokens(self):
-
-        # TODO: first off try to get from non compressed then try get from compressed
-
-        data = []
-        if get_loose_filepath(self.pickle_path):
-            data = get_file_content(self.pickle_path)
-        else:
-            # XXX can skip here to speed things up once cached
-
-            data = self.pos_tag(self.words)
-
-            try:
-                f_pickle = open(self.pickle_path, 'wb')
-                pickle.dump(data, f_pickle)
-                f_pickle.close()
-            except Exception as ex:
-                print('Could not open file %s: %s' % (self.pickle_path, ex))
-
-        return data
-
     @property
     def safe_to_use(self):
+
+        if self.num_ratings is None or self.year_published is None:
+            return False
 
         if self.content_path:
             pass
@@ -212,10 +182,6 @@ class Book(TextBody):
     def author_similarity(self):
         filename_author = os.path.basename(self.content_path).split('___')[1].replace('.', '').lower()
         return self.author.is_similar_to(Person(name=filename_author))
-
-    @property
-    def pickle_path(self):
-        return self.content_path + '.tokenv{}.pickle'.format(TOKEN_VERSION)
 
     def get_avg_word_len(self, only_dictionary_words=False):
         '''
@@ -283,27 +249,27 @@ class Book(TextBody):
     def get_token_type_score(self, token_type):
         assert (token_type in SIMPLE_TOKEN_MAP.values())
         div = len(self.words) / 10000.
-        return len([m for m in self.tokens if SIMPLE_TOKEN_MAP[m[1]] == token_type]) / div
+        return len([m for m in self.all_tokens if SIMPLE_TOKEN_MAP[m[1]] == token_type]) / div
 
     @cached_property
     def adverbs(self):
-        return [m[0] for m in self.tokens if SIMPLE_TOKEN_MAP[m[1]] == 'adverb']
+        return [m[0] for m in self.word_tokens if SIMPLE_TOKEN_MAP[m[1]] == 'adverb']
 
     @cached_property
     def adjectives(self):
-        return [m[0] for m in self.tokens if SIMPLE_TOKEN_MAP[m[1]] == 'adjective']
+        return [m[0] for m in self.word_tokens if SIMPLE_TOKEN_MAP[m[1]] == 'adjective']
 
     @cached_property
     def nouns(self):
-        return [m[0] for m in self.tokens if SIMPLE_TOKEN_MAP[m[1]] == 'noun']
+        return [m[0] for m in self.word_tokens if SIMPLE_TOKEN_MAP[m[1]] == 'noun']
 
     @cached_property
     def proper_nouns(self):
-        return [m[0] for m in self.tokens if SIMPLE_TOKEN_MAP[m[1]] == 'proper noun']
+        return [m[0] for m in self.word_tokens if SIMPLE_TOKEN_MAP[m[1]] == 'proper noun']
 
     @cached_property
     def verbs(self):
-        return [m[0] for m in self.tokens if SIMPLE_TOKEN_MAP[m[1]] == 'verb']
+        return [m[0] for m in self.word_tokens if SIMPLE_TOKEN_MAP[m[1]] == 'verb']
 
     @cached_property
     def dictionary_words(self):

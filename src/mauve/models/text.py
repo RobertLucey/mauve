@@ -1,4 +1,5 @@
 from collections import defaultdict
+import pickle
 
 import statistics
 
@@ -9,10 +10,18 @@ from langdetect import detect as langdetect
 
 import nltk
 
-from mauve.utils import flatten, clean_gutenberg, intersperse, split_include
+from mauve.utils import (
+    flatten,
+    clean_gutenberg,
+    intersperse,
+    split_include,
+    get_loose_filepath,
+    get_file_content
+)
 from mauve.phrases import replace_phrases
 from mauve.utils import quote_aware_sent_tokenize
 from mauve.constants import (
+    TOKEN_VERSION,
     ENG_WORDS,
     PROFANITY_LIST,
     SENTENCE_TERMINATORS,
@@ -69,7 +78,8 @@ class TextBody(GenericObject, Tagger):
             'content',
             'dictionary_words',
             'words',
-            'tokens'
+            'all_tokens',
+            'word_tokens'
         ]
 
         for attr in attrs_to_del:
@@ -406,13 +416,13 @@ class TextBody(GenericObject, Tagger):
         :return:
         :rtype: list
         """
-        size = len(self.tokens)
+        size = len(self.all_tokens)
         idx_list = [
-            idx + 1 for idx, val in enumerate(self.tokens) if val[0] in SENTENCE_TERMINATORS
+            idx + 1 for idx, val in enumerate(self.all_tokens) if val[0] in SENTENCE_TERMINATORS
         ]
 
         return [
-            self.tokens[i: j] for i, j in zip(
+            self.all_tokens[i: j] for i, j in zip(
                 [0] + idx_list,
                 idx_list + ([size] if idx_list[-1] != size else [])
             )
@@ -426,3 +436,45 @@ class TextBody(GenericObject, Tagger):
         :rtype: int
         """
         return len(self.words)
+
+    @cached_property
+    def all_tokens(self):
+        data = []
+        if get_loose_filepath(self.all_tokens_pickle_path):
+            data = get_file_content(self.all_tokens_pickle_path)
+        else:
+            data = self.pos_tag(nltk.word_tokenize(self.content))
+            try:
+                f_pickle = open(self.all_tokens_pickle_path, 'wb')
+                pickle.dump(data, f_pickle)
+                f_pickle.close()
+            except Exception as ex:
+                print('Could not open file %s: %s' % (self.all_tokens_pickle_path, ex))
+
+        return data
+
+    @cached_property
+    def word_tokens(self):
+        # TODO: Get wordtokens from alltokens when care enough
+
+        data = []
+        if get_loose_filepath(self.word_tokens_pickle_path):
+            data = get_file_content(get_loose_filepath(self.word_tokens_pickle_path))
+        else:
+            data = self.pos_tag(self.words)
+            try:
+                f_pickle = open(self.word_tokens_pickle_path, 'wb')
+                pickle.dump(data, f_pickle)
+                f_pickle.close()
+            except Exception as ex:
+                print('Could not open file %s: %s' % (self.word_tokens_pickle_path, ex))
+
+        return data
+
+    @property
+    def all_tokens_pickle_path(self):
+        return self.content_path + '.all_tokenv{}.pickle'.format(TOKEN_VERSION)
+
+    @property
+    def word_tokens_pickle_path(self):
+        return self.content_path + '.word_tokenv{}.pickle'.format(TOKEN_VERSION)

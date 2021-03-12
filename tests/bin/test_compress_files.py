@@ -155,17 +155,18 @@ class TestCompressFiles(TestCase):
     def test_compress_files(self):
         book = Book(title='t', author='a', year_published=0)
         book.set_content_location(self.clean_epub_1)
-        book.tokens  # Load the tokens file
+        book.all_tokens
+        book.word_tokens
 
-        content_pickle = get_file_content(book.pickle_path)
+        content_pickle = get_file_content(book.word_tokens_pickle_path)
 
         compress(num_processes=1)
 
         # make sure files deleted and bz created
 
-        self.assertTrue(os.path.exists(book.pickle_path + '.bz'))
-        self.assertFalse(os.path.exists(book.pickle_path))
+        self.assertTrue(os.path.exists(book.word_tokens_pickle_path + '.bz'))
+        self.assertFalse(os.path.exists(book.word_tokens_pickle_path))
 
-        content_bz = get_file_content(book.pickle_path + '.bz')
+        content_bz = get_file_content(book.word_tokens_pickle_path + '.bz')
 
         self.assertEqual(content_pickle, content_bz)

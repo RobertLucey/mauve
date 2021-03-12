@@ -19,7 +19,8 @@ from mauve.constants import (
 
 
 def get_tokens(b):
-    b.tokens
+    b.all_tokens
+    b.word_tokens
 
     return b.title
 
@@ -27,8 +28,13 @@ def get_tokens(b):
 def process_filenames(num_processes=4):
     files = []
     for i in iter_books(source='local_text'):
-        if os.path.exists(i.pickle_path + '.bz') or os.path.exists(i.pickle_path) or '.pickle' in i.content_path:
+
+        all_set = os.path.exists(i.all_tokens_pickle_path + '.bz') or os.path.exists(i.all_tokens_pickle_path) or '.all_tokenv' in i.content_path
+        word_set = os.path.exists(i.word_tokens_pickle_path + '.bz') or os.path.exists(i.word_tokens_pickle_path) or '.word_tokenv' in i.content_path
+
+        if all_set and word_set:
             continue
+
         files.append(i)
 
     if num_processes == 1:

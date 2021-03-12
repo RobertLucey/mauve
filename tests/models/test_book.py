@@ -25,7 +25,6 @@ class TestBook(TestCase):
         self.assertFalse(book.is_genre('som'))
         self.assertTrue(book.is_genre('something'))
 
-
     @mock.patch('mauve.models.books.book.Book.content', 'fuck')
     def test_get_profanity_score(self):
         book = Book(title='t', author='a', year_published=1)
@@ -111,7 +110,6 @@ class TestBook(TestCase):
         book = Book(title='t', author='a', year_published=1)
         book.set_content_location('/tmp/mauve_tok')
         self.assertEquals(book.adjectives, ['blue'])
-
 
     def test_author_similarity(self):
         book = Book(title='t', author='Author', year_published=1)
