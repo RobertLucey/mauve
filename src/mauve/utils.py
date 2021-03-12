@@ -56,12 +56,14 @@ def get_loose_filepath(filepath):
             return unextend
     elif ext == '.pickle':
         if os.path.exists(filepath + '.bz'):
+            return filepath + '.bz'
+        elif os.path.exists(filepath):
             return filepath
     elif ext == '.txt':
         if os.path.exists(filepath + '.bz'):
-            return filepath
+            return filepath + '.bz'
         if os.path.exists(filepath + '.pickle'):
-            return filepath
+            return filepath + '.pickle'
 
     return None
 
@@ -169,13 +171,9 @@ def iter_books(source='goodreads'):
     :return: generator of book objects
     """
     from mauve.models.books.book import Book
-    books_dir = {
-        'goodreads': GOODREADS_METADATA_PATH,
-        'local_text': TEXT_PATH
-    }[source]
     for book_meta in get_metadata(source=source):
         content_path = os.path.join(
-            books_dir,
+            TEXT_PATH,
             book_meta['original_filename']
         )
 
