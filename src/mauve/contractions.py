@@ -1,4 +1,3 @@
-
 APPROSTROPHES = ['’', '\'']
 CONTRACTION_MAP = {
     '\'aight': 'alright',
@@ -157,6 +156,16 @@ CONTRACTION_MAP = {
 
 
 def replace_contractions(content):
+    """
+    Expand contractions since contractions are annoying
+
+    Doesn't work all the time cause he's can mean 'he is'
+    or 'he was'
+
+    Usage:
+        >> replace_contractions('y\'all willn\'t smack ol\' maw')
+        'you all will not smack old maw'
+    """
     for k, replacement in CONTRACTION_MAP.items():
         for appos in APPROSTROPHES:
             find = k.replace('\'', appos)

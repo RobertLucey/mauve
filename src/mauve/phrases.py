@@ -107,7 +107,18 @@ for idiom in PHRASES:
 
 
 def replace_phrases(text):
+    """
+    Replace words with something more succinct or easier to process
+    Sort of like a lemma for many words but very bad
 
+    Custom words like "foreign affairs" for oirechtas which joins the
+    words by an underscore since whatever is the actual way of doing
+    this by category is too passive
+
+    Usage:
+        >> replace_phrases('Is this in regard to something?')
+        'Is this regarding something'
+    """
     sentence = get_en_core_web_sm(text)
 
     phrase_matches = M_TOOL(sentence)
