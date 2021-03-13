@@ -60,8 +60,14 @@ class Speech:
 
 
 def extract_speech(sentence):
+    """
 
-    if not any([q in sentence.text for q in SPEECH_QUOTES]):
+    :param sentence:
+    :return: List of Speech objects
+    :rtype: list
+    """
+
+    if not any([quotemark in sentence.text for quotemark in SPEECH_QUOTES]):
         return []
 
     speech_parts = []
@@ -92,7 +98,7 @@ def extract_speech(sentence):
     if not speech_parts:
         return []
 
-    speech = []
+    speech_items = []
 
     for start_idx, end_idx in speech_parts:
         text = sentence.segments[start_idx+1:end_idx]
@@ -135,19 +141,19 @@ def extract_speech(sentence):
                 if i.is_person:
                     speaker = i.text
 
-            # if has inflected more likely
+            # If has inflected more likely
             # also a good sign if there's few words and one of them is the
             if speaker is None and set_inflection:
                 if len(interesting_part) < 3:
                     speaker = ' '.join([i.text for i in interesting_part])
 
-        speech_item = Speech(
-            segments=text,
-            speaker=Person(name=speaker),
-            inflection=inflection
+        # if we have a name, that's a better speaker
+        speech_items.append(
+            Speech(
+                segments=text,
+                speaker=Person(name=speaker),
+                inflection=inflection
+            )
         )
 
-        # if we have a name, that's a better speaker
-        speech.append(speech_item)
-
-    return speech
+    return speech_items

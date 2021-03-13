@@ -57,23 +57,23 @@ class Synonym:
 
         if ' ' in text:
             return text
-        else:
+
+        try:
+            if WORDNET_REPLACE:
+                options = self.get_synonyms(text, method='wordnet')
+            else:
+                options = self.get_synonyms(text, method=None)
             try:
-                if WORDNET_REPLACE:
-                    options = self.get_synonyms(text, method='wordnet')
-                else:
-                    options = self.get_synonyms(text, method=None)
-                try:
-                    word = max(options.items(), key=operator.itemgetter(1))[0]
+                word = max(options.items(), key=operator.itemgetter(1))[0]
 
-                    if text.islower() and not word.islower():
-                        word = word.lower()
+                if text.islower() and not word.islower():
+                    word = word.lower()
 
-                    #if word != text:
-                    #    print('%s %s' % (text, word))
+                #if word != text:
+                #    print('%s %s' % (text, word))
 
-                    return word
-                except:
-                    return text
+                return word
             except:
                 return text
+        except:
+            return text

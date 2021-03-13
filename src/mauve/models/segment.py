@@ -44,7 +44,6 @@ class Segment(Tagger, GenericObject):
         :param text: Text content of the segment
         :kwarg tag: A nltk or spacy tag of the segment
         """
-
         self._data = args[0]
         text = None
         if isinstance(self._data, str):
@@ -82,6 +81,9 @@ class Segment(Tagger, GenericObject):
 
     @property
     def is_person(self):
+        """
+        This should probably optionally take in the context of people detected
+        """
         return self.tag == 'PERSON' or self.is_titled_proper_noun
 
     @property

@@ -1,16 +1,8 @@
 from mauve.structure.conditional import CONDITIONAL_LIST
-from mauve.constants import ASSIGNMENT_WORDS
-
-
-def serialize_children(children):
-    return [{
-        'text': child.text,
-        'dep': child.dep_,
-        'head': child.head.text,
-        'pos': child.head.pos,
-        'idx': child.idx,
-        'children': serialize_children(child.children)
-    } for child in children]
+from mauve.constants import (
+    ASSIGNMENT_WORDS,
+    SENTENCE_TERMINATORS
+)
 
 
 class DepNode:
@@ -32,9 +24,26 @@ class DepNode:
         )
 
     def serialize_line(self):
-        return '%s   %s   %s   %s   %s' % (self.text.ljust(8), self.dep.ljust(8), self.head.ljust(8), self.pos.ljust(8), self.children)
+        return '%s   %s   %s   %s   %s' % (
+            self.text.ljust(8),
+            self.dep.ljust(8),
+            self.head.ljust(8),
+            self.pos.ljust(8),
+            self.children
+        )
 
     def serialize(self):
+
+        def serialize_children(children):
+            return [{
+                'text': child.text,
+                'dep': child.dep_,
+                'head': child.head.text,
+                'pos': child.head.pos,
+                'idx': child.idx,
+                'children': serialize_children(child.children)
+            } for child in children]
+
         return {
             'text': self.text,
             'dep': self.dep,
@@ -100,6 +109,14 @@ class DepTree():
 
     @staticmethod
     def find_sub_idx(original, repl_list, start=0):
+        """
+
+        :param original: list to modify
+        :repl_list: The list of items to replace
+        :kwarg start: What idx to start from
+        :return: The next idx of the start of the next occurance of repl_list
+        :rtype: int
+        """
         length = len(repl_list)
         for idx in range(start, len(original)):
             if [i.text for i in original[idx:idx + length]] == repl_list:
@@ -109,8 +126,16 @@ class DepTree():
     def replace_sub(original, repl_list, new_list):
         """
         Replace a subset of a list with some other subset
-        >> replace_sub([1,2,3,4], [2,3], [5,6])
-        [1,5,6,4]
+
+        Usage:
+            >> replace_sub([1,2,3,4], [2,3], [5,6])
+            [1,5,6,4]
+
+        :param original: list to modify
+        :repl_list: The list of items to replace
+        :param new_list: What to replace the repl_list with
+        :return: original with repl_list replaced with new_list
+        :rtype: list
         """
         length = len(new_list)
         idx = 0
@@ -125,7 +150,7 @@ class DepTree():
     def get_after_node(self, cmp_node, stop_at_punct=False):
         if stop_at_punct:
             try:
-                first_punct = min([n.idx for n in self.nodes if n.text in ['!', '.', '?'] and n.idx > cmp_node.idx])
+                first_punct = min([n.idx for n in self.nodes if n.text in SENTENCE_TERMINATORS and n.idx > cmp_node.idx])
                 return [node for node in self.nodes if node.idx > cmp_node.idx and node.idx < first_punct]
             except:
                 return [node for node in self.nodes if node.idx > cmp_node.idx]

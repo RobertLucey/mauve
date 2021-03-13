@@ -26,6 +26,14 @@ def clean_name(name):
     Clean up a name by removing parts we don't care about or set
     to empty if the name is untrustworthy.
 
+    Usage:
+        >> clean_name('Doctor Cat')
+        'Cat'
+        >> clean_name('The Cat')
+        'Cat'
+        >> clean_name('Cat')
+        'Cat'
+
     :param name: A string of a name or loose name
     :return: A name with unnecessary parts removed
     :rtype: str
@@ -57,7 +65,7 @@ def clean_name(name):
     ):
         name = ''
 
-    return name.translate(PERSON_TRANSLATOR).strip()
+    return name.translate(PERSON_TRANSLATOR).replace('\n', ' ').replace('  ', ' ').strip()
 
 
 class People(GenericObjects):
@@ -76,9 +84,9 @@ class People(GenericObjects):
             raise TypeError('Bad type: %s' % (type(obj)))
 
         if any([obj.name == i.name for i in self]):
-            for p in self:
-                if p.name == obj.name:
-                    p.inc_references()
+            for person in self:
+                if person.name == obj.name:
+                    person.inc_references()
         else:
             obj.inc_references()
             self._data.append(obj)
@@ -87,6 +95,8 @@ class People(GenericObjects):
         return [person for person in self if person.is_trustworthy]
 
     def get_count_of(self, person):
+        if isinstance(person, str):
+            person = Person(name=person)
         return len([p.name for p in self if p.name == person.name])
 
     def remove_near_duplicates(self):
@@ -250,12 +260,12 @@ class Author(Person):
     @property
     def nationality(self):
         if self.name in AUTHOR_METADATA:
-            return AUTHOR_METADATA[self.name]['nationality']
+            return AUTHOR_METADATA[self.name]['nationality'].replace('\n', ' ').replace('  ', ' ').strip()
 
         if len(self.name.split(' ')) > 2:
             first_last = '%s %s' % (self.name.split(' ')[0], self.name.split(' ')[-1])
             if first_last in AUTHOR_METADATA:
-                return AUTHOR_METADATA[first_last]['nationality']
+                return AUTHOR_METADATA[first_last]['nationality'].replace('\n', ' ').replace('  ', ' ').strip()
 
     @property
     def birth_year(self):
@@ -263,12 +273,14 @@ class Author(Person):
             return AUTHOR_METADATA[self.name]['born']
 
     def serialize(self):
-        return {
-            'name': self.name,
-            'gender': self.gender,
-            'nationality': self.nationality,
-            'birth_year': self.birth_year
-        }
+        data = super(Author, self).serialize()
+        data.update(
+            {
+                'nationality': self.nationality,
+                'birth_year': self.birth_year
+            }
+        )
+        return data
 
 
 def extract_people(sentence):

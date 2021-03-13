@@ -16,9 +16,7 @@ from mauve.phrases import replace_phrases
 from mauve.models.deptree import DepTree, DepNode
 from mauve.models.person import extract_people
 from mauve.models.segment import Segment
-from mauve import (
-    SYNONYM
-)
+from mauve import SYNONYM
 
 
 class Sentence:
@@ -29,7 +27,8 @@ class Sentence:
     def serialize(self):
         return {
             'text': self.text,
-            'people': self.people
+            'people': self.people,
+            'is_question': self.is_question
         }
 
     @property
@@ -149,6 +148,11 @@ class Sentence:
             segments = replace_sub(
                 segments,
                 ['the'] + [Segment(p) for p in person.dirty_name.split(' ')],
+                [Segment('the ' + person.dirty_name, tag='PERSON')]
+            )
+            segments = replace_sub(
+                segments,
+                ['a'] + [Segment(p) for p in person.dirty_name.split(' ')],
                 [Segment('the ' + person.dirty_name, tag='PERSON')]
             )
 
