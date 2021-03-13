@@ -152,9 +152,8 @@ class Person(Entity):
         """
 
         def matches(first_string, second_string):
-            s = difflib.SequenceMatcher(None, first_string, second_string)
-            match = [first_string[i:i+n] for i, _, n in s.get_matching_blocks() if n > 0]
-            return match
+            seqmatcher = difflib.SequenceMatcher(None, first_string, second_string)
+            return [first_string[i:i+n] for i, _, n in seqmatcher.get_matching_blocks() if n > 0]
 
         if self.name.lower() == cmp_person.name.lower():
             return True
@@ -260,17 +259,24 @@ class Author(Person):
     @property
     def nationality(self):
         if self.name in AUTHOR_METADATA:
-            return AUTHOR_METADATA[self.name]['nationality'].replace('\n', ' ').replace('  ', ' ').strip()
+            nationality = AUTHOR_METADATA[self.name]['nationality']
+            if nationality is not None:
+                return nationality.replace('\n', ' ').replace('  ', ' ').strip()
 
         if len(self.name.split(' ')) > 2:
             first_last = '%s %s' % (self.name.split(' ')[0], self.name.split(' ')[-1])
             if first_last in AUTHOR_METADATA:
-                return AUTHOR_METADATA[first_last]['nationality'].replace('\n', ' ').replace('  ', ' ').strip()
+                nationality = AUTHOR_METADATA[first_last]['nationality']
+                if nationality is not None:
+                    return nationality.replace('\n', ' ').replace('  ', ' ').strip()
+
+        return None
 
     @property
     def birth_year(self):
         if self.name in AUTHOR_METADATA:
             return AUTHOR_METADATA[self.name]['born']
+        return None
 
     def serialize(self):
         data = super(Author, self).serialize()
