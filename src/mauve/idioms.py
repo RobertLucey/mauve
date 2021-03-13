@@ -49,7 +49,6 @@ other_replacements = {
     'sinn féin': 'sinn_fein',
     'don\'t': 'do not',
     'it\'s': 'it is',
-    'i\'m': 'i am',
     'a great deal': 'a lot',
     'fully aware': 'aware',
     'motor car': 'car'

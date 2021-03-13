@@ -1,11 +1,8 @@
 from collections import defaultdict
 import pickle
 
-import statistics
-
 from cached_property import cached_property
 
-import textstat
 from langdetect import detect as langdetect
 
 import nltk
@@ -22,11 +19,8 @@ from mauve.phrases import replace_phrases
 from mauve.utils import quote_aware_sent_tokenize
 from mauve.constants import (
     TOKEN_VERSION,
-    ENG_WORDS,
     PROFANITY_LIST,
     SENTENCE_TERMINATORS,
-    SIMPLE_TOKEN_MAP,
-    ANALYSIS_VERSION,
     EXTENDED_PUNCTUATION
 )
 from mauve.contractions import replace_contractions
@@ -35,12 +29,10 @@ from mauve.models.generic import GenericObject
 from mauve.models.person import People
 from mauve.profanity import PROFANITY_TREE
 from mauve.bst import (
-    create,
     search
 )
 
 from mauve import (
-    GENDER_DETECTOR,
     VADER,
     Tagger
 )
@@ -342,17 +334,19 @@ class TextBody(GenericObject, Tagger):
                     if word in phrase:
                         values[word] += 1
                 return values
-            else:
-                count = 0
-                for word in self.basic_content.split(' '):
-                    if word in phrase:
-                        count += 1
-                return count
+
+            count = 0
+            for word in self.basic_content.split(' '):
+                if word in phrase:
+                    count += 1
+            return count
         else:
             if ' ' in phrase:
-                return self.basic_content.replace(phrase, phrase.replace(' ', '_')).count(phrase)
-            else:
-                return self.basic_content.split(' ').count(phrase)
+                return self.basic_content.replace(
+                    phrase,
+                    phrase.replace(' ', '_')
+                ).count(phrase)
+            return self.basic_content.split(' ').count(phrase)
 
     def get_pre_post(self, phrase, simple=False):
         """

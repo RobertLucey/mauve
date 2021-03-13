@@ -1,5 +1,3 @@
-from mauve import GENDER_DETECTOR
-
 from mauve.models.generic import GenericObject
 
 
