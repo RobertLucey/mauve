@@ -117,7 +117,7 @@ class Book(TextBody):
             'top_verbs': self.get_top_verbs(10),
             'flesch_reading_ease_score': textstat.flesch_reading_ease(self.content),
             'reading_difficulty': self.reading_difficulty,
-            'reading_time': textstat.reading_time(self.content),
+            'reading_time': self.reading_time,
             'vader_pos': vader_stats['pos'],
             'vader_neg': vader_stats['neg'],
             'vader_neu': vader_stats['neu'],
@@ -150,15 +150,22 @@ class Book(TextBody):
                 delattr(self, attr)
             except:
                 pass
+
+    @property
+    def reading_time(self):
+        return textstat.reading_time(self.content)
  
     @property
     def reading_difficulty(self):
         scores = []
         for sentence in self.sentences:
             total_words = textstat.textstat.lexicon_count(sentence)
-            total_syllables = textstat.textstat.syllable_count(sentence)
-            syllables_per_words = (total_syllables / total_words)
-            scores.append(syllables_per_words)
+            if total_words > 0:
+                total_syllables = textstat.textstat.syllable_count(sentence)
+                syllables_per_words = (total_syllables / total_words)
+                scores.append(syllables_per_words)
+        if len(scores) < 2:
+            return 0
         return statistics.mean(scores)
 
     @property
