@@ -213,7 +213,7 @@ FEMALE_WORDS = {'herself', 'she', 'her', 'aunt', 'daughter', 'wife', 'mam', 'mot
 EXTRA_FEMALE_NAMES = {'Mary', 'Kaylea', 'Isobelle', 'Kim', 'Luanne', 'Erin', 'Lauren', 'Connie', 'Glyn', 'Alyxandra', 'Carol', 'Kimberla', 'Lynsay', 'Rufi'}
 
 BASE_LOUD_WORDS = {'loud', 'hard', 'bang', 'explode', 'shout', 'scream', 'shriek', 'yell', 'roar', 'screech', 'bellow', 'exclaim', 'howl', 'bark', 'heavy', 'yawp', 'blaring', 'blast', 'boom', 'deafen', 'piercing', 'thunderous', 'thundering'}
-LOUD_WORDS = BASE_LOUD_WORDS + [w + 'ing' for w in BASE_LOUD_WORDS] + [w + 'ly' for w in BASE_LOUD_WORDS] + [w + 'ed' for w in BASE_LOUD_WORDS]
+LOUD_WORDS = list(BASE_LOUD_WORDS) + [w + 'ing' for w in BASE_LOUD_WORDS] + [w + 'ly' for w in BASE_LOUD_WORDS] + [w + 'ed' for w in BASE_LOUD_WORDS]
 
 try:
     AUTHOR_METADATA = json.loads(open(AUTHOR_METADATA_PATH, 'r').read())
