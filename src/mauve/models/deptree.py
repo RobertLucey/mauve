@@ -71,10 +71,10 @@ class DepTree():
     def join_words(self, multiword_list):
         """
 
-        >> [n.text for n in deptree.nodes]
+        >>> [n.text for n in deptree.nodes]
         ['this', 'is', 'a', 'thing']
-        >> deptree.join_words(['a thing'])
-        >> [n.text for n in deptree.nodes]
+        >>> deptree.join_words(['a thing'])
+        >>> [n.text for n in deptree.nodes]
         ['this', 'is', 'a thing']
 
         :param multiwordstr: list of wordy strings to join depnodes on
@@ -128,7 +128,7 @@ class DepTree():
         Replace a subset of a list with some other subset
 
         Usage:
-            >> replace_sub([1,2,3,4], [2,3], [5,6])
+            >>> replace_sub([1,2,3,4], [2,3], [5,6])
             [1,5,6,4]
 
         :param original: list to modify

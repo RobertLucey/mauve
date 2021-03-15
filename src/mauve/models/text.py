@@ -1,4 +1,7 @@
-from collections import defaultdict
+from collections import (
+    defaultdict,
+    Counter
+)
 import pickle
 
 from cached_property import cached_property
@@ -18,6 +21,7 @@ from mauve.utils import (
 from mauve.phrases import replace_phrases
 from mauve.utils import quote_aware_sent_tokenize
 from mauve.constants import (
+    ENG_WORDS,
     TOKEN_VERSION,
     PROFANITY_LIST,
     SENTENCE_TERMINATORS,
@@ -185,8 +189,8 @@ class TextBody(GenericObject, Tagger):
 
     @cached_property
     def sentiment(self):
-        # Need more power but this may be an indication
         return VADER.polarity_scores([a for a in self.sentences])
+
 
     @cached_property
     def lang(self):
@@ -420,15 +424,6 @@ class TextBody(GenericObject, Tagger):
             )
         ]
 
-    @property
-    def word_count(self):
-        """
-
-        :return: the number of individual words in the piece of text
-        :rtype: int
-        """
-        return len(self.words)
-
     @cached_property
     def all_tokens(self):
         if self.all_tokens_pickle_path is None:
@@ -459,7 +454,9 @@ class TextBody(GenericObject, Tagger):
 
         data = []
         if get_loose_filepath(self.word_tokens_pickle_path):
-            data = get_file_content(get_loose_filepath(self.word_tokens_pickle_path))
+            data = get_file_content(get_loose_filepath(
+                self.word_tokens_pickle_path)
+            )
         else:
             data = self.pos_tag(self.words)
             try:
@@ -482,3 +479,29 @@ class TextBody(GenericObject, Tagger):
         if self.content_path is None:
             return None
         return self.content_path + '.word_tokenv{}.pickle'.format(TOKEN_VERSION)
+
+    @cached_property
+    def dictionary_words(self):
+        return [
+            w.lower() for w in self.words if w.lower() in ENG_WORDS and w.isalpha()
+        ]
+
+    @property
+    def word_count(self):
+        """
+
+        :return: the number of individual words in the piece of text
+        :rtype: int
+        """
+        return len(self.words)
+
+    @cached_property
+    def word_counts(self):
+        """
+        Get the counts of dictionary words.
+
+        Usage:
+            >>> TextBody(content='Wake me up before you go go!').word_counts
+            {'wake': 1, 'me': 1, 'up': 1, 'before': 1, 'you': 1, 'go': 2}
+        """
+        return dict(Counter([w.lower() for w in self.dictionary_words]))

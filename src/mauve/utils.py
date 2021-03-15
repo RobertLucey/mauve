@@ -203,6 +203,7 @@ def iter_books(source='goodreads'):
 def get_en_core_web_sm(text):
     return ENCORE(text)
 
+
 @lru_cache(maxsize=1000)
 def get_en_core_web_lg(text):
     return ENCORE_LG(text)
@@ -213,8 +214,9 @@ def get_stem(word):
     """
     Cachey getting the stem of a word
 
-    >> get_stem('lovely')
-    'love'
+    Usage:
+        >>> get_stem('lovely')
+        'love'
 
     :return: The stem of the word according to nltk
     :rtype: str
@@ -252,8 +254,10 @@ def find_sub_idx(original, repl_list, start=0):
 def replace_sub(original, repl_list, new_list):
     """
     Replace a subset of a list with some other subset
-    >> replace_sub([1,2,3,4], [2,3], [5,6])
-    [1,5,6,4]
+
+    Usage:
+        >>> replace_sub([1,2,3,4], [2,3], [5,6])
+        [1,5,6,4]
     """
     length = len(new_list)
     idx = 0
@@ -296,7 +300,8 @@ def get_wordnet_pos(tag):
             'J': wordnet.ADJ,
             'N': wordnet.NOUN,
             'V': wordnet.VERB,
-            'R': wordnet.ADV
+            'R': wordnet.ADV,
+            'S': wordnet.ADJ_SAT
         }
         return tag_dict.get(tag, wordnet.NOUN)
 
@@ -353,8 +358,10 @@ def quote_aware_sent_tokenize(content):
 
 def str_count_multi(string, things_to_count):
     """
-    >> str_count_multi('one two three two one', ['one', 'three'])
-    3
+
+    Usage:
+        >>> str_count_multi('one two three two one', ['one', 'three'])
+        3
 
     :return: The occurances of multiple things in a string
     :rtype: int
@@ -365,6 +372,10 @@ def str_count_multi(string, things_to_count):
 def flatten(lst):
     '''
     Given a nested list, flatten it.
+
+    Usage:
+        >>> flatten([[1, 2, 3], [1, 2]])
+        [1, 2, 3, 1, 2]
 
     :param lst: list to be flattened
     :return: Flattened list
@@ -408,12 +419,24 @@ def clean_gutenberg(content):
 
 
 def intersperse(lst, item):
+    """
+
+    Usage:
+        >>> intersperse([1,2,3], 0)
+        [1, 0, 2, 0, 3]
+    """
     result = [item] * (len(lst) * 2 - 1)
     result[0::2] = lst
     return result
 
 
 def split_include(lst, splitter):
+    """
+
+    Usage:
+        >>> split_include(['a b c'], 'a b')
+        ['a b', ' c']
+    """
     output = []
     for text_part in lst:
         if splitter in text_part:

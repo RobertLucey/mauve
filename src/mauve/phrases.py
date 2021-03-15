@@ -116,7 +116,7 @@ def replace_phrases(text):
     this by category is too passive
 
     Usage:
-        >> replace_phrases('Is this in regard to something?')
+        >>> replace_phrases('Is this in regard to something?')
         'Is this regarding something'
     """
     sentence = get_en_core_web_sm(text)

@@ -166,19 +166,19 @@ CLEAN_EPUB_PATH = os.path.join(BASE_DATA_PATH, 'clean_books')
 OIREACHTAS_DIR = os.path.join(BASE_DATA_PATH, 'oireachtas')
 
 
-SENTENCE_TERMINATORS = set(['.', '?', '!'])
-SPEECH_QUOTES = set(['`', '‘', '"', '``', '”', '“'])
+SENTENCE_TERMINATORS = {'.', '?', '!'}
+SPEECH_QUOTES = {'`', '‘', '"', '``', '”', '“'}
 EXTENDED_PUNCTUATION = list(string.punctuation) + list(SPEECH_QUOTES)
 
 
-LIKELY_PERSON_PREFIXES = set([
+LIKELY_PERSON_PREFIXES = {
     'dr',
     'mr',
     'ms',
     'mrs',
     'miss',
     'sir'
-])
+}
 
 GENDER_PREFIXES = {
     'sir': 'male',
@@ -200,18 +200,20 @@ PERSON_TITLE_PREFIXES = {
 
 PERSON_TRANSLATOR = str.maketrans('', '', ''.join(list('!"#$%&()*+,-/:;<=>?@[\\]^_`{|}~') + list(SPEECH_QUOTES)))
 PERSON_PREFIXES = list(GENDER_PREFIXES.keys()) + list(PERSON_TITLE_PREFIXES.keys())
-NOT_NAMES = set(['I', 'My', 'An', 'don', 'Him', 'Her', 'So', 'Don', 'Said', 'Tut', 'Laughing', 'Little', 'Mystery', 'Christmas'])
+NOT_NAMES = {'I', 'My', 'An', 'don', 'Him', 'Her', 'So', 'Don', 'Said', 'Tut', 'Laughing', 'Little', 'Mystery', 'Christmas'}
 
-SPEECH_WORDS = set(['said', 'says', 'exclaimed', 'whispered', 'wrote', 'continued', 'told', 'shouted', 'called', 'recalled', 'explained', 'admitted', 'remarked', 'bellowed', 'shrieked', 'told', 'ask', 'asked', 'confided', 'fulminated', 'mused', 'rejoined', 'cried', 'panted', 'continued', 'ejaculated', 'replied', 'interrupted', 'remarked', 'declared', 'queried', 'repeated', 'added', 'lied', 'insisted', 'answered', 'returned', 'sighed', 'added', 'resumed', 'echoed', 'screamed', 'observed'])  # Need to include the ings, prob should use the stems
-SPEAKERS = set(['he', 'they', 'she', 'I', 'we', 'it', 'everyone', 'someone'])
+SPEECH_WORDS = {'said', 'says', 'exclaimed', 'whispered', 'wrote', 'continued', 'told', 'shouted', 'called', 'recalled', 'explained', 'admitted', 'remarked', 'bellowed', 'shrieked', 'told', 'ask', 'asked', 'confided', 'fulminated', 'mused', 'rejoined', 'cried', 'panted', 'continued', 'ejaculated', 'replied', 'interrupted', 'remarked', 'declared', 'queried', 'repeated', 'added', 'lied', 'insisted', 'answered', 'returned', 'sighed', 'added', 'resumed', 'echoed', 'screamed', 'observed'}  # FIXME Need to include the ings, prob should use the stems
+SPEAKERS = {'he', 'they', 'she', 'I', 'we', 'it', 'everyone', 'someone'}
 
-ASSIGNMENT_WORDS = set(['is', 'are', 'am', 'was', 'were', 'be', 'better not', 'should not', 'became'])
+ASSIGNMENT_WORDS = {'is', 'are', 'am', 'was', 'were', 'be', 'better not', 'should not', 'became'}
 
-MALE_WORDS = set(['himself', 'he', 'him', 'uncle', 'son', 'husband', 'dad', 'father', 'man', 'boy'])
-EXTRA_MALE_NAMES = ['Chris', 'Éric', 'Bear', 'Ray', 'Dashiell', 'Vernor', 'Ishmael']
-FEMALE_WORDS = set(['herself', 'she', 'her', 'aunt', 'daughter', 'wife', 'mam', 'mother', 'woman', 'girl'])
-EXTRA_FEMALE_NAMES = ['Mary', 'Kaylea', 'Isobelle', 'Kim', 'Luanne', 'Erin', 'Lauren', 'Connie', 'Glyn', 'Alyxandra', 'Carol', 'Kimberla']
+MALE_WORDS = {'himself', 'he', 'him', 'uncle', 'son', 'husband', 'dad', 'father', 'man', 'boy'}
+EXTRA_MALE_NAMES = {'Chris', 'Éric', 'Bear', 'Ray', 'Dashiell', 'Vernor', 'Ishmael', 'Ayad', 'Dale', 'Etgar', 'Will'}
+FEMALE_WORDS = {'herself', 'she', 'her', 'aunt', 'daughter', 'wife', 'mam', 'mother', 'woman', 'girl'}
+EXTRA_FEMALE_NAMES = {'Mary', 'Kaylea', 'Isobelle', 'Kim', 'Luanne', 'Erin', 'Lauren', 'Connie', 'Glyn', 'Alyxandra', 'Carol', 'Kimberla', 'Lynsay', 'Rufi'}
 
+BASE_LOUD_WORDS = {'loud', 'hard', 'bang', 'explode', 'shout', 'scream', 'shriek', 'yell', 'roar', 'screech', 'bellow', 'exclaim', 'howl', 'bark', 'heavy', 'yawp', 'blaring', 'blast', 'boom', 'deafen', 'piercing', 'thunderous', 'thundering'}
+LOUD_WORDS = BASE_LOUD_WORDS + [w + 'ing' for w in BASE_LOUD_WORDS] + [w + 'ly' for w in BASE_LOUD_WORDS] + [w + 'ed' for w in BASE_LOUD_WORDS]
 
 try:
     AUTHOR_METADATA = json.loads(open(AUTHOR_METADATA_PATH, 'r').read())

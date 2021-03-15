@@ -21,12 +21,13 @@ from mauve.models.books.tag import Tags
 from mauve.models.books.review import Reviews
 from mauve.models.text import TextBody
 from mauve.constants import (
-    ENG_WORDS,
+    LOUD_WORDS,
     SIMPLE_TOKEN_MAP,
     TOKEN_VERSION,
     ANALYSIS_VERSION
 )
 from mauve.utils import (
+    str_count_multi,
     get_file_content,
     get_loose_filepath
 )
@@ -157,16 +158,38 @@ class Book(TextBody):
  
     @property
     def reading_difficulty(self):
-        scores = []
+        """
+        Estimate how difficult the book is to read.
+        This doesn't consider the length of a book since I don't think
+        that's the right kind of difficulty to focus on.
+        """
+        syllable_scores = []
+        difficulty_scores = []
         for sentence in self.sentences:
             total_words = textstat.textstat.lexicon_count(sentence)
             if total_words > 0:
                 total_syllables = textstat.textstat.syllable_count(sentence)
                 syllables_per_words = (total_syllables / total_words)
-                scores.append(syllables_per_words)
-        if len(scores) < 2:
+
+                words = textstat.remove_punctuation(sentence)
+
+                # Removes with upper start as possible proper name
+                # Bit sloppy but closer to truth than not removing them
+                difficult_words = [
+                    word for word in words if textstat.is_difficult_word(
+                        word,
+                        syllable_threshold=0
+                    ) and not word[0].isupper()
+                ]
+
+                difficulty_scores.append(len(difficult_words) / len(words))
+                syllable_scores.append(syllables_per_words)
+        if len(syllable_scores) < 2:
             return 0
-        return statistics.mean(scores)
+
+        return statistics.mean(syllable_scores) * (
+            1 + statistics.mean(difficulty_scores)
+        )
 
     @property
     def safe_to_use(self):
@@ -274,6 +297,9 @@ class Book(TextBody):
         div = len(self.words) / 10000.
         return len([m for m in self.all_tokens if SIMPLE_TOKEN_MAP[m[1]] == token_type]) / div
 
+    def get_loudness_score(self):
+        return str_count_multi(self.words, LOUD_WORDS) / (len(self.words) / 10000.)
+
     @cached_property
     def adverbs(self):
         return [m[0] for m in self.word_tokens if SIMPLE_TOKEN_MAP[m[1]] == 'adverb']
@@ -294,11 +320,6 @@ class Book(TextBody):
     def verbs(self):
         return [m[0] for m in self.word_tokens if SIMPLE_TOKEN_MAP[m[1]] == 'verb']
 
-    @cached_property
-    def dictionary_words(self):
-        return [
-            w.lower() for w in self.words if w.lower() in ENG_WORDS and w.isalpha()
-        ]
 
 class Books(GenericObjects):
 

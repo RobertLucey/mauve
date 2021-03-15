@@ -27,11 +27,11 @@ def clean_name(name):
     to empty if the name is untrustworthy.
 
     Usage:
-        >> clean_name('Doctor Cat')
+        >>> clean_name('Doctor Cat')
         'Cat'
-        >> clean_name('The Cat')
+        >>> clean_name('The Cat')
         'Cat'
-        >> clean_name('Cat')
+        >>> clean_name('Cat')
         'Cat'
 
     :param name: A string of a name or loose name

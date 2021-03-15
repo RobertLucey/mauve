@@ -163,7 +163,7 @@ def replace_contractions(content):
     or 'he was'
 
     Usage:
-        >> replace_contractions('y\'all willn\'t smack ol\' maw')
+        >>> replace_contractions('y\'all willn\'t smack ol\' maw')
         'you all will not smack old maw'
     """
     for k, replacement in CONTRACTION_MAP.items():
