@@ -12,7 +12,6 @@ INSTALL_REQUIRES = [
     'cached_property',
     'fast_json',
     'bs4',
-    'profanity',
     'boto3',
     'gender-guesser',
     'langdetect',
