@@ -11,6 +11,7 @@ from langdetect import detect as langdetect
 import nltk
 
 from mauve.utils import (
+    str_count_multi,
     flatten,
     clean_gutenberg,
     intersperse,
@@ -24,6 +25,7 @@ from mauve.constants import (
     ENG_WORDS,
     TOKEN_VERSION,
     PROFANITY_LIST,
+    PADDED_PROFANITY_LIST,
     SENTENCE_TERMINATORS,
     EXTENDED_PUNCTUATION
 )
@@ -31,7 +33,6 @@ from mauve.contractions import replace_contractions
 
 from mauve.models.generic import GenericObject
 from mauve.models.person import People
-from mauve.profanity import PROFANITY_TREE
 from mauve.bst import (
     search
 )
@@ -122,32 +123,9 @@ class TextBody(GenericObject, Tagger):
         :return: How profane the current piece of text is
         :rtype: float
         """
-        word_counts = {}
-        profane_words = []
-
-        content = self.content
-        for p in PROFANITY_LIST:
-            content = content.replace(p, p.replace(' ', '_'))
-
-        words = [w for w in nltk.word_tokenize(content) if w not in EXTENDED_PUNCTUATION]
-
-        original_len = len(words)
-
-        lower_words = [i.lower().replace('_', ' ') for i in words]
-
-        tree = PROFANITY_TREE
-        for word in lower_words:
-            if search(tree, word) != (0, 0):
-                profane_words.append(word)
-
-        for word in profane_words:
-            word_counts[word.lower()] = lower_words.count(word.lower())
-
-        if not profane_words:
-            return 0
-
-        div = original_len / 10000.
-        return sum(word_counts.values()) / div
+        lower_words = [i.lower().replace('_', ' ') for i in self.words]
+        div = len(self.words) / 10000.
+        return str_count_multi(' '.join(lower_words), PADDED_PROFANITY_LIST) / div
 
     def set_content_location(self, content_path):
         """
@@ -158,7 +136,7 @@ class TextBody(GenericObject, Tagger):
 
     @property
     def has_content(self):
-        return self.raw_content is not ''
+        return self.raw_content != ''
 
     @cached_property
     def basic_content(self):

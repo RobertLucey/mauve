@@ -8,6 +8,8 @@ from mauve.names import NAMES
 import nltk
 
 
+PADDED_PROFANITY_LIST = [' ' + p + ' ' for p in PROFANITY_LIST]
+
 ENG_WORDS = set(nltk.corpus.words.words())
 
 LIKELY_WORD_TOKENS = [
