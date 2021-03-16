@@ -4,11 +4,14 @@ from collections import (
 )
 import pickle
 
+from english_words import english_words_set
+
 from cached_property import cached_property
 
 from langdetect import detect as langdetect
 
 import nltk
+from nltk.corpus import words
 
 from mauve.utils import (
     replace_sub,
@@ -23,6 +26,8 @@ from mauve.utils import (
 from mauve.phrases import replace_phrases
 from mauve.utils import quote_aware_sent_tokenize
 from mauve.constants import (
+    NLTK_ENG_WORDS,
+    BORING_WORDS,
     ENG_WORDS,
     TOKEN_VERSION,
     PROFANITY_LIST,
@@ -124,17 +129,17 @@ class TextBody(GenericObject, Tagger):
         :return: How profane the current piece of text is
         :rtype: float
         """
-
         words = [w.lower() for w in self.words]
         lower_content = self.raw_content.lower()
-        for p in sorted(PROFANITY_LIST):
-            if p not in lower_content:
+        included_profanities = []
+        for profanity in sorted(PROFANITY_LIST):
+            if profanity not in lower_content:
                 continue
-            words = replace_sub(words, p.split(), [p])
+            words = replace_sub(words, profanity.split(), [profanity])  # FIXME: pretty slow doing it this way
+            included_profanities.append(profanity)
 
         div = len(words) / 10000.
-        return str_count_multi(' ' + '  '.join(words) + ' ', PADDED_PROFANITY_LIST) / div
-
+        return sum([words.count(profanity) for profanity in included_profanities]) / div
 
     def set_content_location(self, content_path):
         """
@@ -491,4 +496,13 @@ class TextBody(GenericObject, Tagger):
             >>> TextBody(content='Wake me up before you go go!').word_counts
             {'wake': 1, 'me': 1, 'up': 1, 'before': 1, 'you': 1, 'go': 2}
         """
-        return dict(Counter([w.lower() for w in self.dictionary_words]))
+        return dict(
+            Counter(
+                [
+                    w.lower() for w in self.dictionary_words if all([
+                        w not in BORING_WORDS,
+                        w in NLTK_ENG_WORDS
+                    ])
+                ]
+            )
+        )

@@ -6,6 +6,7 @@ from mauve.profanity import PROFANITY_LIST
 from mauve.names import NAMES
 
 import nltk
+from nltk.corpus import words
 
 
 PADDED_PROFANITY_LIST = [' ' + p + ' ' for p in PROFANITY_LIST]
@@ -221,3 +222,8 @@ try:
     AUTHOR_METADATA = json.loads(open(AUTHOR_METADATA_PATH, 'r').read())
 except FileNotFoundError:
     AUTHOR_METADATA = {}
+
+
+BORING_WORDS = {'other', 'well', 'got', 'should', 'away', 'need', 'tell', 'here', 'cannot', 'never', 'now', 'just', 'through', 'think', 'too', 'see', 'want', 'much', 'still', 'head', 'hand', 'after', 'even', 'get', 'only', 'where', 'why', 'their', 'can', 'because', 'right', 'way', 'around', 'my', 'who', 'go', 'said', 'down', 'your', 'than', 'how', 'more', 'enough', 'going', 'off', 'then', 'before', 'over', 'by', 'time', 'or', 'am', 'them', 'an', 'there', 'this', 'will', 'know', 'one', 'me', 'like', 'back', 'when', 'into', 'been', 'so', 'about', 'were', 'are', 'from', 'no', 'we', 'did', 'all', 'him', 'if', 'up', 'what', 'do', 'could', 'be', 'would', 'at', 'but', 'out', 'dom', 'they', 'with', 'have', 'for', 'is', 'as', 'on', 'his', 'that', 'in', 'had', 'was', 'he', 'i', 'it', 'you', 'her', 'she', 'not', 'of', 'a', 'and', 'to', 'the', 'which', 'any', 'some', 'those', 'being', 'made', 'went', 'few', 'our', 'find', 'since', 'gone', 'came', 'again', 'us', 'own', 'may', 'its', 'such', 'both', 'ar', 'every', 'example', 'might', 'very', 'same', 'change', 'does', 'themselves', 'under', 'else', 'say', 'met', 'let', 'knew', 'ever', 'p', 'thou', 'come', 'put', 'thought', 'knew', 'make', 'give', 'once', 'felt', 'looking', 'always', 'behind', 'something', 'anyone', 'side', 'seen'}
+
+NLTK_ENG_WORDS = set(words.words())
