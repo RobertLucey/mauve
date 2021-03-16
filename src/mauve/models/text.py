@@ -125,7 +125,7 @@ class TextBody(GenericObject, Tagger):
         """
         lower_words = [i.lower().replace('_', ' ') for i in self.words]
         div = len(self.words) / 10000.
-        return str_count_multi(' ' + ' '.join(lower_words) + ' ', PADDED_PROFANITY_LIST) / div
+        return str_count_multi(' ' + '  '.join(lower_words) + ' ', PADDED_PROFANITY_LIST) / div
 
     def set_content_location(self, content_path):
         """
