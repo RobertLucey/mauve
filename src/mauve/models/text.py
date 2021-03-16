@@ -11,6 +11,7 @@ from langdetect import detect as langdetect
 import nltk
 
 from mauve.utils import (
+    replace_sub,
     str_count_multi,
     flatten,
     clean_gutenberg,
@@ -123,9 +124,17 @@ class TextBody(GenericObject, Tagger):
         :return: How profane the current piece of text is
         :rtype: float
         """
-        lower_words = [i.lower().replace('_', ' ') for i in self.words]
-        div = len(self.words) / 10000.
-        return str_count_multi(' ' + '  '.join(lower_words) + ' ', PADDED_PROFANITY_LIST) / div
+
+        words = [w.lower() for w in self.words]
+        lower_content = self.raw_content.lower()
+        for p in sorted(PROFANITY_LIST):
+            if p not in lower_content:
+                continue
+            words = replace_sub(words, p.split(), [p])
+
+        div = len(words) / 10000.
+        return str_count_multi(' ' + '  '.join(words) + ' ', PADDED_PROFANITY_LIST) / div
+
 
     def set_content_location(self, content_path):
         """
