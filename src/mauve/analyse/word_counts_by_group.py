@@ -10,7 +10,7 @@ class BaseWordUsage:
     def __init__(self, print_rate=100):
         self.print_rate = print_rate
         self.groups = defaultdict(dict)
-        self.prev = 0
+        self.prevs = defaultdict(int)
 
     def grouper(self, book):
         raise NotImplementedError()
@@ -33,9 +33,11 @@ class BaseWordUsage:
             try:
                 self.groups[group_name][k].append(v / tot)
             except:
-                self.groups[group_name][k] = [0] * self.prev + [v / tot]
+                self.groups[group_name][k] = [0] * self.prevs[group_name] + [v / tot]
 
-    def print_stats(self):
+        self.prevs[group_name] += 1
+
+    def get_stats(self):
         alt_groups = defaultdict(dict)
         for key in self.groups.keys():
             alt_groups[key] = {
@@ -46,6 +48,7 @@ class BaseWordUsage:
                 )
             }
 
+        results = []
         for base_group in alt_groups.keys():
             if base_group is None:
                 continue
@@ -53,29 +56,39 @@ class BaseWordUsage:
                 if cmp_group is None or cmp_group == base_group:
                     continue
 
-                data = {}
+                words_data = {}
                 for word in list(alt_groups[base_group].keys()) + list(alt_groups[cmp_group].keys()):
-                    data[word] = alt_groups[base_group].get(word, 0) - alt_groups[cmp_group].get(word, 0)
+                    words_data[word] = alt_groups[base_group].get(word, 0) - alt_groups[cmp_group].get(word, 0)
 
-                print(
-                    '%s > %s: %s' % (
+                results.append(
+                    (
                         cmp_group,
                         base_group,
                         [
                             i[0] for i in sorted(
-                                data.items(),
+                                words_data.items(),
                                 key=lambda item: item[1]
                             )[:10]
                         ]
                     )
                 )
+        return results
+
+    def print_stats(self):
+        for cmp_group, base_group, data in self.get_stats():
+            print(
+                '%s < %s: %s' % (
+                    base_group,
+                    cmp_group,
+                    data
+                )
+            )
 
     def process(self, print_rate=100):
         for idx, book in enumerate(iter_books()):
             # Maybe only update prev if update_groups did anything.
             # Doesn't really matter
             self.update_groups(book)
-            self.prev += 1
             if idx % print_rate == 0:
                 self.print_stats()
 
