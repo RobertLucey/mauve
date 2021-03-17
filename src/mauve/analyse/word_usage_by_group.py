@@ -48,7 +48,7 @@ class BaseWordUsage:
         raise NotImplementedError()
 
     def update_groups(self, book):
-        counts = book.get_word_counts(self.only_words)
+        counts = book.get_word_counts(only_include_words=self.only_words)
         local_words = counts.keys()
         tot = len(book.words)
 

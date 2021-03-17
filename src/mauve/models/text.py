@@ -504,7 +504,7 @@ class TextBody(GenericObject, Tagger):
             return dict(
                 Counter(
                     [
-                        w.lower() for w in only_include_words if w.lower()
+                        w.lower() for w in self.dictionary_words if w.lower() in only_include_words
                     ]
                 )
             )
