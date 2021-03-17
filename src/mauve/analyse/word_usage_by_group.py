@@ -19,6 +19,7 @@ class BaseWordUsage:
     def __init__(
         self,
         only_words=None,
+        only_groups=None,
         head_tail_len=10,
         print_rate=100,
         required_genre=None,
@@ -35,6 +36,7 @@ class BaseWordUsage:
         :kwarg required_safe_to_use:
         """
         self.only_words = only_words
+        self.only_groups = only_groups
         self.head_tail_len = head_tail_len
         self.print_rate = print_rate
         self.groups = defaultdict(dict)
@@ -52,15 +54,20 @@ class BaseWordUsage:
         local_words = counts.keys()
         tot = len(book.words)
 
-        group_names = self.grouper(book)
-        if group_names == []:
+        group_names = set(self.grouper(book)).intersection(set(self.only_groups))
+        if group_names == set():
             return None
 
         for group_name in group_names:
-            # Maybe get from other groups too?
-            global_words = self.groups[group_name].keys()
-            for missing_word in set(list(global_words)) - set(list(local_words)):
-                counts[missing_word] = 0
+            if self.only_words is None:
+                # TODO: take global words from all groups
+                global_words = self.groups[group_name].keys()
+                for missing_word in set(global_words) - set(list(local_words)):
+                    counts[missing_word] = 0
+            else:
+                for missing_word in set(self.only_words) - set(list(local_words)):
+                    counts[missing_word] = 0
+
             for word, times_used in counts.items():
                 try:
                     self.groups[group_name][word].append(times_used / tot)
@@ -117,8 +124,8 @@ class BaseWordUsage:
                 )
         return results
 
-    def print_stats(self):
-        for cmp_group, base_group, data in self.get_stats():
+    def print_stats(self, verbose=False):
+        for cmp_group, base_group, data in self.get_stats(verbose=verbose):
             print(
                 '%s < %s: %s' % (
                     base_group,
@@ -127,13 +134,13 @@ class BaseWordUsage:
                 )
             )
 
-    def process(self):
+    def process(self, verbose=False):
         for idx, book in enumerate(iter_books()):
             # Maybe only update prev if update_groups did anything.
             # Doesn't really matter
             self.update_groups(book)
             if idx % self.print_rate == 0:
-                self.print_stats()
+                self.print_stats(verbose=verbose)
 
     def get_is_usable(self, book):
         """
