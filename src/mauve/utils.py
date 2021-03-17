@@ -444,3 +444,7 @@ def split_include(lst, splitter):
         else:
             output.append(text_part)
     return [o for o in output if o]
+
+
+def round_down(num, divisor):
+    return num - (num % divisor)

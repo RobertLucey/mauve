@@ -488,15 +488,27 @@ class TextBody(GenericObject, Tagger):
         """
         return len(self.words)
 
-    @cached_property
-    def word_counts(self):
+    def get_word_counts(self, only_include_words=None):
         """
         Get the counts of dictionary words.
 
         Usage:
-            >>> TextBody(content='Wake me up before you go go!').word_counts
+            >>> TextBody(content='Wake me up before you go go!').word_counts()
             {'wake': 1, 'me': 1, 'up': 1, 'before': 1, 'you': 1, 'go': 2}
+
+            >>> TextBody(content='Wake me up before you go go!').word_counts(only_include_words={'up', 'go'})
+            {'up': 1, 'go': 2}
         """
+
+        if only_include_words is not None:
+            return dict(
+                Counter(
+                    [
+                        w.lower() for w in only_include_words if w.lower()
+                    ]
+                )
+            )
+
         return dict(
             Counter(
                 [
