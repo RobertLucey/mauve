@@ -25,6 +25,7 @@ from mauve.utils import (
 )
 from mauve.phrases import replace_phrases
 from mauve.utils import quote_aware_sent_tokenize
+from mauve.names import NAMES
 from mauve.constants import (
     NLTK_ENG_WORDS,
     BORING_WORDS,
@@ -475,7 +476,7 @@ class TextBody(GenericObject, Tagger):
     @cached_property
     def dictionary_words(self):
         return [
-            w.lower() for w in self.words if w.lower() in ENG_WORDS and w.isalpha()
+            w for w in self.words if w.lower() in ENG_WORDS and w.isalpha()
         ]
 
     @property
@@ -500,8 +501,9 @@ class TextBody(GenericObject, Tagger):
             Counter(
                 [
                     w.lower() for w in self.dictionary_words if all([
-                        w not in BORING_WORDS,
-                        w in NLTK_ENG_WORDS
+                        w.lower() not in BORING_WORDS,
+                        w not in NAMES,
+                        w.lower() in NLTK_ENG_WORDS
                     ])
                 ]
             )
