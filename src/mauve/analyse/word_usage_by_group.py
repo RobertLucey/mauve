@@ -5,12 +5,20 @@ from collections import defaultdict
 from mauve.utils import iter_books
 
 
+def round_down(num, divisor):
+    return num - (num % divisor)
+
+
 class BaseWordUsage:
 
-    def __init__(self, print_rate=100):
+    def __init__(self, print_rate=100, required_genre=None, required_lang=None, required_safe_to_use=None):
         self.print_rate = print_rate
         self.groups = defaultdict(dict)
         self.prevs = defaultdict(int)
+
+        self.required_genre = required_genre
+        self.required_lang = required_lang
+        self.required_safe_to_use = required_safe_to_use
 
     def grouper(self, book):
         raise NotImplementedError()
@@ -22,20 +30,21 @@ class BaseWordUsage:
         local_keys = counts.keys()
         tot = len(book.words)
 
-        group_name = self.grouper(book)
-        if group_name is None:
+        group_names = self.grouper(book)
+        if group_names == []:
             return None
 
-        global_keys = self.groups[group_name].keys()
-        for s in set(list(global_keys)) - set(list(local_keys)):
-            counts[s] = 0
-        for k, v in counts.items():
-            try:
-                self.groups[group_name][k].append(v / tot)
-            except:
-                self.groups[group_name][k] = [0] * self.prevs[group_name] + [v / tot]
+        for group_name in group_names:
+            global_keys = self.groups[group_name].keys()
+            for s in set(list(global_keys)) - set(list(local_keys)):
+                counts[s] = 0
+            for k, v in counts.items():
+                try:
+                    self.groups[group_name][k].append(v / tot)
+                except:
+                    self.groups[group_name][k] = [0] * self.prevs[group_name] + [v / tot]
 
-        self.prevs[group_name] += 1
+            self.prevs[group_name] += 1
 
     def get_stats(self):
         alt_groups = defaultdict(dict)
@@ -92,19 +101,58 @@ class BaseWordUsage:
             if idx % print_rate == 0:
                 self.print_stats()
 
+    def get_is_usable(self, book):
+        if not book.has_content:
+            return False
+        if any([
+            self.required_genre and not book.is_genre(self.required_genre),
+            self.required_lang and not book.lang == self.required_lang,
+            self.required_safe_to_use and not book.safe_to_use
+        ]):
+            return False
+        return True
 
-class GenderWordUsage(BaseWordUsage):
+
+class AuthorGenderWordUsage(BaseWordUsage):
 
     def grouper(self, book):
-        if not book.is_genre('fiction') or not book.safe_to_use or not book.has_content or not book.lang == 'en':
-            return None
+        groups = []
+        if self.get_is_usable(book):
+            groups.append(book.author.gender)
+        return groups
 
-        return book.author.gender
+
+class AuthorNationalityWordUsage(BaseWordUsage):
+
+    def grouper(self, book):
+        groups = []
+        if self.get_is_usable(book):
+            groups.append(book.author.nationality)
+        return groups
 
 
-# TODO: by rounded author birth
-# TODO: by rounded book published date
-# TODO: by genre
-# TODO: by nationality
+class AuthorDOBWordUsage(BaseWordUsage):
 
-# Interesting to have things not by male / female author but by keeping it within the same decade since words changed a lot over time and men generally wrote earlier books
+    def grouper(self, book):
+        groups = []
+        if self.get_is_usable(book):
+            groups.append(round_down(book.author.birth_year, 10))
+        return groups
+
+
+class PublishedYearWordUsage(BaseWordUsage):
+
+    def grouper(self, book):
+        groups = []
+        if self.get_is_usable(book):
+            groups.append(round_down(book.year_published, 10))
+        return groups
+
+
+class GenreWordUsage(BaseWordUsage):
+
+    def grouper(self, book):
+        groups = []
+        if self.get_is_usable(book):
+            groups.extend([t.name for t in book.tags])
+        return groups

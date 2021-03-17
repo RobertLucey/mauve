@@ -8,7 +8,7 @@ import shutil
 import glob
 import os
 
-from mauve.analyse.word_counts_by_group import GenderWordUsage
+from mauve.analyse.word_usage_by_group import AuthorGenderWordUsage
 
 from mauve.models.books.book import Book
 from mauve.constants import (
@@ -152,12 +152,19 @@ class TestWordCountsByGroup(TestCase):
         )
 
     def test_gender_word_usage(self):
-        gender_word_usage = GenderWordUsage()
+        gender_word_usage = AuthorGenderWordUsage(
+            required_genre='fiction',
+            required_lang='en',
+            required_safe_to_use=True
+        )
         gender_word_usage.process()
         self.assertEqual(
             [
                 ('female', 'male', ['female', 'book', 'male']),
                 ('male', 'female', ['male', 'book', 'female'])
             ],
-            gender_word_usage.get_stats()
+            sorted(
+                gender_word_usage.get_stats(),
+                key=lambda item: item[0]
+            )
         )
