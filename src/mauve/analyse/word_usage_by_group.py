@@ -54,7 +54,9 @@ class BaseWordUsage:
         local_words = counts.keys()
         tot = len(book.words)
 
-        group_names = set(self.grouper(book)).intersection(set(self.only_groups))
+        group_names = set(self.grouper(book))
+        if self.only_groups is not None:
+            group_names = group_names.intersection(set(self.only_groups))
         if group_names == set():
             return None
 
