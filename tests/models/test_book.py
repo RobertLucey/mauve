@@ -210,7 +210,7 @@ class TestBook(TestCase):
                 'top_verbs': {'is': 1},
                 'flesch_reading_ease_score': 119.19,
                 'reading_difficulty': 0,
-                'reading_time': 0.12,
+                'reading_time': 0.7201152184349495,
                 'vader_pos': 0.0,
                 'vader_neg': 0.0,
                 'vader_neu': 1.0,

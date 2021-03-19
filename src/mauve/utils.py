@@ -4,9 +4,9 @@ import pickle
 from functools import lru_cache
 from itertools import chain
 
+import spacy
 import nltk
 from nltk.corpus import wordnet
-
 from nltk.stem.wordnet import WordNetLemmatizer
 from nltk.stem import PorterStemmer
 import fast_json
@@ -448,3 +448,49 @@ def split_include(lst, splitter):
 
 def round_down(num, divisor):
     return num - (num % divisor)
+
+
+def replace_phrases(text):
+    """
+    Replace words with something more succinct or easier to process
+    Sort of like a lemma for many words but very bad
+
+    Custom words like "foreign affairs" for oirechtas which joins the
+    words by an underscore since whatever is the actual way of doing
+    this by category is too passive
+
+    Usage:
+        >>> replace_phrases('Is this in regard to something?')
+        'Is this regarding something'
+    """
+    sentence = get_en_core_web_sm(text)
+
+    from mauve.phrases import M_TOOL
+    from mauve.constants import REPLACEMENTS
+
+    phrase_matches = M_TOOL(sentence)
+
+    replacements = []
+
+    for _, start, end in phrase_matches:
+        span = sentence[start:end]
+        replacements.append(span)
+
+    replacements = [f.text for f in spacy.util.filter_spans(replacements)]
+
+    thetext = sentence.text
+
+    for name in replacements:
+        thetext = thetext.replace(
+            name,
+            name.replace(' ', '_')
+        )
+
+    for name in REPLACEMENTS:
+        if name in REPLACEMENTS:
+            thetext = thetext.replace(
+                name,
+                REPLACEMENTS[name]
+            )
+
+    return thetext

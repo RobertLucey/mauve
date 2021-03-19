@@ -1,7 +1,7 @@
 import difflib
 
 from mauve import GENDER_DETECTOR
-from mauve.phrases import replace_phrases
+from mauve.utils import replace_phrases
 from mauve.models.entity import Entity
 from mauve.models.generic import GenericObjects
 from mauve.constants import (

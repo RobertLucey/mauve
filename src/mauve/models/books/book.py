@@ -104,7 +104,7 @@ class Book(TextBody):
             'num_ratings': int(self.num_ratings) if self.num_ratings else None,
             'tags': self.tags.serialize(),
             'reviews': self.reviews.serialize(),
-            'word_count': len(self.words),
+            'word_count': self.word_count,
             'lexical_diversity': self.get_lexical_diversity(),
             'avg_word_len': self.get_avg_word_len(),
             'profanity_score': self.get_profanity_score(),
@@ -154,8 +154,9 @@ class Book(TextBody):
 
     @property
     def reading_time(self):
-        return textstat.reading_time(self.content)
- 
+        # 4.166 is words per second
+        return self.word_count / 4.166
+
     @property
     def reading_difficulty(self):
         """
@@ -294,11 +295,11 @@ class Book(TextBody):
 
     def get_token_type_score(self, token_type):
         assert (token_type in SIMPLE_TOKEN_MAP.values())
-        div = len(self.words) / 10000.
+        div = self.word_count / 10000.
         return len([m for m in self.all_tokens if SIMPLE_TOKEN_MAP[m[1]] == token_type]) / div
 
     def get_loudness_score(self):
-        return str_count_multi(self.words, LOUD_WORDS) / (len(self.words) / 10000.)
+        return str_count_multi(self.words, LOUD_WORDS) / (self.word_count / 10000.)
 
     @cached_property
     def adverbs(self):

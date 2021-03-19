@@ -23,8 +23,10 @@ from mauve.utils import (
     get_loose_filepath,
     get_file_content
 )
-from mauve.phrases import replace_phrases
-from mauve.utils import quote_aware_sent_tokenize
+from mauve.utils import (
+    quote_aware_sent_tokenize,
+    replace_phrases
+)
 from mauve.names import NAMES
 from mauve.constants import (
     NLTK_ENG_WORDS,
@@ -104,7 +106,7 @@ class TextBody(GenericObject, Tagger):
         """
         if only_dictionary_words:
             return float(len(set(self.dictionary_words))) / len(self.dictionary_words)
-        return float(len(set(self.words))) / len(self.words)
+        return float(len(set(self.words))) / self.word_count
 
     @property
     def words(self):
@@ -183,7 +185,6 @@ class TextBody(GenericObject, Tagger):
     @cached_property
     def sentiment(self):
         return VADER.polarity_scores([a for a in self.sentences])
-
 
     @cached_property
     def lang(self):
@@ -512,10 +513,10 @@ class TextBody(GenericObject, Tagger):
         return dict(
             Counter(
                 [
-                    w.lower() for w in self.dictionary_words if all([
+                    w.lower() for w in self.words if all([
                         w.lower() not in BORING_WORDS,
                         w not in NAMES,
-                        w.lower() in NLTK_ENG_WORDS
+                        w.isalpha()
                     ])
                 ]
             )

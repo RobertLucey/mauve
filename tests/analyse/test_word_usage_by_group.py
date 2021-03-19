@@ -153,6 +153,7 @@ class TestWordCountsByGroup(TestCase):
 
     def test_gender_word_usage(self):
         gender_word_usage = AuthorGenderWordUsage(
+            method='by_word',
             required_genre='fiction',
             required_lang='en',
             required_safe_to_use=True

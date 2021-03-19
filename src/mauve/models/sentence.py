@@ -9,10 +9,10 @@ from mauve.models.speech import extract_speech
 
 from mauve.utils import (
     replace_sub,
-    get_en_core_web_sm
+    get_en_core_web_sm,
+    replace_phrases
 )
 
-from mauve.phrases import replace_phrases
 from mauve.models.deptree import DepTree, DepNode
 from mauve.models.person import extract_people
 from mauve.models.segment import Segment

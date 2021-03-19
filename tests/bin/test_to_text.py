@@ -19,14 +19,7 @@ from mauve.constants import (
     TOKEN_VERSION,
     GOODREADS_METADATA_PATH
 )
-from mauve.utils import (
-    loose_exists,
-    get_loose_filepath,
-    compress_file,
-    get_file_content,
-    get_metadata,
-    iter_books
-)
+from mauve.utils import get_file_content
 
 from ..utils import create_epub
 

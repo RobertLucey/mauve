@@ -1,5 +1,5 @@
 APPROSTROPHES = ['’', '\'']
-CONTRACTION_MAP = {
+CONTRACTION_MAP = {  # ’ to be added to these in replacement of '
     '\'aight': 'alright',
     'ain\'t': 'is not',
     'amn\'t': 'am not',
