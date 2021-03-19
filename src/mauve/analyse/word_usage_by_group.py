@@ -18,6 +18,7 @@ class BaseWordUsage:
 
     def __init__(
         self,
+        method=None,
         only_words=None,
         only_groups=None,
         head_tail_len=10,
@@ -28,13 +29,20 @@ class BaseWordUsage:
     ):
         """
 
+        :kwarg method: by_word or by_book on which to process usage of a word
+            by_word - if there are 100 words in a book and 1 is the word you're
+                      looking for the score will be 0.01
+            by_book - if there are 100 words in a book and 1 is the word you're
+                      looking for the score will be 1
         :kwarg only_words: Only include these words as interesting
+        :kwarg only_groups: Only include data of groups in this list
         :kwarg head_tail_len: How many words to give back for each comparison
         :kwarg print_rate: After how many books processed to print the stats
         :kwarg required_genre:
         :kwarg required_lang:
         :kwarg required_safe_to_use:
         """
+        self.method = method
         self.only_words = only_words
         self.only_groups = only_groups
         self.head_tail_len = head_tail_len
@@ -50,15 +58,15 @@ class BaseWordUsage:
         raise NotImplementedError()
 
     def update_groups(self, book):
-        counts = book.get_word_counts(only_include_words=self.only_words)
-        local_words = counts.keys()
-        tot = len(book.words)
-
         group_names = set(self.grouper(book))
         if self.only_groups is not None:
             group_names = group_names.intersection(set(self.only_groups))
         if group_names == set():
             return None
+
+        counts = book.get_word_counts(only_include_words=self.only_words)
+        local_words = counts.keys()
+        tot = len(book.words)
 
         for group_name in group_names:
             if self.only_words is None:
@@ -72,21 +80,35 @@ class BaseWordUsage:
 
             for word, times_used in counts.items():
                 try:
-                    self.groups[group_name][word].append(times_used / tot)
+                    if self.method == 'by_book':
+                        self.groups[group_name][word].append(1)
+                    elif self.method == 'by_word':
+                        self.groups[group_name][word].append(times_used / tot)
+                    else:
+                        raise Exception()
                 except KeyError:
-                    self.groups[group_name][word] = [0] * self.prevs[group_name] + [times_used / tot]
+                    if self.method == 'by_book':
+                        self.groups[group_name][word] = [0] * self.prevs[group_name] + [1]
+                    elif self.method == 'by_word':
+                        self.groups[group_name][word] = [0] * self.prevs[group_name] + [times_used / tot]
+                    else:
+                        raise Exception()
 
             self.prevs[group_name] += 1
 
     def get_stats(self, verbose=False):
         alt_groups = defaultdict(dict)
         for key in self.groups.keys():
+
             alt_groups[key] = {
                 o[0]: statistics.mean(o[1]) for o in sorted(
                     self.groups[key].items(),
                     key=lambda item: statistics.mean(item[1]),
                     reverse=True
-                )
+                ) if any([
+                    len([i for i in o[1] if i != 0]) / len(o[1]) < 0.9,
+                    len([i for i in o[1] if i != 0]) / len(o[1]) > 0.01
+                ])
             }
 
         results = []
@@ -149,21 +171,21 @@ class BaseWordUsage:
         Get if the given book passes the requirements to be
         included in the data.
         """
-        if not book.has_content:
-            return False
-        if any([
-            self.required_genre and not book.is_genre(self.required_genre),
-            self.required_lang and not book.lang == self.required_lang,
-            self.required_safe_to_use and not book.safe_to_use
-        ]):
+        if (self.required_genre and not book.is_genre(self.required_genre)) or (self.required_safe_to_use and not book.safe_to_use) or (self.required_lang and not book.lang == self.required_lang) or (not book.has_content):
             return False
         return True
 
 
 class AuthorGenderWordUsage(BaseWordUsage):
+    """
+    Generally want to use by_word method
+    """
 
     def grouper(self, book):
         groups = []
+        if self.only_groups is not None:
+            if book.author.gender not in self.only_groups:
+                return []
         if self.get_is_usable(book):
             groups.append(book.author.gender)
         return groups
@@ -173,6 +195,9 @@ class AuthorNationalityWordUsage(BaseWordUsage):
 
     def grouper(self, book):
         groups = []
+        if self.only_groups is not None:
+            if book.author.nationality not in self.only_groups:
+                return []
         if self.get_is_usable(book):
             groups.append(book.author.nationality)
         return groups
@@ -182,6 +207,9 @@ class AuthorDOBWordUsage(BaseWordUsage):
 
     def grouper(self, book):
         groups = []
+        if self.only_groups is not None:
+            if round_down(book.author.birth_year, 10) not in self.only_groups:
+                return []
         if self.get_is_usable(book):
             groups.append(round_down(book.author.birth_year, 10))
         return groups
@@ -191,6 +219,9 @@ class PublishedYearWordUsage(BaseWordUsage):
 
     def grouper(self, book):
         groups = []
+        if self.only_groups is not None:
+            if round_down(book.year_published, 10) not in self.only_groups:
+                return []
         if self.get_is_usable(book):
             groups.append(round_down(book.year_published, 10))
         return groups
@@ -201,5 +232,7 @@ class GenreWordUsage(BaseWordUsage):
     def grouper(self, book):
         groups = []
         if self.get_is_usable(book):
+            if self.only_groups is not None:
+                return set([t.name for t in book.tags]).intersection(set(self.only_groups))
             groups.extend([t.name for t in book.tags])
         return groups
