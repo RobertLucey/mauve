@@ -47,7 +47,7 @@ def clean_person(person):
     }
 
 
-def get_wikipedia_person(href):
+def get_wikipedia_person_by_href(href):
     """
         Problematic /wiki/Glen_Cook
     """
@@ -63,7 +63,7 @@ def get_wikipedia_person(href):
         birth_year = None
         nationality = None
 
-        info = soup.find('table', {'class': 'infobox vcard'})
+        info = soup.find('table', class_='infobox')
         if info is None:
             return {
                 'born': birth_year,
@@ -112,6 +112,11 @@ def get_wikipedia_person(href):
                 except:
                     pass
 
+                numbers = [int(s) for s in row.text.split() if s.isdigit()]
+                likely_years = [i for i in numbers if i > 1600 and i < 2100]
+                if len(likely_years) == 1:
+                    birth_year = likely_years[0]
+
             elif 'Nationality' in row.text:
                 nationality = row.text.replace('Nationality', '')
 
@@ -133,57 +138,79 @@ def get_wikipedia_person(href):
     }
 
 
+def get_wikipedia_person_by_book(book):
+    source = urlopen(
+        SEARCH.format(
+            name=quote(book.author.name)
+        )
+    )
+    soup = bs4.BeautifulSoup(source, 'html.parser')
+    results = soup.find_all('div', {'class': 'mw-search-result-heading'})
+
+    authors = [
+        i for i in results if all([
+            '(author)' in i.a.get('href').lower(),
+            book.author.name.replace(' ', '_') in i.a.get('href')
+        ])
+    ]
+
+    person = None
+    if authors:
+        person = get_wikipedia_person_by_href(authors[0].a.get('href'))
+    else:
+        for result in results:
+            if result.text.strip() == book.author.name.strip():
+                person = get_wikipedia_person_by_href(result.a.get('href'))
+
+    if isinstance(person, dict):
+        return (
+            book.author.name,
+            clean_person({
+                'born': person.get('born', None),
+                'nationality': person.get('nationality', None)
+            })
+        )
+    else:
+        return (
+            book.author.name,
+            clean_person({
+                'born': None,
+                'nationality': None
+            })
+        )
+
+
 def get_wikisearch_people(stop_after=1000):
     people = {}
     with open(AUTHOR_METADATA_PATH, 'r') as f:
         for k, v in json.loads(f.read()).items():
             people[k] = clean_person(v)
 
+    books = []
     for idx, book in enumerate(iter_books()):
         if idx == stop_after:
             break
         if book.author.name in people.keys():
-            continue
+            if people[book.author.name]['born'] is not None and people[book.author.name]['nationality'] is not None:
+                continue
+            books.append(book)
 
-        source = urlopen(
-            SEARCH.format(
-                name=quote(book.author.name)
+    people_responses = []
+    with ThreadPool(processes=20) as pool:
+        people_responses.extend(
+            pool.map(
+                get_wikipedia_person_by_book,
+                books
             )
         )
-        soup = bs4.BeautifulSoup(source, 'html.parser')
-        results = soup.find_all('div', {'class': 'mw-search-result-heading'})
 
-        authors = [
-            i for i in results if all([
-                '(author)' in i.a.get('href').lower(),
-                book.author.name.replace(' ', '_') in i.a.get('href')
-            ])
-        ]
+    people.update({p[0]: p[1] for p in people_responses})
 
-        person = None
-        if authors:
-            person = get_wikipedia_person(authors[0].a.get('href'))
-        else:
-            for result in results:
-                if result.text.strip() == book.author.name.strip():
-                    person = get_wikipedia_person(result.a.get('href'))
-
-        if isinstance(person, dict):
-            people[book.author.name] = clean_person({
-                'born': person.get('born', None),
-                'nationality': person.get('nationality', None)
-            })
-        else:
-            people[book.author.name] = clean_person({
-                'born': None,
-                'nationality': None
-            })
-
-    return people.update(people)
+    return people
 
 
 def main():
-    people = get_wikisearch_people(stop_after=10000)
+    people = get_wikisearch_people(stop_after=100000)
     with open(AUTHOR_METADATA_PATH, 'w') as f:
         f.write(json.dumps(people))
 

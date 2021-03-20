@@ -1,7 +1,7 @@
 from unittest import TestCase
 import mock
 
-from mauve.bin.scrape_author_nationality import clean_person, get_wikipedia_person
+from mauve.bin.scrape_author_nationality import clean_person, get_wikipedia_person_by_href
 
 
 class TestScrapeAuthorNationality(TestCase):
@@ -64,12 +64,12 @@ class TestScrapeAuthorNationality(TestCase):
 
     def test_get_wikipedia_person(self):
         self.assertEqual(
-            get_wikipedia_person('/wiki/Stephen_King'),
+            get_wikipedia_person_by_href('/wiki/Stephen_King'),
             {'born': 1947, 'nationality': 'U.S.'}
         )
 
         self.assertEqual(
-            get_wikipedia_person('/wiki/Cloud'),
+            get_wikipedia_person_by_href('/wiki/Cloud'),
             {'born': None, 'nationality': None}
         )
 
