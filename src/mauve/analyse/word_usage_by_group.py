@@ -8,6 +8,8 @@ Uses the percentage usage rather than count since a long book about
 import statistics
 from collections import defaultdict
 
+import numpy
+
 from mauve.utils import (
     iter_books,
     round_down
@@ -101,13 +103,13 @@ class BaseWordUsage:
         for key in self.groups.keys():
 
             alt_groups[key] = {
-                o[0]: statistics.mean(o[1]) for o in sorted(
+                o[0]: numpy.mean(o[1]) for o in sorted(
                     self.groups[key].items(),
-                    key=lambda item: statistics.mean(item[1]),
+                    key=lambda item: numpy.mean(item[1]),
                     reverse=True
                 ) if any([
                     len([i for i in o[1] if i != 0]) / len(o[1]) < 0.9,
-                    len([i for i in o[1] if i != 0]) / len(o[1]) > 0.01
+                    len([i for i in o[1] if i != 0]) / len(o[1]) > 0.05
                 ])
             }
 
@@ -211,7 +213,8 @@ class AuthorDOBWordUsage(BaseWordUsage):
             if round_down(book.author.birth_year, 10) not in self.only_groups:
                 return []
         if self.get_is_usable(book):
-            groups.append(round_down(book.author.birth_year, 10))
+            if book.author.birth_year:
+                groups.append(round_down(book.author.birth_year, 25))
         return groups
 
 
@@ -223,7 +226,8 @@ class PublishedYearWordUsage(BaseWordUsage):
             if round_down(book.year_published, 10) not in self.only_groups:
                 return []
         if self.get_is_usable(book):
-            groups.append(round_down(book.year_published, 10))
+            if book.year_published is not None:
+                groups.append(round_down(book.year_published, 10))
         return groups
 
 

@@ -7,6 +7,7 @@ from collections import Counter
 
 from cached_property import cached_property
 
+import numpy
 import textstat
 import nltk
 from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
@@ -188,8 +189,8 @@ class Book(TextBody):
         if len(syllable_scores) < 2:
             return 0
 
-        return statistics.mean(syllable_scores) * (
-            1 + statistics.mean(difficulty_scores)
+        return numpy.mean(syllable_scores) * (
+            1 + numpy.mean(difficulty_scores)
         )
 
     @property
@@ -238,16 +239,16 @@ class Book(TextBody):
         :rtype:
         '''
         if only_dictionary_words:
-            return statistics.mean([len(i) for i in self.dictionary_words])
-        return statistics.mean([len(i) for i in self.words])
+            return numpy.mean([len(i) for i in self.dictionary_words])
+        return numpy.mean([len(i) for i in self.words])
 
     def get_avg_sentence_word_len(self):
-        return statistics.mean(
+        return numpy.mean(
             [len(nltk.word_tokenize(i)) for i in self.sentences]
         )
 
     def get_avg_sentence_char_len(self):
-        return statistics.mean(
+        return numpy.mean(
             [len(i) for i in self.sentences]
         )
 
