@@ -5,7 +5,6 @@ from collections import defaultdict
 from gensim import utils
 from gensim.models.doc2vec import TaggedDocument
 
-
 logger = logging.getLogger('mauve')
 
 
@@ -32,7 +31,7 @@ class BaseTaggedDocs(object):
         for book in self.books:
             group = self.get_group_name(book)
             yield TaggedDocument(
-                utils.to_unicode(self.content_cleaner(book.content)).split(),
+                utils.to_unicode(self.content_cleaner(book)).split(),
                 [str(group + '_%s') % (self.counter[group])]
             )
             self.counter[group] += 1
@@ -45,8 +44,8 @@ class BaseTaggedDocs(object):
         shuffle(self.docs)
         return self.docs
 
-    def content_cleaner(self, content):
-        return content
+    def content_cleaner(self, book):
+        return book.content
 
     def clean_data(self):
         pass
@@ -58,11 +57,8 @@ class AuthorTaggedDocs(BaseTaggedDocs):
         self.authors = kwargs.pop('authors', [])
         super(AuthorTaggedDocs, self).__init__(*args, **kwargs)
 
-    def content_cleaner(self, content):
-        for author in self.authors:
-            # TODO: make this a bit better
-            content = content.replace(author, '')
-        return content
+    def content_cleaner(self, book):
+        return book.content.replace(book.author.name, '')
 
     def should_include_book(self, book):
         if book.author.name not in self.authors and self.authors != []:

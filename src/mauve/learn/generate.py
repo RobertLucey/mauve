@@ -1,19 +1,6 @@
 import logging
 from collections import defaultdict
 
-from gensim.models import Doc2Vec
-
-from sklearn.linear_model import LogisticRegression
-
-from mauve.utils import iter_books
-
-from mauve.learn.utils import get_train_test
-from mauve.learn.tagged_docs import (
-    AuthorTaggedDocs,
-    GenderTaggedDocs
-)
-
-from sklearn.preprocessing import StandardScaler
 from sklearn.neural_network import MLPClassifier
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.svm import SVC
@@ -23,10 +10,19 @@ from sklearn.tree import DecisionTreeClassifier
 from sklearn.ensemble import RandomForestClassifier, AdaBoostClassifier
 from sklearn.naive_bayes import GaussianNB
 from sklearn.discriminant_analysis import QuadraticDiscriminantAnalysis
+from sklearn.linear_model import LogisticRegression
 
+from gensim.models import Doc2Vec
+
+from mauve.utils import iter_books
+
+from mauve.learn.utils import get_train_test
+from mauve.learn.tagged_docs import (
+    AuthorTaggedDocs,
+    GenderTaggedDocs
+)
 
 logger = logging.getLogger('mauve')
-
 
 
 def generate_model(
@@ -42,7 +38,7 @@ def generate_model(
     logger.debug('Start loading content')
     tagged_docs = grouper()
     processed = 0
-    for idx, book in enumerate(iter_books()):
+    for book in iter_books():
         if len(tagged_docs.books) >= num_books:
             break
         tagged_docs.load(book)
@@ -113,13 +109,13 @@ def generate_model(
 #    Doc2Vec(
 #        min_count=5,
 #        window=10,
-#        vector_size=150,
+#        vector_size=num_features,
 #        sample=1e-4,
 #        negative=5,
 #        workers=7
 #    ),
-#    model,
 #    AuthorTaggedDocs,
 #    num_books=1000,
-#    equalize_group_contents=True
+#    equalize_group_contents=True,
+#    num_features
 #)
