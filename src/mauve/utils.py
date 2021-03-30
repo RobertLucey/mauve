@@ -404,8 +404,8 @@ def clean_gutenberg(content):
             idx for idx, line in enumerate(lines) if all([
                 '***' in line,
                 any([
-                    'START OF THIS PROJECT GUTENBERG EBOOK' in line,
-                    'END OF THIS PROJECT GUTENBERG EBOOK' in line
+                    'START OF THE PROJECT GUTENBERG EBOOK' in line,
+                    'END OF THE PROJECT GUTENBERG EBOOK' in line
                 ])
             ])
         ]
