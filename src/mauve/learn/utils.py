@@ -3,7 +3,6 @@ from collections import defaultdict
 
 import numpy as np
 
-
 logger = logging.getLogger('mauve')
 
 
@@ -14,6 +13,7 @@ def get_train_test(
     train_ratio=0.8
 ):
     """
+    Split into train and test data for each given group
 
     :kwarg grouped_vecs: {group_name: [0, 1, ...], group_name_2: [0, 1, ...]}
             dict of things to group by with a list elements for use in
@@ -29,7 +29,7 @@ def get_train_test(
         arrays = np.zeros(
             (
                 sum([len(v) for k, v in splits.items() if k.split('_')[-1] == split_type]),
-                150
+                model.vector_size
             )
         )
         labels = np.zeros(
