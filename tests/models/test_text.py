@@ -164,6 +164,13 @@ class TestTextBody(TestCase):
             10000
         )
 
+    def test_contains_not_contains_profanity(self):
+        # cause 'twat'
+        self.assertEqual(
+            TextBody(content='A wristwatch tells time').get_profanity_score(),
+            0
+        )
+
     def test_get_pre_post(self):
         pairs = self.ALICE.get_pre_post('shouted')
         self.assertEqual(pairs['pre'], ['and', 'soldiers', 'the queen'])

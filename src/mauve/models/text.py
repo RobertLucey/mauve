@@ -4,21 +4,16 @@ from collections import (
 )
 import pickle
 
-from english_words import english_words_set
-
 from cached_property import cached_property
 
 from langdetect import detect as langdetect
 
 import nltk
-from nltk.corpus import words
 
 from mauve.utils import (
     replace_sub,
-    str_count_multi,
     flatten,
     clean_gutenberg,
-    intersperse,
     split_include,
     get_loose_filepath,
     get_file_content
@@ -29,12 +24,10 @@ from mauve.utils import (
 )
 from mauve.names import NAMES
 from mauve.constants import (
-    NLTK_ENG_WORDS,
     BORING_WORDS,
     ENG_WORDS,
     TOKEN_VERSION,
     PROFANITY_LIST,
-    PADDED_PROFANITY_LIST,
     SENTENCE_TERMINATORS,
     EXTENDED_PUNCTUATION
 )
@@ -42,9 +35,6 @@ from mauve.contractions import replace_contractions
 
 from mauve.models.generic import GenericObject
 from mauve.models.person import People
-from mauve.bst import (
-    search
-)
 
 from mauve import (
     VADER,
@@ -138,8 +128,9 @@ class TextBody(GenericObject, Tagger):
         for profanity in sorted(PROFANITY_LIST):
             if profanity not in lower_content:
                 continue
-            words = replace_sub(words, profanity.split(), [profanity])  # FIXME: pretty slow doing it this way
-            included_profanities.append(profanity)
+            words = replace_sub(words, profanity.split(), [profanity])
+            if profanity in words:
+                included_profanities.append(profanity)
 
         div = len(words) / 10000.
         return sum([words.count(profanity) for profanity in included_profanities]) / div
@@ -191,7 +182,7 @@ class TextBody(GenericObject, Tagger):
         # TODO: update metadata and use as a cache since this can't be very good
         # Also only go far enough until we're certain. Don't need to process entire books
         try:
-            return langdetect(self.content)
+            return langdetect(self.raw_content[:50000])
         except:
             return 'unknown'
 
