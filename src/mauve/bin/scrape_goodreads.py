@@ -9,9 +9,7 @@ import re
 from multiprocessing.pool import ThreadPool
 
 from urllib.request import urlopen
-from urllib.request import HTTPError
 import bs4
-import pandas as pd
 
 from mauve.constants import (
     GOODREADS_METADATA_PATH,

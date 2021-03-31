@@ -1,5 +1,3 @@
-import string
-
 from mauve.constants import (
     SPEECH_QUOTES,
     SPEECH_WORDS,

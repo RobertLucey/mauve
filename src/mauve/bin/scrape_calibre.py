@@ -4,8 +4,6 @@ from urllib.request import (
 )
 import cgi
 
-import requests
-
 
 base_url = ''
 

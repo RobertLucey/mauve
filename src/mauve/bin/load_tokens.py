@@ -11,12 +11,6 @@ import tqdm
 
 from mauve.utils import iter_books
 
-from mauve.constants import (
-    TEXT_PATH,
-    GOODREADS_METADATA_PATH,
-    TOKEN_VERSION
-)
-
 
 def get_tokens(b):
     b.all_tokens

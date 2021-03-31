@@ -11,7 +11,6 @@ import tqdm
 from ebooklib import epub
 
 from mauve.constants import (
-    TEXT_PATH,
     EPUB_PATH,
     CLEAN_EPUB_PATH
 )

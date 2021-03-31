@@ -1,23 +1,13 @@
 import argparse
-import random
 import json
-import os
-import requests
-import re
-from multiprocessing import Pool
 from multiprocessing.pool import ThreadPool
 
 import tqdm
 
 from urllib.request import Request
 from urllib.request import urlopen
-from urllib.request import HTTPError
-
-import bs4
-import time
 
 from mauve.models.oireachtas.debate import Debate
-from mauve.constants import TEXT_PATH
 
 
 def scrape_debates(d):

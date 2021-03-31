@@ -2,13 +2,8 @@ from functools import lru_cache
 from collections import defaultdict
 import operator
 
-from cached_property import cached_property
-
-import spacy
-
-from spacy_wordnet.wordnet_annotator import WordnetAnnotator
-
 from mauve.settings import WORDNET_REPLACE
+
 
 SYNONYM_SKIP_WORDS = ['please', 'sentence', 'I', 'threshold', 'jobs', 'demonstrate', 'look', 'await', 'side', 'lines', 'sent', 'happen', 'had', 'standards', 'bits', 'reflected', 'country', 'make', 'been', 'doing', 'attempt', 'then', 'grow', 'parallel', 'resident', 'whip', 'village', 'expanded', 'notice', 'do', 'march', 'getting', 'playing', 'hit', 'steps', 'insert', 'confiscated', 'nine', 'programme', 'quickly', 'marks', 'concerns', 'site', 'tenders', 'child-care']
 

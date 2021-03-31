@@ -5,7 +5,6 @@ Uses the percentage usage rather than count since a long book about
     sunflowers could skew things a fair bit
 """
 
-import statistics
 from collections import defaultdict
 
 import numpy

@@ -16,7 +16,6 @@ import shutil
 
 import tqdm
 from ebooklib import epub
-import mobi
 
 from mauve.constants import BASE_DATA_PATH
 

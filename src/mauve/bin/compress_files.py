@@ -5,27 +5,12 @@ Badly optimized, fight me
 import glob
 import argparse
 import os
-from shutil import copyfile
 from multiprocessing import Pool
 
 import tqdm
-from ebooklib import epub
 
-from mauve.constants import (
-    BASE_DATA_PATH,
-    TEXT_PATH,
-    EPUB_PATH,
-    CLEAN_EPUB_PATH
-)
-from mauve.utils import (
-    compress_file,
-    get_file_content
-)
-
-from compress_pickle import (
-    dump,
-    load
-)
+from mauve.constants import BASE_DATA_PATH
+from mauve.utils import compress_file
 
 
 def _compress_file(fp):

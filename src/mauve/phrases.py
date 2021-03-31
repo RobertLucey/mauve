@@ -1,7 +1,6 @@
-import spacy
 from spacy.matcher import Matcher
+
 from mauve.structure.conditional import CONDITIONAL_LIST
-from mauve.utils import get_en_core_web_sm
 from mauve import ENCORE_LG
 from mauve.constants import REPLACEMENTS
 

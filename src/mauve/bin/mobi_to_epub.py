@@ -1,12 +1,9 @@
 import argparse
 import os
 from multiprocessing import Pool
-import subprocess
 import glob
 
 import tqdm
-
-from mauve.utils import iter_books
 
 from mauve.constants import BASE_DATA_PATH
 
