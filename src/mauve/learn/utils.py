@@ -36,6 +36,7 @@ def get_train_test(
             sum([len(v) for k, v in splits.items() if k.split('_')[-1] == split_type])
         )
 
+        class_group_map = {}
         next_train = 0
         for group_type, vects in splits.items():
             if group_type.split('_')[-1] != split_type:
@@ -43,9 +44,10 @@ def get_train_test(
             for vect in vects:
                 arrays[next_train] = model.docvecs['%s_%s' % (group_type.split('_')[0], vect)]
                 labels[next_train] = list(grouped_vecs.keys()).index(group_type.split('_')[0])
+                class_group_map[list(grouped_vecs.keys()).index(group_type.split('_')[0])] = group_type.split('_')[0]
                 next_train += 1
 
-        return arrays, labels
+        return arrays, labels, class_group_map
 
     logger.debug('Splitting training / test data')
     if equalize_group_contents:
@@ -64,7 +66,7 @@ def get_train_test(
         splits[group_name + '_train'] = sorted(train)
         splits[group_name + '_test'] = sorted(test)
 
-    train_arrays, train_labels = format_arrays_labels('train')
-    test_arrays, test_labels = format_arrays_labels('test')
+    train_arrays, train_labels, _ = format_arrays_labels('train')
+    test_arrays, test_labels, class_group_map = format_arrays_labels('test')
 
-    return train_arrays, train_labels, test_arrays, test_labels
+    return train_arrays, train_labels, test_arrays, test_labels, class_group_map

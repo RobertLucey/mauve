@@ -7,7 +7,10 @@ from sklearn.svm import SVC
 from sklearn.gaussian_process import GaussianProcessClassifier
 from sklearn.gaussian_process.kernels import RBF
 from sklearn.tree import DecisionTreeClassifier
-from sklearn.ensemble import RandomForestClassifier, AdaBoostClassifier
+from sklearn.ensemble import (
+    RandomForestClassifier,
+    AdaBoostClassifier
+)
 from sklearn.naive_bayes import GaussianNB
 from sklearn.discriminant_analysis import QuadraticDiscriminantAnalysis
 from sklearn.linear_model import LogisticRegression
@@ -23,6 +26,26 @@ from mauve.learn.tagged_docs import (
 )
 
 logger = logging.getLogger('mauve')
+
+
+def get_classifiers():
+    return {
+        'nearest_neighbors': KNeighborsClassifier(3),
+        'linear_svm': SVC(kernel='linear', C=0.025),
+        'rbf_svm': SVC(gamma=2, C=1),
+        'gaussian_rprocess': GaussianProcessClassifier(1.0 * RBF(1.0)),
+        'decision_tree': DecisionTreeClassifier(max_depth=5),
+        'random_forest': RandomForestClassifier(
+            max_depth=5,
+            n_estimators=10,
+            max_features=1
+        ),
+        'neural_net': MLPClassifier(alpha=1, max_iter=100000),
+        'adaboost': AdaBoostClassifier(),
+        'naive_bayes': GaussianNB(),
+        'qda': QuadraticDiscriminantAnalysis(),
+        'logistic_regression': LogisticRegression(max_iter=10000)
+    }
 
 
 def generate_model(
@@ -62,30 +85,18 @@ def generate_model(
             continue
         grouped_vecs[tag.split('_')[0]].append(int(tag.split('_')[1]))
 
-    train_arrays, train_labels, test_arrays, test_labels = get_train_test(
+    train_arrays, train_labels, test_arrays, test_labels, class_group_map = get_train_test(
         model,
         grouped_vecs,
         equalize_group_contents=equalize_group_contents,
         train_ratio=train_ratio
     )
 
-    classifiers = {
-        'nearest_neighbors': KNeighborsClassifier(3),
-        'linear_svm': SVC(kernel='linear', C=0.025),
-        'rbf_svm': SVC(gamma=2, C=1),
-        'gaussian_rprocess': GaussianProcessClassifier(1.0 * RBF(1.0)),
-        'decision_tree': DecisionTreeClassifier(max_depth=5),
-        'random_forest': RandomForestClassifier(
-            max_depth=5,
-            n_estimators=10,
-            max_features=1
-        ),
-        'neural_net': MLPClassifier(alpha=1, max_iter=100000),
-        'adaboost': AdaBoostClassifier(),
-        'naive_bayes': GaussianNB(),
-        'qda': QuadraticDiscriminantAnalysis(),
-        'logistic_regression': LogisticRegression(max_iter=10000)
-    }
+    logger.debug('Class to group map: %s', class_group_map)
+
+    classifiers = get_classifiers()
+
+    # TODO: try fit by individual class too rather than on the whole
 
     logger.debug('Start classifying')
     if classifier is not None:
@@ -107,15 +118,15 @@ def generate_model(
 
 #generate_model(
 #    Doc2Vec(
-#        min_count=5,
+#        min_count=1,
 #        window=10,
-#        vector_size=num_features,
+#        vector_size=150,
 #        sample=1e-4,
 #        negative=5,
 #        workers=7
 #    ),
-#    AuthorTaggedDocs,
-#    num_books=1000,
+#    GenderTaggedDocs,
+#    num_books=500,
 #    equalize_group_contents=True,
-#    num_features
+#    epochs=50
 #)

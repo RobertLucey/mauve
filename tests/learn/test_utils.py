@@ -38,7 +38,7 @@ class TestLearnUtils(TestCase):
 
         model.build_vocab(docs)
 
-        train_arrays, train_labels, test_arrays, test_labels = get_train_test(
+        train_arrays, train_labels, test_arrays, test_labels, class_group_map = get_train_test(
             model,
             {
                 'something': list(range(100)),
