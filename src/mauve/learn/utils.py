@@ -51,8 +51,8 @@ def get_train_test(
 
     logger.debug('Splitting training / test data')
     if equalize_group_contents:
-        logger.debug('Equalizing lengths of input groups')
         min_count = min([len(v) for v in grouped_vecs.values()])
+        logger.debug('Equalizing lengths of input groups. Setting min to %s', min_count)
         grouped_vecs = {
             k: sorted(v)[0:min_count] for k, v in grouped_vecs.items()
         }

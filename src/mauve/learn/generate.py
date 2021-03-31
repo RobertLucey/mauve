@@ -15,15 +15,9 @@ from sklearn.naive_bayes import GaussianNB
 from sklearn.discriminant_analysis import QuadraticDiscriminantAnalysis
 from sklearn.linear_model import LogisticRegression
 
-from gensim.models import Doc2Vec
-
 from mauve.utils import iter_books
 
 from mauve.learn.utils import get_train_test
-from mauve.learn.tagged_docs import (
-    AuthorTaggedDocs,
-    GenderTaggedDocs
-)
 
 logger = logging.getLogger('mauve')
 
@@ -50,7 +44,7 @@ def get_classifiers():
 
 def generate_model(
     model,
-    grouper,
+    tagged_docs,
     num_books=0,
     equalize_group_contents=False,
     classifier=None,
@@ -59,7 +53,6 @@ def generate_model(
 ):
 
     logger.debug('Start loading content')
-    tagged_docs = grouper()
     processed = 0
     for book in iter_books():
         if len(tagged_docs.books) >= num_books:
@@ -68,6 +61,8 @@ def generate_model(
         processed += 1
 
     tagged_docs.clean_data()
+
+    logger.debug('Using %s books', len(tagged_docs.books))
 
     logger.debug('Start loading content into model')
     model.build_vocab(tagged_docs.to_array())
@@ -96,7 +91,7 @@ def generate_model(
 
     classifiers = get_classifiers()
 
-    # TODO: try fit by individual class too rather than on the whole
+    # TODO: Try fit by individual class too rather than on the whole
 
     logger.debug('Start classifying')
     if classifier is not None:
@@ -116,17 +111,23 @@ def generate_model(
     return classifiers
 
 
+#from gensim.models import Doc2Vec
+#from mauve.learn.tagged_docs import (
+#    AuthorTaggedDocs,
+#    GenderTaggedDocs,
+#    NationalityTaggedDocs
+#)
 #generate_model(
 #    Doc2Vec(
-#        min_count=1,
+#        min_count=5,
 #        window=10,
 #        vector_size=150,
 #        sample=1e-4,
 #        negative=5,
 #        workers=7
 #    ),
-#    GenderTaggedDocs,
-#    num_books=500,
-#    equalize_group_contents=True,
-#    epochs=50
+#    NationalityTaggedDocs(
+#        min_per_group=50
+#    ),
+#    num_books=10000
 #)

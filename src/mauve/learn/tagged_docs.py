@@ -5,16 +5,21 @@ from collections import defaultdict
 from gensim import utils
 from gensim.models.doc2vec import TaggedDocument
 
+from mauve.names import NAMES
+from mauve.utils import round_down, flatten
+from mauve.constants import BORING_WORDS, ENG_WORDS, EXTENDED_PUNCTUATION
+
 logger = logging.getLogger('mauve')
 
 
 class BaseTaggedDocs(object):
 
-    def __init__(self):
+    def __init__(self, min_per_group=10):
         self.books = []
         self.docs = []
         self.num_books = 0
         self.counter = defaultdict(int)
+        self.min_per_group = min_per_group
 
     def load(self, book):
         if self.should_include_book(book):
@@ -31,7 +36,7 @@ class BaseTaggedDocs(object):
         for book in self.books:
             group = self.get_group_name(book)
             yield TaggedDocument(
-                utils.to_unicode(self.content_cleaner(book)).split(),
+                self.content_cleaner(book).split(),
                 [str(group + '_%s') % (self.counter[group])]
             )
             self.counter[group] += 1
@@ -48,7 +53,59 @@ class BaseTaggedDocs(object):
         return book.content
 
     def clean_data(self):
-        pass
+
+        def cull(skip_lang, multi=0):
+            groups_count = defaultdict(int)
+            for book in self.books:
+                if self.get_group_name(book) is not None:
+                    groups_count[self.get_group_name(book)] += 1
+
+            if skip_lang:
+                self.books = [
+                    book for book in self.books if groups_count[self.get_group_name(book)] >= self.min_per_group
+                ]
+            else:
+                self.books = [
+                    book for book in self.books if book.lang == 'en'
+                ]
+
+            groups_count = defaultdict(int)
+            for book in self.books:
+                if self.get_group_name(book) is not None:
+                    groups_count[self.get_group_name(book)] += 1
+
+            group_books_map = defaultdict(list)
+            for book in self.books:
+                group_books_map[self.get_group_name(book)].append(book)
+            self.books = flatten([v[0:int(self.min_per_group * multi)] for k, v in group_books_map.items()])
+
+        cull(skip_lang=True, multi=2)
+        cull(skip_lang=False, multi=2)
+        cull(skip_lang=True, multi=1)
+
+        group_counts = defaultdict(int)
+        for book in self.books:
+            if self.get_group_name(book) is not None:
+                group_counts[self.get_group_name(book)] += 1
+
+        cleaned_books = []
+        for name, count in group_counts.items():
+            group_count = 0
+            for book in self.books:
+                if self.get_group_name(book) == name:
+                    if group_count < self.min_per_group:
+                        cleaned_books.append(book)
+                        group_count += 1
+
+        self.books = cleaned_books
+
+        group_counts = defaultdict(int)
+        for book in self.books:
+            if self.get_group_name(book) is not None:
+                group_counts[self.get_group_name(book)] += 1
+
+        for name, count in group_counts.items():
+            logger.debug('%s: %s', name, count)
 
 
 class AuthorTaggedDocs(BaseTaggedDocs):
@@ -65,37 +122,16 @@ class AuthorTaggedDocs(BaseTaggedDocs):
             return False
         if self.get_group_name(book) is None:
             return False
+        if book.num_ratings < 100:
+            return False
+        if not book.author_similarity:
+            return False
+        if not book.is_genre('fiction'):
+            return False
         return True
 
     def get_group_name(self, book):
         return book.author.name
-
-    def clean_data(self):
-
-        def cull():
-            author_count = defaultdict(int)
-            for book in self.books:
-                if book.author.name is not None:
-                    author_count[book.author.name] += 1
-
-            self.books = [
-                book for book in self.books if all([
-                    author_count[book.author.name] > 2,
-                    book.lang == 'en'
-                ])
-            ]
-
-        cull()
-        cull()
-
-        logger.debug('Author counts')
-        author_count = defaultdict(int)
-        for book in self.books:
-            if book.author.name is not None:
-                author_count[book.author.name] += 1
-
-        for name, count in author_count.items():
-            logger.debug('%s: %s', name, count)
 
 
 class GenderTaggedDocs(BaseTaggedDocs):
@@ -105,9 +141,74 @@ class GenderTaggedDocs(BaseTaggedDocs):
             return False
         if not book.is_genre('fiction'):
             return False
-        if book.lang != 'en':
+        if book.num_ratings < 100:
+            return False
+        if not book.author_similarity:
             return False
         return True
 
     def get_group_name(self, book):
         return book.author.gender
+
+
+class NationalityTaggedDocs(BaseTaggedDocs):
+
+    def should_include_book(self, book):
+        if self.get_group_name(book) is None:
+            return False
+        if book.num_ratings < 100:
+            return False
+        if not book.author_similarity:
+            return False
+        if not book.is_genre('fiction'):
+            return False
+        return True
+
+    def get_group_name(self, book):
+        nationality = book.author.nationality
+
+        if nationality is None:
+            return None
+
+        if nationality in ['England', 'Scotland', 'Wales']:
+            return 'British'
+
+        if ',' in nationality or '–' in nationality:
+            return None
+
+        return nationality
+
+
+class AgeTaggedDocs(BaseTaggedDocs):
+
+    # Can create a by the decade one handy from this
+    # FIXME: This one is a bit crap
+
+    def __iter__(self):
+        for book in self.books:
+            group = self.get_group_name(book)
+
+            yield TaggedDocument(
+                [w for w in utils.to_unicode(self.content_cleaner(book)).split() if (w in NAMES) or (w not in BORING_WORDS and w in ENG_WORDS and w not in EXTENDED_PUNCTUATION)],
+                [str(group + '_%s') % (self.counter[group])]
+            )
+            self.counter[group] += 1
+
+    def should_include_book(self, book):
+        if self.get_group_name(book) is None:
+            return False
+        if book.num_ratings < 1000:
+            return False
+        if not book.author_similarity:
+            return False
+        if not book.is_genre('fiction'):
+            return False
+        return True
+
+    def get_group_name(self, book):
+        try:
+            if round_down(book.year_published - book.author.birth_year, 10) >= 70:
+                return
+            return str(round_down(book.year_published - book.author.birth_year, 10))
+        except:
+            return
