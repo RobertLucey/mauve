@@ -37,15 +37,15 @@ def get_train_test(
         )
 
         class_group_map = {}
-        next_train = 0
+        next_idx = 0
         for group_type, vects in splits.items():
             if group_type.split('_')[-1] != split_type:
                 continue
             for vect in vects:
-                arrays[next_train] = model.docvecs['%s_%s' % (group_type.split('_')[0], vect)]
-                labels[next_train] = list(grouped_vecs.keys()).index(group_type.split('_')[0])
+                arrays[next_idx] = model.docvecs['%s_%s' % (group_type.split('_')[0], vect)]
+                labels[next_idx] = list(grouped_vecs.keys()).index(group_type.split('_')[0])
                 class_group_map[list(grouped_vecs.keys()).index(group_type.split('_')[0])] = group_type.split('_')[0]
-                next_train += 1
+                next_idx += 1
 
         return arrays, labels, class_group_map
 
