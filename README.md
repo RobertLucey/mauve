@@ -24,10 +24,17 @@ There is data [here](data/) of some details of 10k books to play with.
       * Wikipedia for:
         * Author birth year
         * Author nationality
+    * Political debates from:
+      * From api.oireachtas.ie
   * Mobi to Epub conversion
   * Epub conversion to text
   * Removal of images / fonts from epubs to keep required storage to a minimum
   * Compression of preprocessed content to keep required storage to a minimum
+* Classification
+  * Guess the following of a book from training over a load of scraped data:
+    * Author gender (>80% accuracy)
+    * Which author (requires >= 2 books per author being used) (Accuracy good but depends highly on how many authors and how many minimum required books per author)
+    * TODO: lots more
 * (Interesting) properties of a book:
   * Time it should take to read the text
   * How difficult the language in the book is

@@ -1,3 +1,4 @@
+import logging
 from collections import defaultdict
 import random
 
@@ -10,6 +11,19 @@ import nltk
 from mauve.wps import WPS
 
 from mauve.models.synonym import Synonym
+
+
+formatter = logging.Formatter(
+    fmt='%(asctime)s - %(levelname)s - %(module)s - %(message)s'
+)
+
+handler = logging.StreamHandler()
+handler.setFormatter(formatter)
+
+logger = logging.getLogger('mauve')
+logger.setLevel(logging.DEBUG)
+logger.addHandler(handler)
+
 
 try:
     nltk.data.find('corpora/words')
@@ -41,6 +55,8 @@ except:  # pragma: nocover
     download('en')
     ENCORE = spacy.load('en_core_web_sm')
 
+ENCORE.max_length = 2_000_000
+
 try:
     ENCORE_LG = spacy.load('en_core_web_lg')
 except:  # pragma: nocover
@@ -48,6 +64,7 @@ except:  # pragma: nocover
     download('en_core_web_lg')
     ENCORE_LG = spacy.load('en_core_web_lg')
 
+ENCORE_LG.max_length = 2_000_000
 
 WPS = WPS(print_rate=10000)
 SYNONYM = Synonym()

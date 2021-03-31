@@ -17,3 +17,4 @@ mobi
 EbookLib
 tika
 spacy_wordnet
+gensim

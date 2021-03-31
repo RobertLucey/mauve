@@ -22,7 +22,8 @@ INSTALL_REQUIRES = [
     'mobi',
     'EbookLib',
     'tika',
-    'spacy_wordnet'
+    'spacy_wordnet',
+    'gensim'
 ]
 
 setup(
