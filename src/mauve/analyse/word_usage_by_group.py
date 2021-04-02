@@ -107,7 +107,7 @@ class BaseWordUsage:
                     key=lambda item: numpy.mean(item[1]),
                     reverse=True
                 ) if any([
-                    len([i for i in o[1] if i != 0]) / len(o[1]) < 0.9,
+                    len([i for i in o[1] if i != 0]) / len(o[1]) < 0.9,  # TODO: Don't hard code
                     len([i for i in o[1] if i != 0]) / len(o[1]) > 0.05
                 ])
             }
@@ -213,7 +213,7 @@ class AuthorDOBWordUsage(BaseWordUsage):
                 return []
         if self.get_is_usable(book):
             if book.author.birth_year:
-                groups.append(round_down(book.author.birth_year, 25))
+                groups.append(round_down(book.author.birth_year, 10))
         return groups
 
 
