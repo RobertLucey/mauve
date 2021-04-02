@@ -13,18 +13,7 @@ PADDED_PROFANITY_LIST = [' ' + p + ' ' for p in PROFANITY_LIST]
 ENG_WORDS = set(nltk.corpus.words.words())
 
 LIKELY_WORD_TOKENS = [
-    #'(',
-    #')',
-    #'``',
-    #',',
-    #"''",
-    #'.',
-    #'#',
-    #'$',
-    #':',
-    #'SYM',
     'CC',
-    #'CD',
     'DT',
     'EX',
     'FW',
@@ -209,12 +198,13 @@ SPEAKERS = {'he', 'they', 'she', 'I', 'we', 'it', 'everyone', 'someone'}
 
 ASSIGNMENT_WORDS = {'is', 'are', 'am', 'was', 'were', 'be', 'better not', 'should not', 'became'}
 
-MALE_WORDS = {'himself', 'he', 'him', 'uncle', 'son', 'husband', 'dad', 'father', 'man', 'boy'}
+MALE_WORDS = {'himself', 'he', 'him', 'uncle', 'son', 'husband', 'dad', 'father', 'man', 'boy', 'lad', 'sir', 'gentleman', 'monsignor', 'fellow', 'fella', 'guy', 'bloke'}
 EXTRA_MALE_NAMES = {'Chris', 'Éric', 'Bear', 'Ray', 'Dashiell', 'Vernor', 'Ishmael', 'Ayad', 'Dale', 'Etgar', 'Will'}
-FEMALE_WORDS = {'herself', 'she', 'her', 'aunt', 'daughter', 'wife', 'mam', 'mother', 'woman', 'girl'}
+FEMALE_WORDS = {'herself', 'she', 'her', 'aunt', 'daughter', 'wife', 'mam', 'mother', 'woman', 'girl', 'lass', 'lady', 'madam', 'madame'}
 EXTRA_FEMALE_NAMES = {'Mary', 'Kaylea', 'Isobelle', 'Kim', 'Luanne', 'Erin', 'Lauren', 'Connie', 'Glyn', 'Alyxandra', 'Carol', 'Kimberla', 'Lynsay', 'Rufi'}
 
-BASE_LOUD_WORDS = {'loud', 'hard', 'bang', 'explode', 'shout', 'scream', 'shriek', 'yell', 'roar', 'screech', 'bellow', 'exclaim', 'howl', 'bark', 'heavy', 'yawp', 'blaring', 'blast', 'boom', 'deafen', 'piercing', 'thunderous', 'thundering'}
+BASE_LOUD_WORDS = {'loud', 'hard', 'bang', 'explode', 'shout', 'scream', 'shriek', 'yell', 'roar', 'screech', 'bellow', 'exclaim', 'howl', 'bark', 'heavy', 'yawp', 'blaring', 'blast', 'boom', 'deafen', 'piercing', 'thunderous', 'thunder', 'clatter', 'boom', 'squalk', 'clang', 'cacophony'}
+
 LOUD_WORDS = list(BASE_LOUD_WORDS) + [w + 'ing' for w in BASE_LOUD_WORDS] + [w + 'ly' for w in BASE_LOUD_WORDS] + [w + 'ed' for w in BASE_LOUD_WORDS]
 
 try:
