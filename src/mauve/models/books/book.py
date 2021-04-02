@@ -40,7 +40,7 @@ VADER = SentimentIntensityAnalyzer()
 
 class Book(TextBody):
 
-    @kwarg_validator('title', 'author', 'year_published',)
+    @kwarg_validator('title', 'author',)
     def __init__(
         self,
         title=None,
@@ -53,7 +53,8 @@ class Book(TextBody):
         reviews=None,
         subtitle=None,
         avg_rating=None,
-        num_ratings=None
+        num_ratings=None,
+        content_path=None
     ):
         self.title = title
         self.author = Author(name=getattr(author, 'name', author))  # should support multiple authors
@@ -65,23 +66,10 @@ class Book(TextBody):
         self.subtitle = subtitle
         self.avg_rating = float(avg_rating) if avg_rating is not None else None
         self.num_ratings = int(num_ratings) if num_ratings is not None else None
+        self.tags = tags if tags is not None else Tags()
+        self.reviews = reviews if reviews is not None else Reviews()
 
-        if tags is None:
-            self.tags = Tags()
-        else:
-            self.tags = tags
-
-        if reviews is None:
-            self.reviews = Reviews()
-        else:
-            self.reviews = reviews
-
-        self.content_path = None
-
-        self.source = 'books'
-        self.sourcetype = 'books'
-
-        super(Book, self).__init__()
+        super(Book, self).__init__(content_path=content_path)
 
     def is_genre(self, genre_name):
         return self.tags.contains(genre_name)
@@ -128,23 +116,12 @@ class Book(TextBody):
 
     def __del__(self):
         attrs_to_del = [
-            'lang',
-            'sentences_tokens',
-            'sentences',
             'adverbs',
             'adjectives',
             'nouns',
             'proper_nouns',
             'verbs',
-            'author_gender',
-            'content',
-            'dictionary_words',
-            'words',
-            'all_tokens',
-            'word_tokens',
-            'basic_content',
-            'raw_content',
-            'content',
+            'author_gender'
         ]
 
         for attr in attrs_to_del:

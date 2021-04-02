@@ -2,6 +2,7 @@ from collections import (
     defaultdict,
     Counter
 )
+import os
 import pickle
 
 from cached_property import cached_property
@@ -66,19 +67,14 @@ class TextBody(GenericObject, Tagger):
             'lang',
             'sentences_tokens',
             'sentences',
-            'adverbs',
-            'adjectives',
-            'nouns',
-            'proper_nouns',
-            'verbs',
             'content',
             'dictionary_words',
             'words',
             'all_tokens',
             'word_tokens',
-            'basic_content',
             'raw_content',
-            'content',
+            'basic_content',
+            'content'
         ]
 
         for attr in attrs_to_del:
@@ -112,7 +108,7 @@ class TextBody(GenericObject, Tagger):
                 ''.join(['\n', '\n\n'] + EXTENDED_PUNCTUATION)
             )
         )
-        return [i for i in txt.split(' ') if i]
+        return [i for i in txt.split() if i]
 
     def get_profanity_score(self):
         """
@@ -134,13 +130,6 @@ class TextBody(GenericObject, Tagger):
 
         div = len(words) / 10000.
         return sum([words.count(profanity) for profanity in included_profanities]) / div
-
-    def set_content_location(self, content_path):
-        """
-
-        :param content_path:
-        """
-        self.content_path = content_path
 
     @property
     def has_content(self):
@@ -170,12 +159,11 @@ class TextBody(GenericObject, Tagger):
             except Exception as ex:
                 print('BAD FILE: %s' % (self.content_path))
                 print(ex)
-                content = ''
         return content
 
     @cached_property
     def sentiment(self):
-        return VADER.polarity_scores([a for a in self.sentences])
+        return VADER.polarity_scores([sentence for sentence in self.sentences])
 
     @cached_property
     def lang(self):
@@ -183,11 +171,14 @@ class TextBody(GenericObject, Tagger):
         # Also only go far enough until we're certain. Don't need to process entire books
         try:
             return langdetect(self.raw_content[:50000])
-        except:
+        except Exception:
             return 'unknown'
 
     @cached_property
     def basic_sentences(self):
+        """
+        A faster (and worse) way to get sentences of a piece of text
+        """
         content = self.basic_content
         for terminator in list(SENTENCE_TERMINATORS) + ['\n']:
             content = content.replace(terminator, terminator + '___mauve_terminator___')
@@ -297,7 +288,9 @@ class TextBody(GenericObject, Tagger):
         """
         speech = self.get_speech_by_people(people=people)
         return {
-            person_name: TextBody(content=' .'.join([s.text for s in speech_items])).sentiment for person_name, speech_items in speech.items()
+            person_name: TextBody(
+                content=' .'.join([s.text for s in speech_items])
+            ).sentiment for person_name, speech_items in speech.items()
         }
 
     def count_usage(self, phrase, split_multi=False, nosplit=False):

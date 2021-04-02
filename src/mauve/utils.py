@@ -15,7 +15,10 @@ from compress_pickle import (
     load
 )
 
-from mauve import ENCORE, ENCORE_LG
+from mauve import (
+    ENCORE,
+    ENCORE_LG
+)
 from mauve.models.books.tag import (
     Tag,
     Tags
@@ -191,10 +194,9 @@ def iter_books(source='goodreads'):
             author=book_meta.get('author', None),
             avg_rating=book_meta.get('average_rating', None),
             tags=tags,
-            num_ratings=book_meta.get('num_ratings', None)
+            num_ratings=book_meta.get('num_ratings', None),
+            content_path=content_path
         )
-
-        book.set_content_location(content_path)
 
         yield book
 

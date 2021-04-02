@@ -157,8 +157,7 @@ class TestUtils(TestCase):
         # TODO: when more files generated do some more of this
 
     def test_compress_file(self):
-        book = Book(title='t', author='a', year_published=0)
-        book.set_content_location(self.clean_epub_1)
+        book = Book(title='t', author='a', year_published=0, content_path=self.clean_epub_1)
         book.all_tokens
         book.word_tokens
 
