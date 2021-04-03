@@ -12,6 +12,7 @@ from langdetect import detect as langdetect
 import nltk
 
 from mauve.utils import (
+    rflatten,
     replace_sub,
     flatten,
     clean_gutenberg,
@@ -36,6 +37,7 @@ from mauve.contractions import replace_contractions
 
 from mauve.models.generic import GenericObject
 from mauve.models.person import People
+from mauve.models.line import Line, Lines
 
 from mauve import (
     VADER,
@@ -82,6 +84,12 @@ class TextBody(GenericObject, Tagger):
                 delattr(self, attr)
             except:
                 pass
+
+    @property
+    def lines(self):
+        return Lines(data=[
+            Line(l, line_no=idx) for idx, l in enumerate(self.content.split('\n'))
+        ])
 
     def get_lexical_diversity(self, only_dictionary_words=False):
         """
@@ -216,14 +224,12 @@ class TextBody(GenericObject, Tagger):
 
         :return: list of Speech objects
         """
-        content = self.content
 
-        if content is None:
-            return []
+        speech = []
+        for line in self.lines:
+            speech.append(line.get_speech())
 
-        return flatten([
-            Sentence(s).speech for s in quote_aware_sent_tokenize(content)
-        ])
+        return rflatten(speech)
 
     @cached_property
     def people(self):
