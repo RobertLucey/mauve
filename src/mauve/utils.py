@@ -371,6 +371,25 @@ def str_count_multi(string, things_to_count):
     return sum([string.count(thing) for thing in things_to_count])
 
 
+def rflatten(lst):
+    '''
+    Given a nested list, flatten it.
+
+    Usage:
+        >>> rflatten([[[1, 2, 3]], [1, 2]])
+        [1, 2, 3, 1, 2]
+
+    :param lst: list to be flattened
+    :return: Flattened list
+    :rtype: list
+    '''
+    if lst == []:
+        return lst
+    if isinstance(lst[0], list):
+        return rflatten(lst[0]) + rflatten(lst[1:])
+    return lst[:1] + rflatten(lst[1:])
+
+
 def flatten(lst):
     '''
     Given a nested list, flatten it.

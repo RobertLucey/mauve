@@ -40,7 +40,7 @@ class Speech:
     def text(self):
         if self._text is not None:
             return self._text
-        return ' '.join([s.text for s in self.segments])
+        return ' '.join([s.text for s in self.segments]).strip()
 
     @property
     def inflection(self):
