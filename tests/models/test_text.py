@@ -62,6 +62,29 @@ class TestTextBodyLine(TestCase):
             ]
         )
 
+    def test_he_she_speech_extract(self):
+        """Make sure only speech lines get context from -2 ago
+        """
+        text = TextBody(
+            content='''
+Mike asked, “Want some cheese?”
+“I don’t know.” Alice’s response began, but ended in a whispered, “I really don't.”
+“It's really tasty.” He went on
+“It's really tasty.” He went on
+            '''
+        )
+
+        self.assertEqual(
+            [s.serialize() for s in text.speech],
+            [
+                {'text': 'Want some cheese ?', 'speaker': {'name': 'Mike', 'gender': 'male'}, 'inflection': 'asked'},
+                {'text': 'I do not know .', 'speaker': {'name': 'Alice', 'gender': 'female'}, 'inflection': None},
+                {'text': 'I really do not .', 'speaker': {'name': 'Alice', 'gender': 'female'}, 'inflection': 'whispered'},
+                {'text': "It is really tasty .", 'speaker': {'name': 'Mike', 'gender': 'male'}, 'inflection': None},
+                {'text': "It is really tasty .", 'speaker': {'name': 'Mike', 'gender': 'male'}, 'inflection': None},
+            ]
+        )
+
     def test_only_speech_lines_extract(self):
         """Make sure only speech lines get context from -2 ago
         """
@@ -81,8 +104,8 @@ Mike asked, “Want some cheese?”
                 {'text': 'I do not know .', 'speaker': {'name': 'Bob', 'gender': 'male'}, 'inflection': None},
                 {'text': 'I really do not .', 'speaker': {'name': 'Bob', 'gender': 'male'}, 'inflection': 'whispered'},
                 {'text': "It is really tasty .", 'speaker': {'name': 'Mike', 'gender': 'male'}, 'inflection': None},
-                {'text': 'But I am lactose intolerant .', 'speaker': {'name': 'he', 'gender': 'male'}, 'inflection': 'said'},
-                {'text': 'I do not want to risk it .', 'speaker': {'name': 'he', 'gender': 'male'}, 'inflection': None}
+                {'text': 'But I am lactose intolerant .', 'speaker': {'name': 'Bob', 'gender': 'male'}, 'inflection': 'said'},
+                {'text': 'I do not want to risk it .', 'speaker': {'name': 'Bob', 'gender': 'male'}, 'inflection': None}
             ]
         )
 

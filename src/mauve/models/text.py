@@ -241,15 +241,15 @@ class TextBody(GenericObject, Tagger):
 
         for block in data:
             speakers = []
+
             for speech_items in block:
 
-                if speech_items[0].speaker.name != '':
+                if speech_items[0].speaker.name not in ['', 'he', 'she']:
                     speakers.append(speech_items[0].speaker)
                 else:
                     added = False
                     for speech_item in speech_items:
                         if speech_item.speaker.name == '':
-                            # TODO: handle he / she too
                             try:
                                 speech_item.speaker = speakers[-2]
                                 if not added:
@@ -257,6 +257,14 @@ class TextBody(GenericObject, Tagger):
                                     speakers.append(speakers[-2])
                             except:
                                 pass
+                        else:
+                            print(speech_item.speaker.name)
+                            if speech_item.speaker.name.lower() == 'he':
+                                if speakers[-2].gender == 'male':
+                                    speech_item.speaker = speakers[-2]
+                            elif speech_item.speaker.name.lower() == 'she':
+                                if speakers[-2].gender == 'female':
+                                    speech_item.speaker = speakers[-2]
 
         return rflatten(list(speech.values()))
 
