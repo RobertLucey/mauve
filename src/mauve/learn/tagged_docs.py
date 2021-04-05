@@ -12,6 +12,20 @@ from mauve.constants import BORING_WORDS, ENG_WORDS, EXTENDED_PUNCTUATION
 logger = logging.getLogger('mauve')
 
 
+class Safety:
+
+    def should_include_book(self, book):
+        if self.get_group_name(book) is None:
+            return False
+        if book.num_ratings < 1000:
+            return False
+        if not book.author_similarity:
+            return False
+        if not book.is_genre('fiction'):
+            return False
+        return True
+
+
 class BaseTaggedDocs(object):
 
     def __init__(self, min_per_group=10):
@@ -108,7 +122,7 @@ class BaseTaggedDocs(object):
             logger.debug('%s: %s', name, count)
 
 
-class AuthorTaggedDocs(BaseTaggedDocs):
+class AuthorTaggedDocs(BaseTaggedDocs, Safety):
 
     def __init__(self, *args, **kwargs):
         self.authors = kwargs.pop('authors', [])
@@ -117,52 +131,17 @@ class AuthorTaggedDocs(BaseTaggedDocs):
     def content_cleaner(self, book):
         return book.content.replace(book.author.name, '')
 
-    def should_include_book(self, book):
-        if book.author.name not in self.authors and self.authors != []:
-            return False
-        if self.get_group_name(book) is None:
-            return False
-        if book.num_ratings < 100:
-            return False
-        if not book.author_similarity:
-            return False
-        if not book.is_genre('fiction'):
-            return False
-        return True
-
     def get_group_name(self, book):
         return book.author.name
 
 
-class GenderTaggedDocs(BaseTaggedDocs):
-
-    def should_include_book(self, book):
-        if self.get_group_name(book) is None:
-            return False
-        if not book.is_genre('fiction'):
-            return False
-        if book.num_ratings < 100:
-            return False
-        if not book.author_similarity:
-            return False
-        return True
+class GenderTaggedDocs(BaseTaggedDocs, Safety):
 
     def get_group_name(self, book):
         return book.author.gender
 
 
-class NationalityTaggedDocs(BaseTaggedDocs):
-
-    def should_include_book(self, book):
-        if self.get_group_name(book) is None:
-            return False
-        if book.num_ratings < 100:
-            return False
-        if not book.author_similarity:
-            return False
-        if not book.is_genre('fiction'):
-            return False
-        return True
+class NationalityTaggedDocs(BaseTaggedDocs, Safety):
 
     def get_group_name(self, book):
         nationality = book.author.nationality
@@ -179,7 +158,7 @@ class NationalityTaggedDocs(BaseTaggedDocs):
         return nationality
 
 
-class AgeTaggedDocs(BaseTaggedDocs):
+class AgeTaggedDocs(BaseTaggedDocs, Safety):
 
     # Can create a by the decade one handy from this
     # FIXME: This one is a bit crap
@@ -193,17 +172,6 @@ class AgeTaggedDocs(BaseTaggedDocs):
                 [str(group + '_%s') % (self.counter[group])]
             )
             self.counter[group] += 1
-
-    def should_include_book(self, book):
-        if self.get_group_name(book) is None:
-            return False
-        if book.num_ratings < 1000:
-            return False
-        if not book.author_similarity:
-            return False
-        if not book.is_genre('fiction'):
-            return False
-        return True
 
     def get_group_name(self, book):
         try:
