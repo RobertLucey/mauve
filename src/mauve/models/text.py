@@ -250,10 +250,13 @@ class TextBody(GenericObject, Tagger):
                     for speech_item in speech_items:
                         if speech_item.speaker.name == '':
                             # TODO: handle he / she too
-                            speech_item.speaker = speakers[-2]
-                            if not added:
-                                added = True
-                                speakers.append(speakers[-2])
+                            try:
+                                speech_item.speaker = speakers[-2]
+                                if not added:
+                                    added = True
+                                    speakers.append(speakers[-2])
+                            except:
+                                pass
 
         return rflatten(list(speech.values()))
 

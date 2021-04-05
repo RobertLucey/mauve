@@ -74,9 +74,6 @@ Mike asked, “Want some cheese?”
             '''
         )
 
-        import pprint
-        pprint.pprint([s.serialize() for s in text.speech])
-
         self.assertEqual(
             [s.serialize() for s in text.speech],
             [
@@ -188,7 +185,6 @@ class TestTextBody(TestCase):
 
     def test_alice_speech(self):
         speech_objects = self.ALICE.get_speech_by_people([Person(name='Alice')])
-        print(speech_objects)
         
         self.assertTrue(
             'Who cares for you ?' in [s.text for s in speech_objects['Alice']]
