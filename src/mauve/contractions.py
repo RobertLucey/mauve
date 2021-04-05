@@ -155,6 +155,10 @@ CONTRACTION_MAP = {  # ’ to be added to these in replacement of '
 }
 
 
+for contraction, expansion in CONTRACTION_MAP.copy().items():
+    CONTRACTION_MAP[contraction.capitalize()] = expansion.capitalize()
+
+
 def replace_contractions(content):
     """
     Expand contractions since contractions are annoying
