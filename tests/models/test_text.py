@@ -84,8 +84,8 @@ Mike asked, “Want some cheese?”
                 {'text': 'I do not know .', 'speaker': {'name': 'Bob', 'gender': 'male'}, 'inflection': None},
                 {'text': 'I really do not .', 'speaker': {'name': 'Bob', 'gender': 'male'}, 'inflection': 'whispered'},
                 {'text': "It is really tasty .", 'speaker': {'name': 'Mike', 'gender': 'male'}, 'inflection': None},
-                {'text': 'But I am lactose intolerant .', 'speaker': {'name': 'Bob', 'gender': 'male'}, 'inflection': 'said'},
-                {'text': 'I do not want to risk it .', 'speaker': {'name': 'Bob', 'gender': 'male'}, 'inflection': None}
+                {'text': 'But I am lactose intolerant .', 'speaker': {'name': 'he', 'gender': 'male'}, 'inflection': 'said'},
+                {'text': 'I do not want to risk it .', 'speaker': {'name': 'he', 'gender': 'male'}, 'inflection': None}
             ]
         )
 

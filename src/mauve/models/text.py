@@ -225,11 +225,37 @@ class TextBody(GenericObject, Tagger):
         :return: list of Speech objects
         """
 
-        speech = []
-        for line in self.lines:
-            speech.append(line.get_speech())
+        speech = {
+            line.line_no: line.get_speech() for line in self.lines
+        }
 
-        return rflatten(speech)
+        data = []
+        build = []
+        for line_no, speech_items in speech.items():
+            if speech_items == [] and line_no != 0:
+                data.append(build)
+                build = []
+            else:
+                if speech_items != []:
+                    build.append(speech_items)
+
+        for block in data:
+            speakers = []
+            for speech_items in block:
+
+                if speech_items[0].speaker.name != '':
+                    speakers.append(speech_items[0].speaker)
+                else:
+                    added = False
+                    for speech_item in speech_items:
+                        if speech_item.speaker.name == '':
+                            # TODO: handle he / she too
+                            speech_item.speaker = speakers[-2]
+                            if not added:
+                                added = True
+                                speakers.append(speakers[-2])
+
+        return rflatten(list(speech.values()))
 
     @cached_property
     def people(self):
