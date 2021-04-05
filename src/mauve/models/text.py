@@ -12,6 +12,7 @@ from langdetect import detect as langdetect
 import nltk
 
 from mauve.utils import (
+    rflatten,
     replace_sub,
     flatten,
     clean_gutenberg,
@@ -36,6 +37,7 @@ from mauve.contractions import replace_contractions
 
 from mauve.models.generic import GenericObject
 from mauve.models.person import People
+from mauve.models.line import Line, Lines
 
 from mauve import (
     VADER,
@@ -82,6 +84,12 @@ class TextBody(GenericObject, Tagger):
                 delattr(self, attr)
             except:
                 pass
+
+    @property
+    def lines(self):
+        return Lines(data=[
+            Line(l, line_no=idx) for idx, l in enumerate(self.content.split('\n'))
+        ])
 
     def get_lexical_diversity(self, only_dictionary_words=False):
         """
@@ -216,14 +224,41 @@ class TextBody(GenericObject, Tagger):
 
         :return: list of Speech objects
         """
-        content = self.content
 
-        if content is None:
-            return []
+        speech = {
+            line.line_no: line.get_speech() for line in self.lines
+        }
 
-        return flatten([
-            Sentence(s).speech for s in quote_aware_sent_tokenize(content)
-        ])
+        data = []
+        build = []
+        for line_no, speech_items in speech.items():
+            if speech_items == [] and line_no != 0:
+                data.append(build)
+                build = []
+            else:
+                if speech_items != []:
+                    build.append(speech_items)
+
+        for block in data:
+            speakers = []
+            for speech_items in block:
+
+                if speech_items[0].speaker.name != '':
+                    speakers.append(speech_items[0].speaker)
+                else:
+                    added = False
+                    for speech_item in speech_items:
+                        if speech_item.speaker.name == '':
+                            # TODO: handle he / she too
+                            try:
+                                speech_item.speaker = speakers[-2]
+                                if not added:
+                                    added = True
+                                    speakers.append(speakers[-2])
+                            except:
+                                pass
+
+        return rflatten(list(speech.values()))
 
     @cached_property
     def people(self):

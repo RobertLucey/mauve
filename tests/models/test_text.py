@@ -5,7 +5,7 @@ from collections import Counter
 import glob
 import os
 
-from mauve.utils import flatten
+from mauve.utils import flatten, rflatten
 from mauve.models.text import TextBody
 from mauve.models.person import Person
 from mauve.models.segment import Segment
@@ -28,6 +28,87 @@ RESOURCE_PATH = os.path.join(
     ),
     'tests/resources'
 )
+
+
+
+class TestTextBodyLine(TestCase):
+
+    def test_lines_extract(self):
+        lines = TextBody(
+            content='''One two. Three.
+            Four Five'''
+        ).lines
+
+        self.assertEquals(
+            lines.serialize(),
+            [
+                {'text': 'One two. Three.', 'line_no': 0},
+                {'text': 'Four Five', 'line_no': 1}
+            ]
+        )
+
+    def test_multi_speakers_line(self):
+        text = TextBody(
+            content='''
+“Bad no this sucks” said the Mouse to Alice. Alice replied, “Happy Love”
+            '''
+        )
+
+        self.assertEqual(
+            [s.serialize() for s in text.speech],
+            [
+                {'text': 'Bad no this sucks', 'speaker': {'name': 'Mouse', 'gender': None}, 'inflection': 'said'},
+                {'text': 'Happy Love', 'speaker': {'name': 'Alice', 'gender': 'female'}, 'inflection': 'replied'},
+            ]
+        )
+
+    def test_only_speech_lines_extract(self):
+        """Make sure only speech lines get context from -2 ago
+        """
+        text = TextBody(
+            content='''
+Mike asked, “Want some cheese?”
+“I don’t know.” Bob’s response began, but ended in a whispered, “I really don't.”
+“It's really tasty.”
+“But I'm lactose intolerant.” he said. “I don’t want to risk it.”
+            '''
+        )
+
+        self.assertEqual(
+            [s.serialize() for s in text.speech],
+            [
+                {'text': 'Want some cheese ?', 'speaker': {'name': 'Mike', 'gender': 'male'}, 'inflection': 'asked'},
+                {'text': 'I do not know .', 'speaker': {'name': 'Bob', 'gender': 'male'}, 'inflection': None},
+                {'text': 'I really do not .', 'speaker': {'name': 'Bob', 'gender': 'male'}, 'inflection': 'whispered'},
+                {'text': "It is really tasty .", 'speaker': {'name': 'Mike', 'gender': 'male'}, 'inflection': None},
+                {'text': 'But I am lactose intolerant .', 'speaker': {'name': 'he', 'gender': 'male'}, 'inflection': 'said'},
+                {'text': 'I do not want to risk it .', 'speaker': {'name': 'he', 'gender': 'male'}, 'inflection': None}
+            ]
+        )
+
+    def test_speech_extract_from_line(self):
+        lines = TextBody(
+            content='''
+Mike asked, “Want some cheese?”
+“I don’t know.” Bob’s response began, but ended in a whispered, “I really don't.”
+“It's really tasty.”
+“But I'm lactose intolerant.” he said. “I don’t want to risk it.”
+            '''
+        ).lines
+
+        speech = rflatten([l.get_speech() for l in lines if l.get_speech() != []])
+
+        self.assertEqual(
+            [s.serialize() for s in speech],
+            [
+                {'text': 'Want some cheese ?', 'speaker': {'name': 'Mike', 'gender': 'male'}, 'inflection': 'asked'},
+                {'text': 'I do not know .', 'speaker': {'name': 'Bob', 'gender': 'male'}, 'inflection': None},
+                {'text': 'I really do not .', 'speaker': {'name': 'Bob', 'gender': 'male'}, 'inflection': 'whispered'},
+                {'text': "It is really tasty .", 'speaker': {'name': '', 'gender': None}, 'inflection': None},
+                {'text': 'But I am lactose intolerant .', 'speaker': {'name': 'he', 'gender': 'male'}, 'inflection': 'said'},
+                {'text': 'I do not want to risk it .', 'speaker': {'name': 'he', 'gender': 'male'}, 'inflection': None}
+            ]
+        )
 
 
 class TestTextBody(TestCase):
@@ -104,7 +185,6 @@ class TestTextBody(TestCase):
 
     def test_alice_speech(self):
         speech_objects = self.ALICE.get_speech_by_people([Person(name='Alice')])
-        print(speech_objects)
         
         self.assertTrue(
             'Who cares for you ?' in [s.text for s in speech_objects['Alice']]
