@@ -11,6 +11,10 @@ from langdetect import detect as langdetect
 
 import nltk
 
+from mauve.settings import (
+    HE_SHE_SPEAKER_GUESS,
+    SPEAKER_PLACEMENT_GUESS
+)
 from mauve.utils import (
     rflatten,
     replace_sub,
@@ -250,21 +254,22 @@ class TextBody(GenericObject, Tagger):
                     added = False
                     for speech_item in speech_items:
                         if speech_item.speaker.name == '':
-                            try:
-                                speech_item.speaker = speakers[-2]
-                                if not added:
-                                    added = True
-                                    speakers.append(speakers[-2])
-                            except:
-                                pass
+                            if SPEAKER_PLACEMENT_GUESS:
+                                try:
+                                    speech_item.speaker = speakers[-2]
+                                    if not added:
+                                        added = True
+                                        speakers.append(speakers[-2])
+                                except:
+                                    pass
                         else:
-                            print(speech_item.speaker.name)
-                            if speech_item.speaker.name.lower() == 'he':
-                                if speakers[-2].gender == 'male':
-                                    speech_item.speaker = speakers[-2]
-                            elif speech_item.speaker.name.lower() == 'she':
-                                if speakers[-2].gender == 'female':
-                                    speech_item.speaker = speakers[-2]
+                            if HE_SHE_SPEAKER_GUESS:
+                                if speech_item.speaker.name.lower() == 'he':
+                                    if speakers[-2].gender == 'male':
+                                        speech_item.speaker = speakers[-2]
+                                elif speech_item.speaker.name.lower() == 'she':
+                                    if speakers[-2].gender == 'female':
+                                        speech_item.speaker = speakers[-2]
 
         return rflatten(list(speech.values()))
 
