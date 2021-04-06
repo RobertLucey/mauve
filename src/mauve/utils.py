@@ -6,6 +6,7 @@ from itertools import chain
 import logging
 
 import spacy
+import textacy.ke
 import nltk
 from nltk.corpus import wordnet
 from nltk.stem.wordnet import WordNetLemmatizer
@@ -215,6 +216,11 @@ def get_en_core_web_sm(text):
 @lru_cache(maxsize=1000)
 def get_en_core_web_lg(text):
     return ENCORE_LG(text)
+
+
+@lru_cache(maxsize=1000)
+def make_spacy_doc(text):
+    return textacy.make_spacy_doc(text)
 
 
 @lru_cache(maxsize=10000)

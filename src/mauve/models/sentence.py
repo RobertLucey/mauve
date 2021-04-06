@@ -1,4 +1,6 @@
 from cached_property import cached_property
+from functools import lru_cache
+import logging
 
 import textacy.ke
 import nltk
@@ -8,15 +10,21 @@ from mauve.structure.conditional import extract_conditionals
 from mauve.models.speech import extract_speech
 
 from mauve.utils import (
+    make_spacy_doc,
     replace_sub,
     get_en_core_web_sm,
     replace_phrases
 )
 
-from mauve.models.deptree import DepTree, DepNode
+from mauve.models.deptree import (
+    DepTree,
+    DepNode
+)
 from mauve.models.person import extract_people
 from mauve.models.segment import Segment
 from mauve import SYNONYM
+
+logger = logging.getLogger('mauve')
 
 
 class Sentence:
@@ -63,7 +71,6 @@ class Sentence:
         self.text = self.preprocess_text(replace_phrases(self.text))
 
         sentence = get_en_core_web_sm(self.text)
-
         mod_text = self.text
         mapping = {}
 
@@ -76,9 +83,9 @@ class Sentence:
             mapping[to_put] = entity.label_
 
         try:
-            doc = textacy.make_spacy_doc(mod_text)
+            doc = make_spacy_doc(mod_text)
         except Exception as ex:
-            print(ex)
+            logger.warning('Could not create spacy doc: %s', ex)
         else:
             textphrases = [
                 k[0] for k in textacy.ke.textrank(
@@ -100,7 +107,6 @@ class Sentence:
         self.text = self.preprocess_text(self.text)
 
         sentence = get_en_core_web_sm(self.text)
-
         mod_text = self.text
         mapping = {}
 
@@ -110,9 +116,9 @@ class Sentence:
             mapping[to_put] = entity.label_
 
         try:
-            doc = textacy.make_spacy_doc(mod_text)
+            doc = make_spacy_doc(mod_text)
         except Exception as ex:
-            print(ex)
+            logger.warning('Could not create spacy doc: %s', ex)
         else:
             textphrases = [
                 k[0] for k in textacy.ke.textrank(
@@ -129,9 +135,9 @@ class Sentence:
 
         return [
             Segment(
-                t,
-                tag=mapping.get(t, None)
-            ) for t in nltk.word_tokenize(mod_text)
+                text,
+                tag=mapping.get(text, None)
+            ) for text in nltk.word_tokenize(mod_text)
         ]
 
     @cached_property
