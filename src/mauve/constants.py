@@ -176,7 +176,6 @@ GENDER_PREFIXES = {
     'mr': 'male',
     'mister': 'male',
     'mr.': 'male',
-    'sir': 'male',
     'lady': 'female',
     'miss': 'female',
     'ms.': 'female',
@@ -273,3 +272,6 @@ REPLACEMENTS = {
     #'mam': 'mother',
     #'mammy': 'mother'
 }  # TODO: test this
+
+for k, v in REPLACEMENTS.copy().items():
+    REPLACEMENTS[k.capitalize()] = v.capitalize()

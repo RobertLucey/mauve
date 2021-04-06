@@ -5,6 +5,7 @@ Uses the percentage usage rather than count since a long book about
     sunflowers could skew things a fair bit
 """
 
+import logging
 from collections import defaultdict
 
 import numpy
@@ -13,6 +14,8 @@ from mauve.utils import (
     iter_books,
     round_down
 )
+
+logger = logging.getLogger('mauve')
 
 
 class BaseWordUsage:
@@ -23,7 +26,7 @@ class BaseWordUsage:
         only_words=None,
         only_groups=None,
         head_tail_len=10,
-        print_rate=100,
+        log_rate=100,
         required_genre=None,
         required_lang=None,
         required_safe_to_use=None
@@ -38,7 +41,7 @@ class BaseWordUsage:
         :kwarg only_words: Only include these words as interesting
         :kwarg only_groups: Only include data of groups in this list
         :kwarg head_tail_len: How many words to give back for each comparison
-        :kwarg print_rate: After how many books processed to print the stats
+        :kwarg log_rate: After how many books processed to log the stats
         :kwarg required_genre:
         :kwarg required_lang:
         :kwarg required_safe_to_use:
@@ -47,7 +50,7 @@ class BaseWordUsage:
         self.only_words = only_words
         self.only_groups = only_groups
         self.head_tail_len = head_tail_len
-        self.print_rate = print_rate
+        self.log_rate = log_rate
         self.groups = defaultdict(dict)
         self.prevs = defaultdict(int)
 
@@ -149,9 +152,9 @@ class BaseWordUsage:
                 )
         return results
 
-    def print_stats(self, verbose=False):
+    def log_stats(self, verbose=False):
         for cmp_group, base_group, data in self.get_stats(verbose=verbose):
-            print(
+            logger.info(
                 '%s < %s: %s' % (
                     base_group,
                     cmp_group,
@@ -164,8 +167,8 @@ class BaseWordUsage:
             # Maybe only update prev if update_groups did anything.
             # Doesn't really matter
             self.update_groups(book)
-            if idx % self.print_rate == 0:
-                self.print_stats(verbose=verbose)
+            if idx % self.log_rate == 0:
+                self.log_stats(verbose=verbose)
 
     def get_is_usable(self, book):
         """
@@ -173,6 +176,7 @@ class BaseWordUsage:
         included in the data.
         """
         if (self.required_genre and not book.is_genre(self.required_genre)) or (self.required_safe_to_use and not book.safe_to_use) or (self.required_lang and not book.lang == self.required_lang) or (not book.has_content):
+            logger.debug('\'%s\' by \'%s\'is not usable', book.title, book.author.name)
             return False
         return True
 
