@@ -1,4 +1,5 @@
 import difflib
+import logging
 
 from mauve import GENDER_DETECTOR
 from mauve.utils import replace_phrases
@@ -20,6 +21,8 @@ from mauve.constants import (
     LIKELY_PERSON_PREFIXES
 )
 
+logger = logging.getLogger('mauve')
+
 
 def clean_name(name):
     """
@@ -38,7 +41,7 @@ def clean_name(name):
     :return: A name with unnecessary parts removed
     :rtype: str
     """
-    name = ' '.join(
+    mod_name = ' '.join(
         [
             c for c in name.split(' ') if all(
                 [
@@ -49,23 +52,28 @@ def clean_name(name):
         ]
     ).strip()
 
-    if name.lower().startswith('the '):
-        name = name[4:]
+    if mod_name.lower().startswith('the '):
+        mod_name = mod_name[4:]
 
-    if name.lower().startswith('a '):
-        name = name[2:]
+    if mod_name.lower().startswith('a '):
+        mod_name = mod_name[2:]
 
     if any(
         [
-            name in NOT_NAMES,
-            'chapter' in [n.lower() for n in name.split()],
-            'part' in [n.lower() for n in name.split()],
-            'section' in [n.lower() for n in name.split()],
+            mod_name in NOT_NAMES,
+            'chapter' in [n.lower() for n in mod_name.split()],
+            'part' in [n.lower() for n in mod_name.split()],
+            'section' in [n.lower() for n in mod_name.split()],
         ]
     ):
-        name = ''
+        mod_name = ''
 
-    return name.translate(PERSON_TRANSLATOR).replace('\n', ' ').replace('  ', ' ').strip()
+    mod_name = mod_name.translate(PERSON_TRANSLATOR).replace('\n', ' ').replace('  ', ' ').strip()
+
+    if name != mod_name:
+        logging.debug('Cleaned name \'%s\' => \'%s\'', name, mod_name)
+
+    return mod_name
 
 
 class People(GenericObjects):
@@ -97,7 +105,7 @@ class People(GenericObjects):
     def get_count_of(self, person):
         if isinstance(person, str):
             person = Person(name=person)
-        return len([p.name for p in self if p.name == person.name])
+        return len([person.name for person in self if person.name == person.name])
 
     def remove_near_duplicates(self):
         """
@@ -114,14 +122,16 @@ class People(GenericObjects):
                     if self.get_count_of(base) > self.get_count_of(comparison):
                         comparison.dirty_name = base.dirty_name
                         comparison.references += base.references
+                        logger.debug('Removing near duplicate name \'%s\' \'%s\'', base.name, comparison.name)
                         to_remove.append(base)
                     else:
                         base.dirty_name = comparison.dirty_name
                         base.references += comparison.references
+                        logger.debug('Removing near duplicate name \'%s\' \'%s\'', base.name, comparison.name)
                         to_remove.append(comparison)
 
-        for i in to_remove:
-            self.remove(i)
+        for person in to_remove:
+            self.remove(person)
 
 
 class Person(Entity):
@@ -203,11 +213,14 @@ class Person(Entity):
         :return: male, female or None
         """
         if not isinstance(self.name, str):
+            logger.debug('Cannot get gender for \'%s\'', self.name)
             return
 
         if self.name in MALE_WORDS:
+            logger.debug('Gender \'%s\' is \'%s\'', self.name, 'male')
             return 'male'
         elif self.name in FEMALE_WORDS:
+            logger.debug('Gender \'%s\' is \'%s\'', self.name, 'female')
             return 'female'
 
         # TODO: if name is "Mr Jones" it should be obvious it's a male
@@ -216,11 +229,14 @@ class Person(Entity):
         name_split = self.dirty_name.split(' ')
 
         if name_split[0] in EXTRA_MALE_NAMES:
+            logger.debug('Gender \'%s\' is \'%s\'', self.name, 'male')
             return 'male'
         elif name_split[0] in EXTRA_FEMALE_NAMES:
+            logger.debug('Gender \'%s\' is \'%s\'', self.name, 'female')
             return 'female'
 
         if name_split[0].lower() in GENDER_PREFIXES.keys():
+            logger.debug('Gender \'%s\' is \'%s\'', self.name, GENDER_PREFIXES[name_split[0].lower()])
             return GENDER_PREFIXES[name_split[0].lower()]
 
         if '.' in name_split[0]:
@@ -239,12 +255,19 @@ class Person(Entity):
         if gender in {'unknown', 'andy'}:
             gender = None
 
+        if gender:
+            logger.debug('Gender \'%s\' is \'%s\'', self.name, gender)
+        else:
+            logger.debug('Cannot get gender for \'%s\'', self.name)
+
         return gender
 
     @property
     def is_trustworthy(self):
         # TODO: can do some more bits from the name I guess
-        return self.trustworthy or self.references > 2
+        is_trustworthy = self.trustworthy or self.references > 2
+        logger.debug('Person \'%s\' trustworthy: %s', self.name, is_trustworthy)
+        return is_trustworthy
 
     @property
     def name(self):

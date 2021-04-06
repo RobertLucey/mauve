@@ -4,6 +4,7 @@ from collections import (
 )
 import os
 import pickle
+import logging
 
 from cached_property import cached_property
 
@@ -51,6 +52,8 @@ from mauve import (
 )
 
 from mauve.models.sentence import Sentence
+
+logger = logging.getLogger('mauve')
 
 
 class TextBody(GenericObject, Tagger):
@@ -143,7 +146,11 @@ class TextBody(GenericObject, Tagger):
                 included_profanities.append(profanity)
 
         div = len(words) / 10000.
-        return sum([words.count(profanity) for profanity in included_profanities]) / div
+        return sum(
+            [
+                words.count(profanity) for profanity in included_profanities
+            ]
+        ) / div
 
     @property
     def has_content(self):
@@ -170,9 +177,8 @@ class TextBody(GenericObject, Tagger):
                     'r',
                     encoding='utf8'
                 ).read()
-            except Exception as ex:
-                print('BAD FILE: %s' % (self.content_path))
-                print(ex)
+            except (IOError, UnicodeDecodeError) as ex:
+                logger.error('BAD FILE %s: %s', self.content_path, ex)
         return content
 
     @cached_property
@@ -211,7 +217,7 @@ class TextBody(GenericObject, Tagger):
         try:
             return replace_phrases(self.content)
         except Exception as ex:
-            print('Skipping content: %s' % (ex))
+            logger.warning('Skipping content: %s' % (ex))
 
     @cached_property
     def assignments(self):
@@ -230,6 +236,11 @@ class TextBody(GenericObject, Tagger):
 
         :return: list of Speech objects
         """
+
+        if HE_SHE_SPEAKER_GUESS:
+            logger.info('Using experimental HE_SHE_SPEAKER_GUESS in speech extraction')
+        if SPEAKER_PLACEMENT_GUESS:
+            logger.info('Using experimental SPEAKER_PLACEMENT_GUESS in speech extraction')
 
         speech = {
             line.line_no: line.get_speech() for line in self.lines
@@ -470,7 +481,7 @@ class TextBody(GenericObject, Tagger):
                 pickle.dump(data, f_pickle)
                 f_pickle.close()
             except Exception as ex:
-                print('Could not open file %s: %s' % (self.all_tokens_pickle_path, ex))
+                logger.error('Could not open file %s: %s' % (self.all_tokens_pickle_path, ex))
 
         return data
 
@@ -495,7 +506,7 @@ class TextBody(GenericObject, Tagger):
                 pickle.dump(data, f_pickle)
                 f_pickle.close()
             except Exception as ex:
-                print('Could not open file %s: %s' % (self.word_tokens_pickle_path, ex))
+                logger.error('Could not open file %s: %s' % (self.word_tokens_pickle_path, ex))
 
         return data
 
@@ -514,7 +525,7 @@ class TextBody(GenericObject, Tagger):
     @cached_property
     def dictionary_words(self):
         return [
-            w for w in self.words if w.lower() in ENG_WORDS and w.isalpha()
+            word for word in self.words if word.lower() in ENG_WORDS and word.isalpha()
         ]
 
     @property
@@ -559,11 +570,12 @@ class TextBody(GenericObject, Tagger):
             )
         )
 
-    def guess_speech_quote(self, content):
+    def guess_speech_quote(self, content, default='"'):
         """
         Given a piece of text guess what type of quote is used for speech
 
         :param content: str
+        :kwarg default: what to give back if couldn't make a good guess
         """
         speech_words = []
         for line in content.split('\n'):
@@ -576,7 +588,9 @@ class TextBody(GenericObject, Tagger):
         try:
             return list(Counter(speech_words).items())[0][0]
         except:
-            return '"'
+            # Likely is no speech but give back something to be nice
+            logger.debug('Could not guess speech quotes, assuming \'%s\'', default)
+            return default
 
     def clean_content(self, content):
         """
@@ -585,7 +599,14 @@ class TextBody(GenericObject, Tagger):
 
         :param content: str
         """
-        content = replace_contractions(content).replace('’s', '\'s')
-        if self.guess_speech_quote(content) != '’':
+        content = replace_contractions(content)
+        guessed_quote = self.guess_speech_quote(content)
+        if guessed_quote != '’':
+            logger.debug('Speech quote guessed is %s so dangerously modifying ’ to \'' % (guessed_quote))
             content = content.replace('’', '\'')
+        else:
+            # Just to be safe don't change all the single quotes, just change
+            # the ones that are posessive (FIXME: deal with the others)
+            logger.debug('Speech quote guessed is %s so only changing posessives ’s' % (guessed_quote))
+            content = content.replace('’s', '\'s')
         return content

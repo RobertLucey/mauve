@@ -3,6 +3,7 @@ import random
 import pickle
 from functools import lru_cache
 from itertools import chain
+import logging
 
 import spacy
 import nltk
@@ -33,6 +34,8 @@ from mauve.constants import (
 STEMMER = PorterStemmer()
 LEM = WordNetLemmatizer()
 
+logger = logging.getLogger('mauve')
+
 
 def loose_exists(filepath):
     """
@@ -40,7 +43,10 @@ def loose_exists(filepath):
     :param filepath: filepath to get a related file of
     :return: Bool if a file or related file exists
     """
-    return get_loose_filepath(filepath) is not None
+    loose_exists = get_loose_filepath(filepath) is not None
+    if not loose_exists:
+        logger.warning('Could not get loose filepath for \'%s\'', filepath)
+    return loose_exists
 
 
 def get_loose_filepath(filepath):
@@ -147,7 +153,7 @@ def get_metadata(source='goodreads'):
                 tmp['original_filename'] = real_filename
                 data.append(tmp)
             except Exception as ex:
-                print('Problematic file: %s %s' % (filename, ex))
+                logger.warning('Problematic file: %s %s' % (filename, ex))
     elif source == 'local_text':
         data_dir = TEXT_PATH
 

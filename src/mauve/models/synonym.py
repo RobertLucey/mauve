@@ -1,8 +1,11 @@
 from functools import lru_cache
 from collections import defaultdict
 import operator
+import logging
 
 from mauve.settings import WORDNET_REPLACE
+
+logger = logging.getLogger('mauve')
 
 
 SYNONYM_SKIP_WORDS = ['please', 'sentence', 'I', 'threshold', 'jobs', 'demonstrate', 'look', 'await', 'side', 'lines', 'sent', 'happen', 'had', 'standards', 'bits', 'reflected', 'country', 'make', 'been', 'doing', 'attempt', 'then', 'grow', 'parallel', 'resident', 'whip', 'village', 'expanded', 'notice', 'do', 'march', 'getting', 'playing', 'hit', 'steps', 'insert', 'confiscated', 'nine', 'programme', 'quickly', 'marks', 'concerns', 'site', 'tenders', 'child-care']
@@ -66,8 +69,8 @@ class Synonym:
                 if text.islower() and not word.islower():
                     word = word.lower()
 
-                #if word != text:
-                #    print('%s %s' % (text, word))
+                if word != text:
+                    logger.debug('Synonym \'%s\' => \'%s\'', text, word)
 
                 return word
             except:
