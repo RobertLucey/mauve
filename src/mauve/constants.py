@@ -158,7 +158,7 @@ OIREACHTAS_DIR = os.path.join(BASE_DATA_PATH, 'oireachtas')
 
 
 SENTENCE_TERMINATORS = {'.', '?', '!'}
-SPEECH_QUOTES = {'`', '‘', '"', '``', '”', '“'}
+SPEECH_QUOTES = {'`', '‘', '"', '``', '”', '“', '’'}
 EXTENDED_PUNCTUATION = list(string.punctuation) + list(SPEECH_QUOTES)
 
 

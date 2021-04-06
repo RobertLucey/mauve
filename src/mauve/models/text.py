@@ -30,6 +30,8 @@ from mauve.utils import (
 )
 from mauve.names import NAMES
 from mauve.constants import (
+    SPEECH_WORDS,
+    SPEECH_QUOTES,
     BORING_WORDS,
     ENG_WORDS,
     TOKEN_VERSION,
@@ -153,7 +155,7 @@ class TextBody(GenericObject, Tagger):
 
     @cached_property
     def content(self):
-        return replace_contractions(self.basic_content)
+        return self.clean_content(self.basic_content)
 
     @cached_property
     def raw_content(self):
@@ -263,13 +265,16 @@ class TextBody(GenericObject, Tagger):
                                 except:
                                     pass
                         else:
-                            if HE_SHE_SPEAKER_GUESS:
-                                if speech_item.speaker.name.lower() == 'he':
-                                    if speakers[-2].gender == 'male':
-                                        speech_item.speaker = speakers[-2]
-                                elif speech_item.speaker.name.lower() == 'she':
-                                    if speakers[-2].gender == 'female':
-                                        speech_item.speaker = speakers[-2]
+                            try:
+                                if HE_SHE_SPEAKER_GUESS:
+                                    if speech_item.speaker.name.lower() == 'he':
+                                        if speakers[-2].gender == 'male':
+                                            speech_item.speaker = speakers[-2]
+                                    elif speech_item.speaker.name.lower() == 'she':
+                                        if speakers[-2].gender == 'female':
+                                            speech_item.speaker = speakers[-2]
+                            except:
+                                pass
 
         return rflatten(list(speech.values()))
 
@@ -553,3 +558,34 @@ class TextBody(GenericObject, Tagger):
                 ]
             )
         )
+
+    def guess_speech_quote(self, content):
+        """
+        Given a piece of text guess what type of quote is used for speech
+
+        :param content: str
+        """
+        speech_words = []
+        for line in content.split('\n'):
+            if any([word in line for word in SPEECH_WORDS]):
+                speech_words.extend(
+                    [
+                        l for l in list(line) if l in SPEECH_QUOTES
+                    ]
+                )
+        try:
+            return list(Counter(speech_words).items())[0][0]
+        except:
+            return '"'
+
+    def clean_content(self, content):
+        """
+        Try to take weird and cumbersome stuff out of the text.
+        Mainly around contractions and quoting to make things less ambiguous
+
+        :param content: str
+        """
+        content = replace_contractions(content).replace('’s', '\'s')
+        if self.guess_speech_quote(content) != '’':
+            content = content.replace('’', '\'')
+        return content

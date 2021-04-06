@@ -210,7 +210,7 @@ class TestUtils(TestCase):
         content = '''
 Hallward painted away with that marvellous bold touch of his, that had the true refinement and perfect delicacy that in art, at any rate comes only from strength.  He was unconscious of the silence.
 "Basil, I am tired of standing," cried Dorian Gray suddenly.  "I must go out and sit in the garden.  The air is stifling here."
-"My dear fellow, I am so sorry.  When I am painting, I can't think of anything else.  But you never sat better.  You were perfectly still.  And I have caught the effect I wanted--the half-parted lips and the bright look in the eyes.  I don't know what Harry has been saying to you, but he has certainly made you have the most wonderful expression.  I suppose he has been paying you compliments.  You mustn't believe a word that he says."
+"My dear fellow, I am so sorry.  When I am painting, I can not think of anything else.  But you never sat better.  You were perfectly still.  And I have caught the effect I wanted--the half-parted lips and the bright look in the eyes.  I do not know what Harry has been saying to you, but he has certainly made you have the most wonderful expression.  I suppose he has been paying you compliments.  You must not believe a word that he says."
         '''
         self.assertEquals(
             quote_aware_sent_tokenize(content),
@@ -219,7 +219,7 @@ Hallward painted away with that marvellous bold touch of his, that had the true 
                 'He was unconscious of the silence.',
                 '"Basil, I am tired of standing," cried Dorian Gray suddenly.',
                 '"I must go out and sit in the garden. The air is stifling here."',
-                '"My dear fellow, I am so sorry. When I am painting, I can\'t think of anything else. But you never sat better. You were perfectly still. And I have caught the effect I wanted--the half-parted lips and the bright look in the eyes. I don\'t know what Harry has been saying to you, but he has certainly made you have the most wonderful expression. I suppose he has been paying you compliments. You mustn\'t believe a word that he says."'
+                '"My dear fellow, I am so sorry. When I am painting, I can not think of anything else. But you never sat better. You were perfectly still. And I have caught the effect I wanted--the half-parted lips and the bright look in the eyes. I do not know what Harry has been saying to you, but he has certainly made you have the most wonderful expression. I suppose he has been paying you compliments. You must not believe a word that he says."'
             ]
         )
 

@@ -152,6 +152,55 @@ CONTRACTION_MAP = {  # ’ to be added to these in replacement of '
     'you\'ll': 'you will',
     'you\'re': 'you are',
     'you\'ve': 'you have',
+
+
+    # some common ones since programmatically is iffy
+    # can generate and validate pretty easy
+
+    'goin\'': 'going',
+    'havin\'': 'having',
+    'nuttin\'': 'nothing',
+    'tryin\'': 'trying',
+    'tellin\'': 'telling',
+    'suckin\'': 'sucking',
+    'givin\'': 'giving',
+    'leavin\'': 'leaving',
+    'shivin\'': 'shiving',
+    'pushin\'': 'pushing',
+    'countin\'': 'counting',
+    'sittin\'': 'sitting',
+    'makin\'': 'making',
+    'speakin\'': 'speaking',
+    'lyin\'': 'lying',
+    'jabberin\'': 'jabbering',
+    'comin\'': 'coming',
+    'mixin\'': 'mixing',
+    'dinin\'': 'dining',
+    'indulgin\'': 'indilging',
+    'laughin\'': 'laughing',
+    'singin\'': 'singing',
+    'fuckin\'': 'ficking',
+    'lettin\'': 'letting',
+    'bitchin\'': 'bitching',
+    'nothin\'': 'nothing',
+    'lookin\'': 'looking',
+    'drinkin\'': 'drinking',
+    'swimmin\'': 'swimming',
+    'blowin\'': 'blowing',
+    'changin\'': 'changing',
+    'somethin\'': 'something',
+    'relaxin\'': 'relaxing',
+    'howlin\'': 'howling',
+    'groovin\'': 'grooving',
+    'swingin\'': 'swinging',
+    'freakin\'': 'freaking',
+    'killin\'': 'killing',
+    'keepin\'': 'keeping',
+    'thinkin\'': 'thinking',
+    'creepin\'': 'creeping',
+    'believin\'': 'believing',
+    'fookin\'': 'fucking',
+    'shittin\'': 'shitting',
 }
 
 
@@ -174,4 +223,5 @@ def replace_contractions(content):
         for appos in APPROSTROPHES:
             find = k.replace('\'', appos)
             content = content.replace(find, replacement)
+
     return content
