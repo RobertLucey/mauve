@@ -6,8 +6,6 @@ import os
 import pickle
 import logging
 
-import numpy as np
-
 from cached_property import cached_property
 
 from langdetect import detect as langdetect
@@ -139,9 +137,8 @@ class TextBody(GenericObject, Tagger):
         :return: How profane the current piece of text is
         :rtype: float
         """
-
         # Only include words that are in any profanity
-        words = [w.lower() for w in self.words if w in PROFANITY_WORDS]
+        words = [w.lower() for w in self.words if w.lower() in PROFANITY_WORDS]
 
         words_set = set(words)
 
@@ -629,11 +626,11 @@ class TextBody(GenericObject, Tagger):
         content = replace_contractions(content)
         guessed_quote = self.guess_speech_quote(content)
         if guessed_quote != '’':
-            logger.debug('Speech quote guessed is %s so dangerously modifying ’ to \'' % (guessed_quote))
+            logger.debug('Speech quote guessed is %s so dangerously modifying ’ to \'', guessed_quote)
             content = content.replace('’', '\'')
         else:
             # Just to be safe don't change all the single quotes, just change
             # the ones that are posessive (FIXME: deal with the others)
-            logger.debug('Speech quote guessed is %s so only changing posessives ’s' % (guessed_quote))
+            logger.debug('Speech quote guessed is %s so only changing posessives ’s', guessed_quote)
             content = content.replace('’s', '\'s')
         return content
