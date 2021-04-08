@@ -276,9 +276,12 @@ def replace_contractions(content):
         >>> replace_contractions('y\'all willn\'t smack ol\' maw')
         'you all will not smack old maw'
     """
-    for k, replacement in CONTRACTION_MAP.items():
-        for appos in APPROSTROPHES:
+    for appos in APPROSTROPHES:
+        if appos not in content:
+            continue
+        for k, replacement in CONTRACTION_MAP.items():
             find = k.replace('\'', appos)
-            content = content.replace(find, replacement)
+            if find in content:
+                content = content.replace(find, replacement)
 
     return content
