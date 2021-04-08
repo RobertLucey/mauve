@@ -6,6 +6,8 @@ import os
 import pickle
 import logging
 
+import numpy as np
+
 from cached_property import cached_property
 
 from langdetect import detect as langdetect
@@ -31,12 +33,14 @@ from mauve.utils import (
 )
 from mauve.names import NAMES
 from mauve.constants import (
+    PROFANITY_WORDS,
     SPEECH_WORDS,
     SPEECH_QUOTES,
     BORING_WORDS,
     ENG_WORDS,
     TOKEN_VERSION,
     PROFANITY_LIST,
+    PROFANITY_SET,
     SENTENCE_TERMINATORS,
     EXTENDED_PUNCTUATION
 )
@@ -135,17 +139,40 @@ class TextBody(GenericObject, Tagger):
         :return: How profane the current piece of text is
         :rtype: float
         """
-        words = [w.lower() for w in self.words]
-        lower_content = self.raw_content.lower()
+
+        # Only include words that are in any profanity
+        words = [w.lower() for w in self.words if w in PROFANITY_WORDS]
+
+        words_set = set(words)
+
+        reversed_words = words.copy()
+        reversed_words.reverse()
+
+        merged_words = 0
         included_profanities = []
         for profanity in sorted(PROFANITY_LIST):
-            if profanity not in lower_content:
-                continue
-            words = replace_sub(words, profanity.split(), [profanity])
-            if profanity in words:
-                included_profanities.append(profanity)
+            profanity_words = set(profanity.split())
 
-        div = len(words) / 10000.
+            if words_set - set(profanity_words) == words_set:
+                continue
+
+            try:
+                pre = len(words)
+                words = replace_sub(
+                    words,
+                    profanity.split(),
+                    [profanity],
+                    start=words.index(profanity.split()[0]) - 10,
+                    end=len(words) - reversed_words.index(profanity.split()[0]) + 10
+                )
+                merged_words += len(words) - pre
+
+                if profanity in words:
+                    included_profanities.append(profanity)
+            except:
+                pass
+
+        div = (len(self.words) + merged_words) / 10000.
         return sum(
             [
                 words.count(profanity) for profanity in included_profanities

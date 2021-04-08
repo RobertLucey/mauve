@@ -258,14 +258,14 @@ def lower(var):
         return var
 
 
-def find_sub_idx(original, repl_list, start=0):
+def find_sub_idx(original, repl_list, start=0, end=9999999999999):
     length = len(repl_list)
-    for idx in range(start, len(original)):
-        if original[idx:idx + length] == repl_list:
-            return idx, idx + length
+    for index in range(start, min(end, len(original))):
+        if original[index:index + length] == repl_list:
+            return index, index + length
 
 
-def replace_sub(original, repl_list, new_list):
+def replace_sub(original, repl_list, new_list, start=0, end=999999999999):
     """
     Replace a subset of a list with some other subset
 
@@ -274,8 +274,8 @@ def replace_sub(original, repl_list, new_list):
         [1,5,6,4]
     """
     length = len(new_list)
-    idx = 0
-    for start, end in iter(lambda: find_sub_idx(original, repl_list, idx), None):
+    idx = start
+    for start, end in iter(lambda: find_sub_idx(original, repl_list, start=idx, end=end), None):
         original[start:end] = new_list
         idx = start + length
     return original

@@ -6,3 +6,9 @@ PROFANITY_LIST_RAW = set(['2 girls 1 cup', 'abbo', 'abeed', 'acrotomophilia', 'a
 PROFANITY_LIST = PROFANITY_LIST_RAW
 
 PROFANITY_TREE = create(PROFANITY_LIST)
+
+PROFANITY_SET = set(PROFANITY_LIST)
+
+PROFANITY_WORDS = []
+for p in PROFANITY_LIST:
+    PROFANITY_WORDS.extend(p.split())

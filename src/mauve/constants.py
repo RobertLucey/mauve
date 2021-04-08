@@ -2,7 +2,11 @@ import os
 import json
 import string
 
-from mauve.profanity import PROFANITY_LIST
+from mauve.profanity import (
+    PROFANITY_LIST,
+    PROFANITY_SET,
+    PROFANITY_WORDS
+)
 
 import nltk
 from nltk.corpus import words
