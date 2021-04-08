@@ -271,10 +271,13 @@ class Book(TextBody):
             ][0:num_to_get]
         )
 
+    @cached_property
+    def _all_tokens_count(self):
+        return Counter([SIMPLE_TOKEN_MAP.get(m[0], 'NA') for m in self.all_tokens])
+
     def get_token_type_score(self, token_type):
         assert (token_type in SIMPLE_TOKEN_MAP.values())
-        div = self.word_count / 10000.
-        return len([m for m in self.all_tokens if SIMPLE_TOKEN_MAP[m[1]] == token_type]) / div
+        return self._all_tokens_count[token_type] / (self.word_count / 10000)
 
     def get_loudness_score(self):
         return str_count_multi(self.words, LOUD_WORDS) / (self.word_count / 10000.)
