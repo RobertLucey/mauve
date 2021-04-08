@@ -71,7 +71,7 @@ def clean_name(name):
     mod_name = mod_name.translate(PERSON_TRANSLATOR).replace('\n', ' ').replace('  ', ' ').strip()
 
     if name != mod_name:
-        logging.debug('Cleaned name \'%s\' => \'%s\'', name, mod_name)
+        logger.debug('Cleaned name \'%s\' => \'%s\'', name, mod_name)
 
     return mod_name
 
