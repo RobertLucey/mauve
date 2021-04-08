@@ -111,6 +111,7 @@ def get_file_content(filepath):
     :param filepath: Filepath to read from
     :return: Depending on the ext it may be a pickled obj / str
     """
+    filepath = get_loose_filepath(filepath)
     ext = os.path.splitext(filepath)[1]
     if ext == '.txt':
         return open(filepath, 'r').read()
