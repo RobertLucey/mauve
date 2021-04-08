@@ -1,4 +1,16 @@
 import logging
+
+formatter = logging.Formatter(
+    fmt='%(asctime)s - %(levelname)s - %(module)s - %(message)s'
+)
+
+handler = logging.StreamHandler()
+handler.setFormatter(formatter)
+
+logger = logging.getLogger('mauve')
+logger.setLevel(logging.DEBUG)
+logger.addHandler(handler)
+
 from collections import defaultdict
 import random
 
@@ -11,18 +23,6 @@ import nltk
 from mauve.wps import WPS
 
 from mauve.models.synonym import Synonym
-
-
-formatter = logging.Formatter(
-    fmt='%(asctime)s - %(levelname)s - %(module)s - %(message)s'
-)
-
-handler = logging.StreamHandler()
-handler.setFormatter(formatter)
-
-logger = logging.getLogger('mauve')
-logger.setLevel(logging.DEBUG)
-logger.addHandler(handler)
 
 
 try:
