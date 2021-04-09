@@ -273,7 +273,7 @@ class Book(TextBody):
 
     @cached_property
     def _all_tokens_count(self):
-        return Counter([SIMPLE_TOKEN_MAP.get(m[0], 'NA') for m in self.all_tokens])
+        return Counter([SIMPLE_TOKEN_MAP.get(m[1], 'NA') for m in self.all_tokens])
 
     def get_token_type_score(self, token_type):
         assert (token_type in SIMPLE_TOKEN_MAP.values())
