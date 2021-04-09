@@ -5,7 +5,7 @@ from mauve import GENDER_DETECTOR
 from mauve.utils import replace_phrases
 from mauve.models.entity import Entity
 from mauve.models.generic import GenericObjects
-from mauve.names import NAMES
+from mauve.constants.names import NAMES
 from mauve.constants import (
     EXTRA_MALE_NAMES,
     EXTRA_FEMALE_NAMES,

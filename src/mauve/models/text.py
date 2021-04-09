@@ -29,7 +29,7 @@ from mauve.utils import (
     quote_aware_sent_tokenize,
     replace_phrases
 )
-from mauve.names import NAMES
+from mauve.constants.names import NAMES
 from mauve.constants import (
     PROFANITY_WORDS,
     SPEECH_WORDS,
