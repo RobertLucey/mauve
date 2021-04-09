@@ -51,6 +51,23 @@ def generate_model(
     train_ratio=0.8,
     epochs=10
 ):
+    """
+
+    :param model: An init'd Doc2Vec model
+    :param tagged_docs: class of tagged docs.
+        Books given to this will be split by some tag.
+        Example: NationalityTaggedDocs will split books into the
+                 nationality of the author
+    :kwarg num_books: The number of books to have processed in order to
+        move onto training
+    :kwarg equalize_group_contents: Ensure that the number of items in each
+        tag are proportional. Will chop the excess from groups with more
+        items than the minimum
+    :kwarg classifier: Classifier object, uses a flight of classifiers if
+        none specified
+    :kwarg train_ratio: What proportion to use for training
+    :kwarg epochs: How many epochs to train whatever the given model is
+    """
 
     logger.debug('Start loading content')
     processed = 0

@@ -47,12 +47,19 @@ def get_train_test(
                 class_group_map[list(grouped_vecs.keys()).index(group_type.split('_')[0])] = group_type.split('_')[0]
                 next_idx += 1
 
-        return arrays, labels, class_group_map
+        return (
+            arrays,
+            labels,
+            class_group_map
+        )
 
     logger.debug('Splitting training / test data')
     if equalize_group_contents:
         min_count = min([len(v) for v in grouped_vecs.values()])
-        logger.debug('Equalizing lengths of input groups. Setting min to %s', min_count)
+        logger.debug(
+            'Equalizing lengths of input groups. Setting min to %s',
+            min_count
+        )
         grouped_vecs = {
             k: sorted(v)[0:min_count] for k, v in grouped_vecs.items()
         }
@@ -69,4 +76,10 @@ def get_train_test(
     train_arrays, train_labels, _ = format_arrays_labels('train')
     test_arrays, test_labels, class_group_map = format_arrays_labels('test')
 
-    return train_arrays, train_labels, test_arrays, test_labels, class_group_map
+    return (
+        train_arrays,
+        train_labels,
+        test_arrays,
+        test_labels,
+        class_group_map
+    )

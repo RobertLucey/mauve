@@ -5,14 +5,21 @@ from collections import defaultdict
 from gensim import utils
 from gensim.models.doc2vec import TaggedDocument
 
-from mauve.names import NAMES
+from mauve.constants.names import NAMES
 from mauve.utils import round_down, flatten
-from mauve.constants import BORING_WORDS, ENG_WORDS, EXTENDED_PUNCTUATION
+from mauve.constants import (
+    BORING_WORDS,
+    ENG_WORDS,
+    EXTENDED_PUNCTUATION
+)
 
 logger = logging.getLogger('mauve')
 
 
 class Safety:
+    """
+    Just a general filter for all books
+    """
 
     def should_include_book(self, book):
         if self.get_group_name(book) is None:
@@ -29,6 +36,11 @@ class Safety:
 class BaseTaggedDocs(object):
 
     def __init__(self, min_per_group=10):
+        """
+
+        :kwarg min_per_group: The minimum required books for the
+            entire tag / group to be processed
+        """
         self.books = []
         self.docs = []
         self.num_books = 0
