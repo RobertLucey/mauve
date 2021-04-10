@@ -1,16 +1,15 @@
 import logging
-
-from collections import defaultdict
 import random
-
-import spacy
 
 import gender_guesser.detector as gender
 from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
 
-import nltk
-from mauve.wps import WPS
+import spacy
 
+import nltk
+from nltk.tag.perceptron import PerceptronTagger
+
+from mauve.wps import WPS
 from mauve.models.synonym import Synonym
 
 
@@ -26,57 +25,67 @@ logger.setLevel(logging.DEBUG)
 logger.addHandler(handler)
 
 
-try:
-    nltk.data.find('corpora/words')
-except LookupError:  # pragma: nocover
-    nltk.download('words')
+def load_nltk():
+    try:
+        nltk.data.find('corpora/words')
+    except LookupError:  # pragma: nocover
+        nltk.download('words')
 
-try:
-    nltk.data.find('corpora/wordnet')
-except LookupError:  # pragma: nocover
-    nltk.download('wordnet')
+    try:
+        nltk.data.find('corpora/wordnet')
+    except LookupError:  # pragma: nocover
+        nltk.download('wordnet')
 
-try:
-    nltk.data.find('tokenizers/punkt')
-except LookupError:  # pragma: nocover
-    nltk.download('punkt')
+    try:
+        nltk.data.find('tokenizers/punkt')
+    except LookupError:  # pragma: nocover
+        nltk.download('punkt')
 
-try:
-    nltk.data.find('taggers/averaged_perceptron_tagger')
-except LookupError:  # pragma: nocover
-    nltk.download('averaged_perceptron_tagger')
+    try:
+        nltk.data.find('taggers/averaged_perceptron_tagger')
+    except LookupError:  # pragma: nocover
+        nltk.download('averaged_perceptron_tagger')
+
+
+def load_spacy():
+    try:
+        ENCORE = spacy.load('en_core_web_sm')
+    except:  # pragma: nocover
+        from spacy.cli import download
+        download('en')
+
+    try:
+        ENCORE_LG = spacy.load('en_core_web_lg')
+    except:  # pragma: nocover
+        from spacy.cli import download
+        download('en_core_web_lg')
+
+
+load_nltk()
+load_spacy()
 
 
 GENDER_DETECTOR = gender.Detector()
 VADER = SentimentIntensityAnalyzer()
-try:
-    ENCORE = spacy.load('en_core_web_sm')
-except:  # pragma: nocover
-    from spacy.cli import download
-    download('en')
-    ENCORE = spacy.load('en_core_web_sm')
 
+ENCORE = spacy.load('en_core_web_sm')
 ENCORE.max_length = 2_000_000
 
-try:
-    ENCORE_LG = spacy.load('en_core_web_lg')
-except:  # pragma: nocover
-    from spacy.cli import download
-    download('en_core_web_lg')
-    ENCORE_LG = spacy.load('en_core_web_lg')
-
+ENCORE_LG = spacy.load('en_core_web_lg')
 ENCORE_LG.max_length = 2_000_000
 
 WPS = WPS(print_rate=10000)
 SYNONYM = Synonym()
 
-from nltk.tag.perceptron import PerceptronTagger
-
-
 TAGGER = PerceptronTagger()
 
 
 class Tagger():
+    """
+    A pos_tag tagger that caches a fair bit
+
+    Is tagger contextual? If not this isn't safe... TODO test
+    """
 
     def pos_tag(self, tokens):
         if tokens == ['']:
