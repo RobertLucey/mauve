@@ -155,6 +155,7 @@ CLEAN_EPUB_PATH = os.path.join(BASE_DATA_PATH, 'clean_books')
 OIREACHTAS_DIR = os.path.join(BASE_DATA_PATH, 'oireachtas')
 
 
+APOSTROPHES = ['’', '\'']
 SENTENCE_TERMINATORS = {'.', '?', '!'}
 SPEECH_QUOTES = {'`', '‘', '"', '``', '”', '“', '’'}
 EXTENDED_PUNCTUATION = list(string.punctuation) + list(SPEECH_QUOTES)
