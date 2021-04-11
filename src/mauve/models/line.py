@@ -1,5 +1,5 @@
 from mauve.models.sentence import Sentence
-
+from mauve.constants.names import NAMES
 from mauve.models.generic import (
     GenericObject,
     GenericObjects
@@ -35,7 +35,7 @@ class Line(GenericObject):
                 if best_name is None and speech_item.speaker.name != '':
                     best_name = speech_item.speaker.name
                 elif speech_item.speaker.name != '':
-                    if best_name[0].islower() and speech_item.speaker.name.isupper():
+                    if speech_item.speaker.name in NAMES and best_name not in NAMES:
                         best_name = speech_item.speaker.name
             for speech_item in speech_parts:
                 speech_item.speaker = Person(name=best_name)

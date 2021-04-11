@@ -41,6 +41,12 @@ def clean_name(name):
     :return: A name with unnecessary parts removed
     :rtype: str
     """
+
+    whitelisted_names = {'I', 'he', 'she', 'He', 'She'}
+    if name in whitelisted_names:
+        logger.debug('Not cleaning name \'%s\'', name)
+        return name
+
     mod_name = ' '.join(
         [
             c for c in name.split(' ') if all(
