@@ -2,7 +2,7 @@ import difflib
 import logging
 
 from mauve import GENDER_DETECTOR
-from mauve.utils import replace_phrases
+from mauve.phrases import replace_phrases
 from mauve.models.entity import Entity
 from mauve.models.generic import GenericObjects
 from mauve.constants.names import NAMES

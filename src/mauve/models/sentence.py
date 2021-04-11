@@ -5,24 +5,22 @@ import logging
 import textacy.ke
 import nltk
 
+from mauve import SYNONYM
 from mauve.structure.assignment import extract_assignments
 from mauve.structure.conditional import extract_conditionals
 from mauve.models.speech import extract_speech
-
 from mauve.utils import (
     make_spacy_doc,
     replace_sub,
-    get_en_core_web_sm,
-    replace_phrases
+    get_en_core_web_sm
 )
-
+from mauve.phrases import replace_phrases
 from mauve.models.deptree import (
     DepTree,
     DepNode
 )
 from mauve.models.person import extract_people
 from mauve.models.segment import Segment
-from mauve import SYNONYM
 
 logger = logging.getLogger('mauve')
 

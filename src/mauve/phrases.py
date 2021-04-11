@@ -1,77 +1,49 @@
-from spacy.matcher import Matcher
+import spacy
 
-from mauve.structure.conditional import CONDITIONAL_LIST
-from mauve import ENCORE_LG
-from mauve.constants import REPLACEMENTS
+from mauve.utils import get_en_core_web_sm
 
 
-M_TOOL = Matcher(ENCORE_LG.vocab)
+def replace_phrases(text):
+    """
+    Replace words with something more succinct or easier to process
+    Sort of like a lemma for many words but very bad
 
+    Custom words like "foreign affairs" for oirechtas which joins the
+    words by an underscore since whatever is the actual way of doing
+    this by category is too passive
 
+    Usage:
+        >>> replace_phrases('Is this in regard to something?')
+        'Is this regarding something'
+    """
+    doc = get_en_core_web_sm(text)
 
-GOV_BODIES = [
-    'agriculture, food and the marine',
-    'children, equality, disability, integration and youth',
-    'defence',
-    'education',
-    'enterprise, trade and employment',
-    'finance',
-    'foreign affairs',
-    'further and higher education, research, innovation and science',
-    'health',
-    'housing, local government and heritage',
-    'local government',  # still bad?
-    'justice',
-    'public expenditure and reform',
-    'rural and community development',
-    'social protection',
-    'the environment, climate and communications',
-    'the taoiseach',
-    'tourism, culture, arts, gaeltacht, sport and media',
-    'transport',
-    'agriculture',
-    'enterprise, trade and employment',
-    'tourism, sport and recreation',
-    'industry and commerce',
-    'the environment'
-]
+    from mauve.constants.phrases import PHRASE_MATCHER
+    from mauve.constants import REPLACEMENTS
 
-JOINERS = {
-    'department of {}': GOV_BODIES,
-    'minister for {}': GOV_BODIES,
-    'minister of {}': GOV_BODIES,
-}
+    phrase_matches = PHRASE_MATCHER(doc)
 
-CONDITIONALS = {c: c.replace(' ', '_') for c in CONDITIONAL_LIST}
+    replacements = []
 
+    for _, start, end in phrase_matches:
+        span = doc[start:end]
+        replacements.append(span)
 
-PHRASES = []
+    replacements = [f.text for f in spacy.util.filter_spans(replacements)]
 
+    text = doc.text
 
-for j, v in JOINERS.items():
-    items = [j.format(i) for i in v]
-    PHRASES.extend(items)
+    for name in replacements:
+        text = text.replace(
+            name,
+            name.replace(' ', '_')
+        )
 
+    for name in REPLACEMENTS:
+        if name in REPLACEMENTS:
+            text = text.replace(
+                name,
+                REPLACEMENTS[name]
+            )
 
-PHRASES.extend(CONDITIONALS)
-
-for idiom in PHRASES:
-    M_TOOL.add(
-        'QBF',
-        None,
-        [
-            {
-                'LOWER': i.lower()
-            } for i in REPLACEMENTS
-        ])
-
-
-for idiom in PHRASES:
-    M_TOOL.add(
-        'QBF',
-        None,
-        [
-            {
-                'LOWER': i.lower()
-            } for i in idiom.split(' ')
-        ])
+    return text

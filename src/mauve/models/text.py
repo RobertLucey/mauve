@@ -25,10 +25,8 @@ from mauve.utils import (
     get_loose_filepath,
     get_file_content
 )
-from mauve.utils import (
-    quote_aware_sent_tokenize,
-    replace_phrases
-)
+from mauve.utils import quote_aware_sent_tokenize
+from mauve.phrases import replace_phrases
 from mauve.constants.names import NAMES
 from mauve.constants import (
     PROFANITY_WORDS,

@@ -1,34 +1,16 @@
-from cached_property import cached_property
-
-import textacy.ke
-import nltk
-
 from mauve.models.sentence import Sentence
 
-from mauve.constants import (
-    SPEECH_QUOTES,
-    EXTENDED_PUNCTUATION,
-    SPEECH_WORDS,
-    SPEAKERS
+from mauve.models.generic import (
+    GenericObject,
+    GenericObjects
 )
-from mauve.structure.assignment import extract_assignments
-from mauve.structure.conditional import extract_conditionals
-from mauve.models.speech import extract_speech
-
-from mauve.models.generic import GenericObject, GenericObjects
 from mauve.utils import (
     rflatten,
-    replace_sub,
-    get_en_core_web_sm,
-    replace_phrases,
     quote_aware_sent_tokenize,
 )
 
-from mauve.models.deptree import DepTree, DepNode
 from mauve.models.person import Person
-from mauve.models.segment import Segment
-from mauve.models.speech import Speech, extract_speech
-from mauve import SYNONYM
+from mauve.models.speech import extract_speech
 
 # Do text extraction by line since by sentence cuts ends off
 
