@@ -12,7 +12,7 @@ from mauve.learn.tagged_docs import BaseTaggedDocs
 
 class AlwaysIncludeBaseTaggedDocs(BaseTaggedDocs):
 
-    def should_include_book(self, book):
+    def should_include(self, book):
         return True
 
     def get_group_name(self, book):
@@ -23,12 +23,12 @@ class TestBaseTaggedDocs(TestCase):
 
     def test_load(self):
         base = AlwaysIncludeBaseTaggedDocs()
-        self.assertEqual(base.books, [])
-        self.assertEqual(base.num_books, 0)
+        self.assertEqual(base.items, [])
+        self.assertEqual(base.num_items, 0)
         book = Book(title='t', author='a', year_published=0)
         base.load(book)
-        self.assertEqual(base.books, [book])
-        self.assertEqual(base.num_books, 1)
+        self.assertEqual(base.items, [book])
+        self.assertEqual(base.num_items, 1)
 
     def test_iter(self):
         base = AlwaysIncludeBaseTaggedDocs()
