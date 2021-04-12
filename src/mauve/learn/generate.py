@@ -42,109 +42,108 @@ def get_classifiers():
     }
 
 
-def generate_model(
-    model,
-    tagged_docs,
-    num_books=0,
-    equalize_group_contents=False,
-    classifier=None,
-    train_ratio=0.8,
-    epochs=10
-):
-    """
+class ClassifierCreator():
 
-    :param model: An init'd Doc2Vec model
-    :param tagged_docs: class of tagged docs.
-        Books given to this will be split by some tag.
-        Example: NationalityTaggedDocs will split books into the
-                 nationality of the author
-    :kwarg num_books: The number of books to have processed in order to
-        move onto training
-    :kwarg equalize_group_contents: Ensure that the number of items in each
-        tag are proportional. Will chop the excess from groups with more
-        items than the minimum
-    :kwarg classifier: Classifier object, uses a flight of classifiers if
-        none specified
-    :kwarg train_ratio: What proportion to use for training
-    :kwarg epochs: How many epochs to train whatever the given model is
-    """
-
-    logger.debug('Start loading content')
-    processed = 0
-    for book in iter_books():
-        if len(tagged_docs.books) >= num_books:
-            break
-        tagged_docs.load(book)
-        processed += 1
-
-    tagged_docs.clean_data()
-
-    logger.debug('Using %s books', len(tagged_docs.books))
-
-    logger.debug('Start loading content into model')
-    model.build_vocab(tagged_docs.to_array())
-
-    logger.debug('Start training model')
-    model.train(
-        tagged_docs.perm(),
-        total_examples=model.corpus_count,
-        epochs=epochs
-    )
-
-    grouped_vecs = defaultdict(list)
-    for tag in model.docvecs.doctags.keys():
-        if len(tag.split('_')) > 2:
-            continue
-        grouped_vecs[tag.split('_')[0]].append(int(tag.split('_')[1]))
-
-    train_arrays, train_labels, test_arrays, test_labels, class_group_map = get_train_test(
+    def __init__(
+        self,
         model,
-        grouped_vecs,
-        equalize_group_contents=equalize_group_contents,
-        train_ratio=train_ratio
-    )
+        tagged_docs,
+        num_items=0,
+        equalize_group_contents=False,
+        train_ratio=0.8,
+        epochs=10
+    ):
+        """
 
-    logger.debug('Class to group map: %s', class_group_map)
+        :param model: An init'd Doc2Vec model
+        :param tagged_docs: class of tagged docs.
+            Books given to this will be split by some tag.
+            Example: NationalityTaggedDocs will split books into the
+                     nationality of the author
+        :kwarg num_items: The number of books to have processed in order to
+            move onto training
+        :kwarg equalize_group_contents: Ensure that the number of items in each
+            tag are proportional. Will chop the excess from groups with more
+            items than the minimum
+        :kwarg train_ratio: What proportion to use for training
+        :kwarg epochs: How many epochs to train whatever the given model is
+        """
+        self.model = model
+        self.tagged_docs = tagged_docs
+        self.num_items = num_items
+        self.equalize_group_contents = equalize_group_contents
+        self.train_ratio = train_ratio
+        self.epochs = epochs
 
-    classifiers = get_classifiers()
+        self.classifiers = {}
+        self.class_group_map = {}
 
-    # TODO: Try fit by individual class too rather than on the whole
+    def load_tagged_docs(self):
+        # TODO: change this, it's a bit bookey rather than texty
+        processed = 0
+        for item in iter_books():
+            if len(self.tagged_docs.items) >= self.num_items:
+                break
+            self.tagged_docs.load(item)
+            processed += 1
 
-    logger.debug('Start classifying')
-    if classifier is not None:
-        clf = classifiers[classifier]
-        clf.fit(train_arrays, train_labels)
-        return clf
+    def generate_classifier(self):
 
-    for name, clf in classifiers.items():
-        try:
-            clf.fit(train_arrays, train_labels)
-            score = clf.score(test_arrays, test_labels)
-            logger.info('%s %s', name, score)
-            classifiers[name] = clf
-        except ValueError as ex:
-            logger.error('Failed to use classifier "%s": %s', name, ex)
-            classifiers[name] = None
-    return classifiers
+        logger.debug('Start loading content')
 
+        self.load_tagged_docs()
+        self.tagged_docs.clean_data()
 
-#from gensim.models import Doc2Vec
-#from mauve.learn.tagged_docs import (
-#    AuthorTaggedDocs,
-#    GenderTaggedDocs,
-#    NationalityTaggedDocs
-#)
-#generate_model(
-#    Doc2Vec(
-#        min_count=5,
-#        window=10,
-#        vector_size=150,
-#        sample=1e-4,
-#        negative=5,
-#        workers=7
-#    ),
-#    NationalityTaggedDocs(
-#        min_per_group=50
-#    ),
-#    num_books=10000
-#)
+        logger.debug('Using %s books', len(self.tagged_docs.items))
+
+        logger.debug('Start loading content into model')
+        self.model.build_vocab(self.tagged_docs.to_array())
+
+        logger.debug('Start training model')
+        self.model.train(
+            self.tagged_docs.perm(),
+            total_examples=self.model.corpus_count,
+            epochs=self.epochs
+        )
+
+        grouped_vecs = defaultdict(list)
+        for tag in self.model.docvecs.doctags.keys():
+            if len(tag.split('_')) > 2:
+                continue
+            grouped_vecs[tag.split('_')[0]].append(int(tag.split('_')[1]))
+
+        train_arrays, train_labels, test_arrays, test_labels, class_group_map = get_train_test(
+            self.model,
+            grouped_vecs,
+            equalize_group_contents=self.equalize_group_contents,
+            train_ratio=self.train_ratio
+        )
+
+        logger.debug('Class to group map: %s', class_group_map)
+
+        classifiers = get_classifiers()
+
+        # TODO: Try fit by individual class too rather than on the whole
+
+        for name, clf in classifiers.items():
+            try:
+                clf.fit(train_arrays, train_labels)
+                score = clf.score(test_arrays, test_labels)
+                logger.info('%s %s', name, score)
+                classifiers[name] = clf
+            except ValueError as ex:
+                logger.error('Failed to use classifier "%s": %s', name, ex)
+                classifiers[name] = None
+
+        self.classifiers = classifiers
+        self.class_group_map = class_group_map
+
+        # TODO: get the best classifier and use that in future
+        self.preferred_classifier = self.classifiers['neural_net']
+
+    def predict(self, content):
+        return self.class_group_map[
+            self.preferred_classifier.predict(
+                [self.model.infer_vector(content.split() * 100)]
+            )[0]
+        ]

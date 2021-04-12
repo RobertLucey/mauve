@@ -21,7 +21,7 @@ class Safety:
     Just a general filter for all books
     """
 
-    def should_include_book(self, book):
+    def should_include(self, book):
         if self.get_group_name(book) is None:
             return False
         if book.num_ratings < 1000:
@@ -38,31 +38,31 @@ class BaseTaggedDocs(object):
     def __init__(self, min_per_group=10):
         """
 
-        :kwarg min_per_group: The minimum required books for the
+        :kwarg min_per_group: The minimum required items for the
             entire tag / group to be processed
         """
-        self.books = []
+        self.items = []
         self.docs = []
-        self.num_books = 0
+        self.num_items = 0
         self.counter = defaultdict(int)
         self.min_per_group = min_per_group
 
-    def load(self, book):
-        if self.should_include_book(book):
-            self.books.append(book)
-            self.num_books += 1
+    def load(self, item):
+        if self.should_include(item):
+            self.items.append(item)
+            self.num_items += 1
 
-    def should_include_book(self, book):
+    def should_include(self, item):
         raise NotImplementedError()
 
-    def get_group_name(self, book):
+    def get_group_name(self, item):
         raise NotImplementedError()
 
     def __iter__(self):
-        for book in self.books:
-            group = self.get_group_name(book)
+        for item in self.items:
+            group = self.get_group_name(item)
             yield TaggedDocument(
-                self.content_cleaner(book).split(),
+                self.content_cleaner(item).split(),
                 [str(group + '_%s') % (self.counter[group])]
             )
             self.counter[group] += 1
@@ -75,66 +75,66 @@ class BaseTaggedDocs(object):
         shuffle(self.docs)
         return self.docs
 
-    def content_cleaner(self, book):
-        return book.content
+    def content_cleaner(self, item):
+        return item.content
 
     def clean_data(self):
 
         def cull(skip_lang, multi=0):
             groups_count = defaultdict(int)
-            for book in self.books:
-                if self.get_group_name(book) is not None:
-                    groups_count[self.get_group_name(book)] += 1
+            for item in self.items:
+                if self.get_group_name(item) is not None:
+                    groups_count[self.get_group_name(item)] += 1
 
             if skip_lang:
-                self.books = [
-                    book for book in self.books if groups_count[self.get_group_name(book)] >= self.min_per_group
+                self.items = [
+                    item for item in self.items if groups_count[self.get_group_name(item)] >= self.min_per_group
                 ]
             else:
-                self.books = [
-                    book for book in self.books if book.lang == 'en'
+                self.items = [
+                    item for item in self.items if item.lang == 'en'
                 ]
 
             groups_count = defaultdict(int)
-            for book in self.books:
-                if self.get_group_name(book) is not None:
-                    groups_count[self.get_group_name(book)] += 1
+            for item in self.items:
+                if self.get_group_name(item) is not None:
+                    groups_count[self.get_group_name(item)] += 1
 
-            group_books_map = defaultdict(list)
-            for book in self.books:
-                group_books_map[self.get_group_name(book)].append(book)
-            self.books = flatten([v[0:int(self.min_per_group * multi)] for k, v in group_books_map.items()])
+            group_items_map = defaultdict(list)
+            for item in self.items:
+                group_items_map[self.get_group_name(item)].append(item)
+            self.items = flatten([v[0:int(self.min_per_group * multi)] for k, v in group_items_map.items()])
 
         cull(skip_lang=True, multi=2)
         cull(skip_lang=False, multi=2)
         cull(skip_lang=True, multi=1)
 
         group_counts = defaultdict(int)
-        for book in self.books:
-            if self.get_group_name(book) is not None:
-                group_counts[self.get_group_name(book)] += 1
+        for item in self.items:
+            if self.get_group_name(item) is not None:
+                group_counts[self.get_group_name(item)] += 1
 
-        cleaned_books = []
+        cleaned_items = []
         for name, count in group_counts.items():
             group_count = 0
-            for book in self.books:
-                if self.get_group_name(book) == name:
+            for item in self.items:
+                if self.get_group_name(item) == name:
                     if group_count < self.min_per_group:
-                        cleaned_books.append(book)
+                        cleaned_items.append(item)
                         group_count += 1
 
-        self.books = cleaned_books
+        self.items = cleaned_items
 
         group_counts = defaultdict(int)
-        for book in self.books:
-            if self.get_group_name(book) is not None:
-                group_counts[self.get_group_name(book)] += 1
+        for item in self.items:
+            if self.get_group_name(item) is not None:
+                group_counts[self.get_group_name(item)] += 1
 
         for name, count in group_counts.items():
             logger.debug('%s: %s', name, count)
 
 
-class AuthorTaggedDocs(BaseTaggedDocs, Safety):
+class AuthorTaggedDocs(Safety, BaseTaggedDocs):
 
     def __init__(self, *args, **kwargs):
         self.authors = kwargs.pop('authors', [])
@@ -147,13 +147,13 @@ class AuthorTaggedDocs(BaseTaggedDocs, Safety):
         return book.author.name
 
 
-class GenderTaggedDocs(BaseTaggedDocs, Safety):
+class GenderTaggedDocs(Safety, BaseTaggedDocs):
 
     def get_group_name(self, book):
         return book.author.gender
 
 
-class NationalityTaggedDocs(BaseTaggedDocs, Safety):
+class NationalityTaggedDocs(Safety, BaseTaggedDocs):
 
     def get_group_name(self, book):
         nationality = book.author.nationality
@@ -170,7 +170,7 @@ class NationalityTaggedDocs(BaseTaggedDocs, Safety):
         return nationality
 
 
-class AgeTaggedDocs(BaseTaggedDocs, Safety):
+class AgeTaggedDocs(Safety, BaseTaggedDocs):
 
     # Can create a by the decade one handy from this
     # FIXME: This one is a bit crap
