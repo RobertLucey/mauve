@@ -1,19 +1,41 @@
 import argparse
+import os
 import json
 from multiprocessing.pool import ThreadPool
+from urllib.request import urlopen
 
 import tqdm
+import bs4
 
 from urllib.request import Request
 from urllib.request import urlopen
 
 from mauve.models.oireachtas.debate import Debate
+from mauve.constants import RAW_OIREACHTAS_DIR
 
 
 def scrape_debates(d):
-    d.load_data()
-    d.write()
 
+    date = d['contextDate']
+    chamber = d['debateRecord']['chamber']['showAs'].split()[0].lower()
+
+    filename = '{}_{}.json'.format(date, chamber)
+
+    if os.path.exists(os.path.join(RAW_OIREACHTAS_DIR, filename)):
+        return
+
+    for section in d['debateRecord']['debateSections']:
+
+        section_uri = section['debateSection']['formats']['xml']['uri']
+
+        try:
+            section['debateSection']['data'] = urlopen(section_uri).read().decode('utf-8')  # This needs to be souped
+        except:
+            section['debateSection']['data'] = None
+            #print('Failed to get: %s' % (section_uri))
+
+    with open(os.path.join(RAW_OIREACHTAS_DIR, filename), 'w') as outfile:
+        json.dump(d, outfile)
 
 def main():
     parser = argparse.ArgumentParser()
@@ -21,48 +43,37 @@ def main():
         '--processes',
         type=int,
         dest='num_processes',
-        default=20
+        default=50
     )
     args = parser.parse_args()
-
 
     chamber_type = 'house'  # committee
     chamber_id = ''
     chamber = ''
     date_start = '1900-01-01'
-    date_end = '2000-06-01'
+    date_end = '1973-01-01'
     limit = '1000'
 
+    url = 'https://api.oireachtas.ie/v1/debates?chamber_type=%s&chamber_id=%s&chamber=%s&date_start=%s&date_end=%s&limit=%s' % (
+        chamber_type,
+        chamber_id,
+        chamber,
+        date_start,
+        date_end,
+        limit
+    )
+
     req = Request(
-        'https://api.oireachtas.ie/v1/debates?chamber_type=%s&chamber_id=%s&chamber=%s&date_start=%s&date_end=%s&limit=%s' % (
-            chamber_type,
-            chamber_id,
-            chamber,
-            date_start,
-            date_end,
-            limit
-        ),
+        url,
         headers={'accept': 'application/json'}
     )
     response = urlopen(req)
     data = json.loads(response.read())
 
-    debates = []
-    for d in data['results']:
-        debates.append(
-            Debate(
-                date=d['contextDate'],
-                chamber=d['debateRecord']['chamber']['showAs'],
-                counts=d['debateRecord']['counts'],
-                debate_type=d['debateRecord']['debateType'],
-                debate_sections=d['debateRecord']['debateSections']
-            )
-        )
-
     pool = ThreadPool(processes=args.num_processes)
     for _ in tqdm.tqdm(
-        pool.imap_unordered(scrape_debates, debates),
-        total=len(debates)
+        pool.imap_unordered(scrape_debates, data['results']),
+        total=len(data['results'])
     ):
         pass
 

@@ -32,6 +32,7 @@ TEXT_PATH = os.path.join(BASE_DATA_PATH, 'txt')
 EPUB_PATH = os.path.join(BASE_DATA_PATH, 'epub')
 CLEAN_EPUB_PATH = os.path.join(BASE_DATA_PATH, 'clean_books')
 OIREACHTAS_DIR = os.path.join(BASE_DATA_PATH, 'oireachtas')
+RAW_OIREACHTAS_DIR = os.path.join(BASE_DATA_PATH, 'raw_oireachtas')
 TITLE_ID_MAP_PATH = os.path.join(GOODREADS_METADATA_PATH, 'title_id_map.json')
 
 

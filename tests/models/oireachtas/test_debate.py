@@ -8,8 +8,7 @@ from mauve.models.oireachtas.debate import (
     merge_paras,
     Para,
     Speech,
-    DebateSection,
-    Debate
+    DebateSection
 )
 
 

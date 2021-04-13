@@ -1,5 +1,5 @@
 from collections import defaultdict
-from urllib.request import urlopen
+import fast_json
 import os
 import pickle
 import requests
@@ -109,45 +109,34 @@ class DebateSection():
         counts=None,
         debate_section_id=None,
         debate_type=None,
-        data_uri=None,
+        data=None,
         parent_debate_section=None,
         show_as=None,
         speakers=None,
-        speeches=None
     ):
         self.bill = bill
         self.contains_debate = contains_debate
         self.counts = counts
         self.debate_section_id = debate_section_id
         self.debate_type = debate_type
-        self.data_uri = data_uri
+        self.data = data
         self.parent_debate_section = parent_debate_section
         self.show_as = show_as
         self.speakers = speakers
-        self.speeches = speeches if speeches else []
 
         self._data = None
-        self.loaded = False
 
-    def load_data(self):
-        '''
-        Load data from the data_uri to populate the speeches and
-        their paragraphs
-        '''
-        if self.loaded:
+    @cached_property
+    def speeches(self):
+        if self.data is None:
             return
 
-        try:
-            source = urlopen(self.data_uri)
-        except Exception as ex:
-            if str(ex) != 'HTTP Error 403: Forbidden':
-                raise ex
-            return
-
-        soup = bs4.BeautifulSoup(source, 'html.parser')
+        soup = bs4.BeautifulSoup(self.data, 'html.parser')
 
         # heading
         # soup.find('debatesection').find('heading').text
+
+        speeches = []
 
         for speech in soup.find('debatesection').find_all('speech'):
             paras = [
@@ -158,7 +147,7 @@ class DebateSection():
                 ) for p in speech.find_all('p')
             ]
 
-            self.speeches.append(
+            speeches.append(
                 Speech(
                     by=speech.attrs.get('by'),
                     _as=speech.attrs.get('as'),
@@ -166,10 +155,7 @@ class DebateSection():
                     paras=paras
                 )
             )
-
-        # Could also get summary
-
-        self.loaded = True
+        return speeches
 
     def serialize(self):
         return {
@@ -178,7 +164,6 @@ class DebateSection():
             'counts': self.counts,
             'debate_section_id': self.debate_section_id,
             'debate_type': self.debate_type,
-            'data_uri': self.data_uri,
             'parent_debate_section': self.parent_debate_section,
             'show_as': self.show_as,
             'speakers': self.speakers,
@@ -192,85 +177,64 @@ class DebateSection():
 
 class Debate():
 
-    def __init__(
-        self,
-        date=None,
-        chamber=None,
-        counts=None,
-        debate_sections=None,
-        debate_type=None,
-        data_uri=None
-    ):
-        '''
+    def __init__(self, file_path=None):
+        # TODO: also accept being given the data
+        self.file_path = file_path
 
-        :kwarg date: The date of the debate in YYYY-MM-DD format
-        :kwarg chamber: Dail or Seanad
-        :kwarg counts:
-        :kwarg debate_sections: list of debate sections in json from the api
-        :kwarg debate_type: the tye of the debate, usually just 'debate'
-        :kwarg data_uri:
-        '''
-        self.date = date
-        self.chamber = chamber
-        self.counts = counts
-        self.debate_sections = debate_sections
-        self.debate_type = debate_type
-        self.data_uri = data_uri
+        if not os.path.exists(self.file_path):
+            raise Exception()
 
-        self.loaded = False
-
-    def load_data(self):
-        '''
-        Load data from the data_uri to populate the debate sections
-        '''
-        if self.loaded:
-            return
-
-        if os.path.exists(self.pickle_location):
-            data = get_file_content(self.pickle_location)
-            self.date = data.date
-            self.chamber = data.chamber
-            self.counts = data.counts
-            self.debate_sections = data.debate_sections
-            self.debate_type = data.debate_type
-            self.data_uri = data.data_uri
-        else:
-            debate_sections = []
-            for section in self.debate_sections:
-                raw_debate_section = section['debateSection']
-                debate_section = DebateSection(
+        for section in self.data['debateRecord']['debateSections']:
+            raw_debate_section = section['debateSection']
+            self.debate_sections.append(
+                DebateSection(
                     bill=raw_debate_section['bill'],
                     contains_debate=raw_debate_section['containsDebate'],
                     counts=raw_debate_section['counts'],
                     debate_section_id=raw_debate_section['debateSectionId'],
                     debate_type=raw_debate_section['debateType'],
-                    data_uri=raw_debate_section['formats']['xml']['uri'],
+                    data=raw_debate_section['data'],
                     parent_debate_section=raw_debate_section['parentDebateSection'],
                     show_as=raw_debate_section['showAs'],
                     speakers=raw_debate_section['speakers']
                 )
-                debate_section.load_data()
-                debate_sections.append(debate_section)
-
-            self.debate_sections = debate_sections
-
-            chamber = {
-                'Dáil Éireann': 'dail',
-                'Seanad Éireann': 'seanad'
-            }
-            url = 'https://data.oireachtas.ie/ie/oireachtas/debateRecord/%s/%s/debate/mul@/main.pdf' % (
-                chamber,
-                self.date
             )
 
-            pdf_request = requests.get(url, stream=True)
+        # self.download_pdf()
 
-            with open(self.pickle_location.replace('pickle', 'pdf'), 'wb') as pdfile:
-                for chunk in pdf_request.iter_content(2000):
-                    pdfile.write(chunk)
+    @property
+    def date(self):
+        return self.data['contextDate']
 
-        self.loaded = True
+    @property
+    def chamber(self):
+        return self.data['debateRecord']['chamber']['showAs']
 
+    @property
+    def counts(self):
+        return self.data['debateRecord']['counts']
+
+    @property
+    def debate_type(self):
+        return self.data['debateRecord']['debateType']
+
+    @cached_property
+    def data(self):
+        return fast_json.loads(open(self.file_path).read())
+
+    def download_pdf(self):
+        chamber = {
+            'Dáil Éireann': 'dail',
+            'Seanad Éireann': 'seanad'
+        }
+        url = 'https://data.oireachtas.ie/ie/oireachtas/debateRecord/%s/%s/debate/mul@/main.pdf' % (
+            chamber,
+            self.date
+        )
+        pdf_request = requests.get(url, stream=True)
+        with open(self.pickle_location.replace('pickle', 'pdf'), 'wb') as pdfile:
+            for chunk in pdf_request.iter_content(2000):
+                pdfile.write(chunk)
 
     def serialize(self):
         return {
@@ -278,23 +242,10 @@ class Debate():
             'chamber': self.chamber,
             'counts': self.counts,
             'debate_type': self.debate_type,
-            'data_uri': self.data_uri,
             'sections': [
                 s.serialize() for s in self.debate_sections
             ]
         }
-
-    def write(self):
-        f_pickle = open(self.pickle_location, 'wb')
-        pickle.dump(self, f_pickle)
-        f_pickle.close()
-
-    @property
-    def pickle_location(self):
-        return os.path.join(
-            OIREACHTAS_DIR,
-            '%s_%s_%s.pickle' % ('debate', self.chamber, self.date)
-        )
 
     @property
     def content_by_speaker(self):
