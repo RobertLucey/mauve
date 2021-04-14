@@ -8,7 +8,7 @@ INSTALL_REQUIRES = [
     'compress-pickle<2.0.0',
     'pandas',
     'scapy',
-    'textacy',
+    'textacy==0.10.1',
     'nltk',
     'cached_property',
     'fast_json',
