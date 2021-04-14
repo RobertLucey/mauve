@@ -107,7 +107,7 @@ class ClassifierCreator():
         )
 
         grouped_vecs = defaultdict(list)
-        for tag in self.model.docvecs.doctags.keys():
+        for tag in self.model.docvecs.key_to_index.keys():
             if len(tag.split('_')) > 2:
                 continue
             grouped_vecs[tag.split('_')[0]].append(int(tag.split('_')[1]))
