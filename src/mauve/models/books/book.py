@@ -116,6 +116,12 @@ class Book(TextBody):
 
     def __del__(self):
         attrs_to_del = [
+            '_all_tokens_count',
+            'adverbs',
+            'adjectives',
+            'nouns',
+            'proper_nouns',
+            'verbs',
             'adverbs',
             'adjectives',
             'nouns',
