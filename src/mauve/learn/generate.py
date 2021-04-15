@@ -1,6 +1,8 @@
 import logging
 from collections import defaultdict
 
+import numpy as np
+
 from sklearn.neural_network import MLPClassifier
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.svm import SVC
