@@ -91,22 +91,5 @@ class TestCompressFiles(TestCase):
             content,
             '''Intro heading 
  blah blah blah 
- 
-
- Another Great Title 
- 
- 
- Introduction 
- 
- 
- Simple book 
- 
- 
- Intro 
- 
- 
- 
- 
- 
  '''
         )

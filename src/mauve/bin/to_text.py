@@ -1,6 +1,8 @@
 import argparse
+import logging
 import os
 from multiprocessing import Pool
+import re
 
 import tqdm
 import ebooklib
@@ -12,6 +14,7 @@ from mauve.constants import (
     CLEAN_EPUB_PATH
 )
 
+logger = logging.getLogger('mauve')
 
 blacklist = [
     '[document]',
@@ -24,10 +27,36 @@ blacklist = [
     'script'
 ]
 
+ignore_files = {'foreword', 'epigraph', 'dedication', 'title', 'cover', 'copyright', 'legal', 'toc', 'nav', 'alsoby', 'author', 'contents', 'index', 'excerpt', 'acknowledgements', 'backcovertext', 'praise', 'titlepage', 'preface', 'abouttheauthor', 'review', 'ack', 'ded', 'cop', 'prf', 'back', 'page-template', 'footnote', 'about_publisher', 'navdoc', 'next-reads', 'about_book', 'about_author', 'bio', 'keepreading', 'about_the_author', 'about_the_publisher', 'introduction', 'also', 'coverimage', 'notes', 'coverpage', 'epi', 'navigation', 'epilogue', 'glossary', 'further', 'appendix', 'front', 'note', 'intro', 'glossary', 'bibliography', 'aboutthepublisher', 'afterword', 'acknowledgements', 'authorsnote', 'bib', 'blurb', 'personblurb', 'ad-card', 'welcome', 'listofillustrations', 'acknowledgments', 'prologue', 'halftitle', 'also_by', 'frontmatter', 'conclusion', 'acknow', 'fm', 'bm', 'copy', 'backcover', 'title_page', 'summary', 'cov', 'frontcover', 'contribute', 'tableofcontents', 'bythesameauthor', 'booktitlepage', 'aboutpublisher', 'authorbio', 'backadd', 'copyright-page', 'information', 'credits', 'endnotes', 'globalbackad', 'suggestions', 'references', 'references', 'advance', 'abouttheeditor', 'aboutauthor', 'introd', 'epilog', 'foot', 'references', 'halftitlepage', 'glossary-and-abbreviations', 'table_of_contents', 'biographies', 'backmatter', 'biography', 'acknowledgmentpage', 'aboutauthorpage', 'copyrightpage', 'epiloguepage', 'prologuepage', 'acknowledgment', 'half_title', 'aut', 'booksby', 'about', 'appen'}
+
+ignore_file_startswith = {'appendix', 'footnote', 'dedication', 'toc', 'frontmatter', 'foreward', 'afterword', 'preface'}
+
 
 def epub2thtml(epub_path):
     chapters = []
     for item in epub.read_epub(epub_path).get_items():
+        fn = os.path.splitext(os.path.basename(item.file_name))[0].lower().replace(' ', '_')
+        ext = os.path.splitext(item.file_name)[-1]
+
+        # footnote can be footnote1 etc
+        # remove the isbn from the fn
+
+        if ext not in {'.htm', '.html', '.xhtml'}:
+            continue
+
+        if re.match(r'^\d+_\w+', fn) is not None:
+            fn = '_'.join(fn.split('_')[1:])
+        if re.match(r'^\d+-\w+', fn) is not None:
+            fn = '-'.join(fn.split('_')[1:])
+
+        if fn in ignore_files:
+            continue
+
+        if any([fn.startswith(pre) for pre in ignore_file_startswith]):
+            continue
+
+        logger.debug('Including file: %s', fn)
+
         if item.get_type() == ebooklib.ITEM_DOCUMENT:
             chapters.append(item.get_content())
     return chapters
