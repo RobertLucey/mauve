@@ -34,6 +34,9 @@ There is data [here](data/) of some details of 10k books to play with.
   * Guess the following of a book from training over a load of scraped data:
     * Author gender (>80% accuracy)
     * Which author (requires >= 2 books per author being used) (Accuracy good but depends highly on how many authors and how many minimum required books per author)
+    * Author nationality (>80% accuracy in a sample of 50 of each British, Australia, United States, Canada, India, Ireland, France)
+    * Author age
+    * book published year
     * TODO: lots more
 * (Interesting) properties of a book:
   * Time it should take to read the text

@@ -76,7 +76,7 @@ class BaseTaggedDocs(object):
         return self.docs
 
     def content_cleaner(self, item):
-        return item.content
+        return item.raw_content
 
     def clean_data(self):
 
@@ -141,7 +141,7 @@ class AuthorTaggedDocs(Safety, BaseTaggedDocs):
         super(AuthorTaggedDocs, self).__init__(*args, **kwargs)
 
     def content_cleaner(self, book):
-        return book.content.replace(book.author.name, '')
+        return book.raw_content.replace(book.author.name, '')
 
     def get_group_name(self, book):
         return book.author.name
@@ -176,19 +176,42 @@ class AgeTaggedDocs(Safety, BaseTaggedDocs):
     # FIXME: This one is a bit crap
 
     def __iter__(self):
-        for book in self.books:
+        for book in self.items:
             group = self.get_group_name(book)
 
             yield TaggedDocument(
-                [w for w in utils.to_unicode(self.content_cleaner(book)).split() if (w in NAMES) or (w not in BORING_WORDS and w in ENG_WORDS and w not in EXTENDED_PUNCTUATION)],
+                self.content_cleaner(book).split(),
                 [str(group + '_%s') % (self.counter[group])]
             )
             self.counter[group] += 1
 
     def get_group_name(self, book):
         try:
-            if round_down(book.year_published - book.author.birth_year, 10) >= 70:
+            if book.year_published - book.author.birth_year >= 70:
                 return
-            return str(round_down(book.year_published - book.author.birth_year, 10))
+            return str(round_down(book.year_published - book.author.birth_year, 2))
+        except:
+            return
+
+
+class YearPublishedTaggedDocs(Safety, BaseTaggedDocs):
+
+    # Can create a by the decade one handy from this
+    # FIXME: This one is a bit crap
+
+    def __iter__(self):
+        for book in self.items:
+            group = self.get_group_name(book)
+
+            yield TaggedDocument(
+                self.content_cleaner(book).split(),
+                [str(str(group) + '_%s') % (self.counter[group])]
+            )
+            self.counter[group] += 1
+
+    def get_group_name(self, book):
+        try:
+            if book.year_published > 1900:
+                return round_down(book.year_published, 2)
         except:
             return

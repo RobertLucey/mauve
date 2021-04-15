@@ -27,7 +27,7 @@ def get_classifiers():
         'nearest_neighbors': KNeighborsClassifier(3),
         'linear_svm': SVC(kernel='linear', C=0.025),
         'rbf_svm': SVC(gamma=2, C=1),
-        'gaussian_rprocess': GaussianProcessClassifier(1.0 * RBF(1.0)),
+        #'gaussian_rprocess': GaussianProcessClassifier(1.0 * RBF(1.0)),
         'decision_tree': DecisionTreeClassifier(max_depth=5),
         'random_forest': RandomForestClassifier(
             max_depth=5,
@@ -130,6 +130,18 @@ class ClassifierCreator():
                 clf.fit(train_arrays, train_labels)
                 score = clf.score(test_arrays, test_labels)
                 logger.info('%s %s', name, score)
+
+                joined = [i for i in zip(test_labels, test_arrays)]
+                class_arrays_map = defaultdict(list)
+                for test_label, test_array in joined:
+                    class_arrays_map[test_label].append(test_array)
+
+                for label, array in class_arrays_map.items():
+                    score = clf.score(np.array(array), len(array) * [label])
+                    logger.info('%s %s', class_group_map[label], score)
+
+                logger.info('----------')
+
                 classifiers[name] = clf
             except ValueError as ex:
                 logger.error('Failed to use classifier "%s": %s', name, ex)
@@ -140,6 +152,8 @@ class ClassifierCreator():
 
         # TODO: get the best classifier and use that in future
         self.preferred_classifier = self.classifiers['neural_net']
+
+    # TODO: make a score thing that gives back a number like age
 
     def predict(self, content):
         return self.class_group_map[
