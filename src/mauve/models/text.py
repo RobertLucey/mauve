@@ -27,6 +27,7 @@ from mauve.utils import (
 )
 from mauve.utils import quote_aware_sent_tokenize
 from mauve.phrases import replace_phrases
+from mauve.spelling import normalize_spelling
 from mauve.constants.names import NAMES
 from mauve.constants import (
     PROFANITY_WORDS,
@@ -627,6 +628,10 @@ class TextBody(GenericObject, Tagger):
         :param content: str
         """
         content = replace_contractions(content)
+
+        if self.lang == 'en':
+            content = normalize_spelling(content)
+
         guessed_quote = self.guess_speech_quote(content)
         if guessed_quote != '’':
             logger.debug('Speech quote guessed is %s so dangerously modifying ’ to \'', guessed_quote)
