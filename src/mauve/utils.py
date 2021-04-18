@@ -1,4 +1,5 @@
 import os
+import re
 import random
 import pickle
 from functools import lru_cache
@@ -487,3 +488,7 @@ def round_down(num: int, divisor: int) -> int:
 
 def replace_ellipsis(content):
     return content.replace('....', '…').replace('. . . .', '…').replace('...', '…').replace('. . .', '…')
+
+
+def remove_decimal_separators(content) -> str:
+    return re.sub(r'(\d)\,(\d)', r'\1\2', content)

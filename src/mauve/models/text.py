@@ -25,7 +25,8 @@ from mauve.utils import (
     split_include,
     get_loose_filepath,
     get_file_content,
-    replace_ellipsis
+    replace_ellipsis,
+    remove_decimal_separators
 )
 from mauve.utils import quote_aware_sent_tokenize
 from mauve.phrases import replace_phrases
@@ -632,6 +633,7 @@ class TextBody(GenericObject, Tagger):
         """
         content = replace_contractions(content)
         content = replace_ellipsis(content)
+        content = remove_decimal_separators(content)
 
         if self.lang == 'en':
             content = normalize_spelling(content)
