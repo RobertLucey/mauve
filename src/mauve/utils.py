@@ -4,6 +4,7 @@ import pickle
 from functools import lru_cache
 from itertools import chain
 import logging
+from collections.abc import Iterable, Mapping
 
 import spacy
 import textacy.ke
@@ -266,7 +267,7 @@ def find_sub_idx(original, repl_list, start=0, end=9999999999999):
             return index, index + length
 
 
-def replace_sub(original, repl_list, new_list, start=0, end=999999999999):
+def replace_sub(original: list, repl_list: list, new_list, start=0, end=999999999999):
     """
     Replace a subset of a list with some other subset
 
@@ -282,7 +283,7 @@ def replace_sub(original, repl_list, new_list, start=0, end=999999999999):
     return original
 
 
-def previous_current_next(iterable):
+def previous_current_next(iterable: Iterable) -> tuple:
     """
     Make an iterator that yields an (previous, current, next) tuple per element.
 
@@ -321,7 +322,7 @@ def get_wordnet_pos(tag):
         return tag_dict.get(tag, wordnet.NOUN)
 
 
-def paragraphs(content):
+def paragraphs(content: str) -> list:
     """
     Split content into paragraphs. Handy to isolate issues to a
     paragraph rather than let it compound over future paragraphs,
@@ -333,11 +334,11 @@ def paragraphs(content):
     return content.split('\n')
 
 
-def sentences(content):
+def sentences(content: str) -> list:
     return [nltk.tokenize.sent_tokenize(para) for para in paragraphs(content)]
 
 
-def quote_aware_sent_tokenize(content):
+def quote_aware_sent_tokenize(content: str) -> list:
     """
     Get sentences but make sure that if they're in one speech part
     that the sentences do not get split away from each other.
@@ -371,7 +372,7 @@ def quote_aware_sent_tokenize(content):
     return sentences
 
 
-def str_count_multi(string, things_to_count):
+def str_count_multi(string: str, things_to_count: list) -> int:
     """
 
     Usage:
@@ -384,7 +385,7 @@ def str_count_multi(string, things_to_count):
     return sum([string.count(thing) for thing in things_to_count])
 
 
-def rflatten(lst):
+def rflatten(lst: list) -> list:
     '''
     Given a nested list, flatten it.
 
@@ -403,7 +404,7 @@ def rflatten(lst):
     return lst[:1] + rflatten(lst[1:])
 
 
-def flatten(lst):
+def flatten(lst: list) -> list:
     '''
     Given a nested list, flatten it.
 
@@ -418,7 +419,7 @@ def flatten(lst):
     return list(chain.from_iterable(lst))
 
 
-def clean_gutenberg(content):
+def clean_gutenberg(content: str) -> str:
     """
     Project Gutenberg texts come with headers and footers that
     have legal stuff in them and some other bits we don't want.
@@ -452,7 +453,7 @@ def clean_gutenberg(content):
     return content
 
 
-def intersperse(lst, item):
+def intersperse(lst: list, item) -> list:
     """
 
     Usage:
@@ -464,7 +465,7 @@ def intersperse(lst, item):
     return result
 
 
-def split_include(lst, splitter):
+def split_include(lst: list, splitter: str) -> list:
     """
 
     Usage:
@@ -480,5 +481,9 @@ def split_include(lst, splitter):
     return [o for o in output if o]
 
 
-def round_down(num, divisor):
-    return num - (num % divisor)
+def round_down(num: int, divisor: int) -> int:
+    return int(num - (num % divisor))
+
+
+def replace_ellipsis(content):
+    return content.replace('....', '…').replace('. . . .', '…').replace('...', '…').replace('. . .', '…')

@@ -5,6 +5,7 @@ from collections import (
 import os
 import pickle
 import logging
+from typing import Mapping
 
 from cached_property import cached_property
 
@@ -23,7 +24,8 @@ from mauve.utils import (
     clean_gutenberg,
     split_include,
     get_loose_filepath,
-    get_file_content
+    get_file_content,
+    replace_ellipsis
 )
 from mauve.utils import quote_aware_sent_tokenize
 from mauve.phrases import replace_phrases
@@ -44,6 +46,7 @@ from mauve.constants import (
 from mauve.contractions import replace_contractions
 
 from mauve.models.generic import GenericObject
+from mauve.models.speech import Speech
 from mauve.models.person import People
 from mauve.models.line import Line, Lines
 
@@ -101,12 +104,12 @@ class TextBody(GenericObject, Tagger):
                 pass
 
     @property
-    def lines(self):
+    def lines(self) -> Lines:
         return Lines(data=[
             Line(l, line_no=idx) for idx, l in enumerate(self.content.split('\n'))
         ])
 
-    def get_lexical_diversity(self, only_dictionary_words=False):
+    def get_lexical_diversity(self, only_dictionary_words=False) -> float:
         """
 
         :kwargs only_dictionary_words:
@@ -118,7 +121,7 @@ class TextBody(GenericObject, Tagger):
         return float(len(set(self.words))) / self.word_count
 
     @property
-    def words(self):
+    def words(self) -> list:
         """
 
         :return:
@@ -133,7 +136,7 @@ class TextBody(GenericObject, Tagger):
         )
         return [i for i in txt.split() if i]
 
-    def get_profanity_score(self):
+    def get_profanity_score(self) -> float:
         """
         Return how many instances of profanity were used every 10000 words
         A profane phrase may be many words so not exactly every 10000 words
@@ -181,19 +184,19 @@ class TextBody(GenericObject, Tagger):
         ) / div
 
     @property
-    def has_content(self):
+    def has_content(self) -> bool:
         return self.raw_content != ''
 
     @cached_property
-    def basic_content(self):
+    def basic_content(self) -> str:
         return clean_gutenberg(self.raw_content)
 
     @cached_property
-    def content(self):
+    def content(self) -> str:
         return self.clean_content(self.basic_content)
 
     @cached_property
-    def raw_content(self):
+    def raw_content(self) -> str:
         content = ''
         if self._content is not None:
             content = self._content
@@ -210,11 +213,11 @@ class TextBody(GenericObject, Tagger):
         return content
 
     @cached_property
-    def sentiment(self):
+    def sentiment(self) -> Mapping[str, int]:
         return VADER.polarity_scores([sentence for sentence in self.sentences])
 
     @cached_property
-    def lang(self):
+    def lang(self) -> str:
         # TODO: update metadata and use as a cache since this can't be very good
         # Also only go far enough until we're certain. Don't need to process entire books
         try:
@@ -223,7 +226,7 @@ class TextBody(GenericObject, Tagger):
             return 'unknown'
 
     @cached_property
-    def basic_sentences(self):
+    def basic_sentences(self) -> list:
         """
         A faster (and worse) way to get sentences of a piece of text
         """
@@ -233,15 +236,15 @@ class TextBody(GenericObject, Tagger):
         return content.split('___mauve_terminator___')
 
     @cached_property
-    def sentences(self):
+    def sentences(self) -> list:
         return nltk.sent_tokenize(self.content)
 
     @cached_property
-    def quote_aware_sentences(self):
+    def quote_aware_sentences(self) -> list:
         return quote_aware_sent_tokenize(self.content)
 
     @cached_property
-    def phrases_content(self):
+    def phrases_content(self) -> list:
         try:
             return replace_phrases(self.content)
         except Exception as ex:
@@ -259,7 +262,7 @@ class TextBody(GenericObject, Tagger):
         ])
 
     @cached_property
-    def speech(self):
+    def speech(self) -> list:
         """
 
         :return: list of Speech objects
@@ -318,7 +321,7 @@ class TextBody(GenericObject, Tagger):
         return rflatten(list(speech.values()))
 
     @cached_property
-    def people(self):
+    def people(self) -> People:
         """
         Extract all People from text. This is pretty stupid so includes
         a lot of false positives
@@ -331,7 +334,7 @@ class TextBody(GenericObject, Tagger):
                 people.append(person)
         return people
 
-    def get_speech_by_people(self, people=None):
+    def get_speech_by_people(self, people=None) -> Mapping[str, list]:
         """
 
         :kwarg people: People object / list of Person objects
@@ -350,7 +353,7 @@ class TextBody(GenericObject, Tagger):
                     speech_people_map[speech.speaker.name].append(speech)
         return speech_people_map
 
-    def get_assignments_by(self, left_text):
+    def get_assignments_by(self, left_text) -> list:
         """
         Get assignments by the thing being assigned to
 
@@ -362,7 +365,7 @@ class TextBody(GenericObject, Tagger):
                 assignments.append(assignment[2].text)
         return assignments
 
-    def get_profanity_by_people(self, people=None):
+    def get_profanity_by_people(self, people=None) -> Mapping[str, float]:
         speech = self.get_speech_by_people(people=people)
         return {
             person_name: TextBody(
@@ -370,7 +373,7 @@ class TextBody(GenericObject, Tagger):
             ).get_profanity_score() for person_name, speech_items in speech.items()
         }
 
-    def get_sentiment_by_people(self, people=None):
+    def get_sentiment_by_people(self, people=None) -> Mapping[str, str]:
         """
         Use vader sentiment to get the sentiment of all a character has said
 
@@ -539,25 +542,25 @@ class TextBody(GenericObject, Tagger):
         return data
 
     @property
-    def all_tokens_pickle_path(self):
+    def all_tokens_pickle_path(self) -> str:
         if self.content_path is None:
             return None
         return self.content_path + '.all_tokenv{}.pickle'.format(TOKEN_VERSION)
 
     @property
-    def word_tokens_pickle_path(self):
+    def word_tokens_pickle_path(self) -> str:
         if self.content_path is None:
             return None
         return self.content_path + '.word_tokenv{}.pickle'.format(TOKEN_VERSION)
 
     @cached_property
-    def dictionary_words(self):
+    def dictionary_words(self) -> list:
         return [
             word for word in self.words if word.lower() in ENG_WORDS and word.isalpha()
         ]
 
     @property
-    def word_count(self):
+    def word_count(self) -> int:
         """
 
         :return: the number of individual words in the piece of text
@@ -565,7 +568,7 @@ class TextBody(GenericObject, Tagger):
         """
         return len(self.words)
 
-    def get_word_counts(self, only_include_words=None):
+    def get_word_counts(self, only_include_words=None) -> Mapping[str, int]:
         """
         Get the counts of dictionary words.
 
@@ -598,7 +601,7 @@ class TextBody(GenericObject, Tagger):
             )
         )
 
-    def guess_speech_quote(self, content, default='"'):
+    def guess_speech_quote(self, content: str, default='"') -> str:
         """
         Given a piece of text guess what type of quote is used for speech
 
@@ -620,7 +623,7 @@ class TextBody(GenericObject, Tagger):
             logger.debug('Could not guess speech quotes, assuming \'%s\'', default)
             return default
 
-    def clean_content(self, content):
+    def clean_content(self, content: str) -> str:
         """
         Try to take weird and cumbersome stuff out of the text.
         Mainly around contractions and quoting to make things less ambiguous
@@ -628,6 +631,7 @@ class TextBody(GenericObject, Tagger):
         :param content: str
         """
         content = replace_contractions(content)
+        content = replace_ellipsis(content)
 
         if self.lang == 'en':
             content = normalize_spelling(content)
