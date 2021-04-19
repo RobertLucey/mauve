@@ -19,7 +19,13 @@ from mauve.constants.tokens import (
 )
 
 
-ENG_WORDS = set(nltk.corpus.words.words())
+try:
+    nltk.data.find('corpora/words')
+except LookupError:  # pragma: nocover
+    nltk.download('words')
+finally:
+    ENG_WORDS = set(nltk.corpus.words.words())
+
 NLTK_ENG_WORDS = set(words.words())
 
 
