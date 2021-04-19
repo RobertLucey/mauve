@@ -62,6 +62,16 @@ There is data [here](data/) of some details of 10k books to play with.
 * Comparisons between books
   * Word usage by group
     * Get the usage (by %) difference between groups like author gender / nationality / genre / publication date / whatever. Tries to ignore boring words which is essentially an extended stopwords set
+* Features of general text preparation
+  * Replace contractions
+  * Annotate some idioms
+  * Annotate some phrases
+  * Replace dots with ellipsis
+  * Replace general things for simplicity ("per annum" -> "yearly")
+  * Remove decimal separators
+  * American spelling to correct spelling (on English content)
+  * Normalize quotation marks
+  * Replace wordy numbers with the decimals ("a hundred and twenty" -> 120)
 
 
 ## Usage
