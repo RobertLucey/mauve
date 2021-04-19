@@ -1,15 +1,15 @@
+from typing import Mapping
+
 from mauve.models.generic import (
     GenericObject,
     GenericObjects
 )
-
 from mauve.constants import LIKELY_PERSON_PREFIXES
 from mauve import (
     WPS,
     SYNONYM,
     Tagger
 )
-
 from mauve.utils import (
     get_stem,
     get_lem,
@@ -33,7 +33,8 @@ class Segments(GenericObjects):
 
 class Segment(Tagger, GenericObject):
     """
-    A segment is a word / phrase / group of words that belong together, smallest unit
+    A segment is a word / phrase / group of words that belong
+    together, smallest unit
 
     This can be like "postman pat", "Department of transport", 'Dr Jones'
     """
@@ -57,14 +58,14 @@ class Segment(Tagger, GenericObject):
         WPS.update()
         super(Segment, self).__init__(*args, **kwargs)
 
-    def serialize(self):
+    def serialize(self) -> Mapping[str, str]:
         return {
             'text': self.text,
             'tag': self.tag,
             'lem_stem': self.lem_stem
         }
 
-    def __eq__(self, other):
+    def __eq__(self, other) -> bool:
         """
         Are two segments equal. Only considers text as you
         usually don't care about tags
@@ -72,29 +73,29 @@ class Segment(Tagger, GenericObject):
         return self.text == getattr(other, 'text', other)
 
     @property
-    def is_prp(self):
+    def is_prp(self) -> bool:
         return self.tag == 'PRP' or self.tag == 'PRP$'
 
     @property
-    def is_adj(self):
+    def is_adj(self) -> bool:
         return self.tag[0] == 'J' and not self.is_entity
 
     @property
-    def is_person(self):
+    def is_person(self) -> bool:
         """
         This should probably optionally take in the context of people detected
         """
         return self.tag == 'PERSON' or self.is_titled_proper_noun
 
     @property
-    def is_titled_proper_noun(self):
+    def is_titled_proper_noun(self) -> bool:
         """
         A titled noun is mr X or Dr Y
         """
         return self.text.lower().split(' ')[0].replace('.', '') in LIKELY_PERSON_PREFIXES
 
     @property
-    def is_noun(self):
+    def is_noun(self) -> bool:
         tag = self.tag
         if tag == '':
             tag = 'Z'
@@ -107,25 +108,25 @@ class Segment(Tagger, GenericObject):
         ])
 
     @property
-    def is_verb(self):
+    def is_verb(self) -> bool:
         return self.tag[0] == 'V' and not self.is_entity
 
     @property
-    def is_adv(self):
+    def is_adv(self) -> bool:
         return self.tag[0] == 'R' and not self.is_entity
 
     @property
-    def is_entity(self):
+    def is_entity(self) -> bool:
         if self.tag in ['CARDINAL', 'DATE', 'EVENT', 'FAC', 'GPE', 'LANGUAGE', 'LAW', 'LOC', 'MONEY', 'NORP', 'ORDINAL', 'ORG', 'PERCENT', 'PERSON', 'PRODUCT', 'QUANTITY', 'TIME', 'WORK_OF_ART']:
             return True
         return False
 
     @property
-    def text(self):
+    def text(self) -> str:
         return self._text.replace('_', ' ')
 
     @property
-    def lem_stem(self):
+    def lem_stem(self) -> str:
         if ' ' in self.text or self.is_entity:
             return self.text
 
@@ -135,7 +136,7 @@ class Segment(Tagger, GenericObject):
         ))
 
     @property
-    def tag(self):
+    def tag(self) -> str:
         if self._tag is not None:
             return self._tag
 
@@ -145,7 +146,7 @@ class Segment(Tagger, GenericObject):
         return self.pos_tag([self.text])[0][1]
 
     @property
-    def is_wordy(self):
+    def is_wordy(self) -> bool:
         """
         Is it more wordy than not wordy?
 

@@ -1,3 +1,4 @@
+from typing import Iterable, Any, Mapping
 import uuid
 
 
@@ -21,7 +22,7 @@ class GenericObjects(object):
     def __len__(self):
         return len(self._data)
 
-    def append(self, obj):
+    def append(self, obj: Any) -> None:
         '''
 
         :param obj:
@@ -30,7 +31,7 @@ class GenericObjects(object):
             raise TypeError('Bad type: %s' % (type(obj)))
         self._data.append(obj)
 
-    def extend(self, objs):
+    def extend(self, objs: Iterable[Any]) -> None:
         '''
 
         :param objs:
@@ -38,10 +39,10 @@ class GenericObjects(object):
         for obj in objs:
             self.append(obj)
 
-    def serialize(self):
+    def serialize(self) -> Iterable[Mapping[str, Any]]:
         return [obj.serialize() for obj in self.data]
 
-    def reload(self):
+    def reload(self) -> None:
         '''
         Reload to get rid of object cached properties. This should be done on
         any modifications to the data within any of the object's objects.
@@ -50,7 +51,7 @@ class GenericObjects(object):
             self.child_class(data=obj.data) for obj in self.data if len(obj.data) > 0
         ]
 
-    def remove(self, obj):
+    def remove(self, obj: Any) -> None:
         if not isinstance(obj, self.child_class):
             raise TypeError('Bad type: %s' % (type(obj)))
         self._data = [
@@ -58,7 +59,7 @@ class GenericObjects(object):
         ]
 
     @property
-    def data(self):
+    def data(self) -> Iterable[Any]:
         return self._data
 
 

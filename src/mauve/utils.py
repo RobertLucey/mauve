@@ -5,9 +5,13 @@ import pickle
 from functools import lru_cache
 from itertools import chain
 import logging
-from collections.abc import Iterable, Mapping
+from typing import (
+    Iterator,
+    Any,
+    Iterable,
+    Mapping
+)
 
-import spacy
 import textacy.ke
 import nltk
 from nltk.corpus import wordnet
@@ -40,7 +44,7 @@ LEM = WordNetLemmatizer()
 logger = logging.getLogger('mauve')
 
 
-def loose_exists(filepath):
+def loose_exists(filepath: str) -> bool:
     """
 
     :param filepath: filepath to get a related file of
@@ -52,7 +56,7 @@ def loose_exists(filepath):
     return loose_exists
 
 
-def get_loose_filepath(filepath):
+def get_loose_filepath(filepath: str) -> str:
     """
 
     :param: filepath to get a related file of
@@ -80,7 +84,7 @@ def get_loose_filepath(filepath):
     return None
 
 
-def compress_file(filepath):
+def compress_file(filepath: str) -> Any:
     """
     Compress a file if possible. When reading files that may have been
     compressed use the get_file_content
@@ -103,7 +107,7 @@ def compress_file(filepath):
         raise NotImplementedError()
 
 
-def get_file_content(filepath):
+def get_file_content(filepath: str) -> Any:
     """
     Read a file regardless of the extension
 
@@ -125,7 +129,7 @@ def get_file_content(filepath):
         raise NotImplementedError()
 
 
-def get_metadata(source='goodreads'):
+def get_metadata(source='goodreads') -> Iterable[Mapping[str, str]]:
     """
 
     :kwarg source: The type of source to get metadata from
@@ -176,7 +180,7 @@ def get_metadata(source='goodreads'):
     return data
 
 
-def iter_books(source='goodreads'):
+def iter_books(source='goodreads') -> Iterator:
     """
 
     :kwarg source:
@@ -227,7 +231,7 @@ def make_spacy_doc(text):
 
 
 @lru_cache(maxsize=10000)
-def get_stem(word):
+def get_stem(word) -> str:
     """
     Cachey getting the stem of a word
 
@@ -236,13 +240,12 @@ def get_stem(word):
         'love'
 
     :return: The stem of the word according to nltk
-    :rtype: str
     """
     return STEMMER.stem(word)
 
 
 @lru_cache(maxsize=10000)
-def get_lem(word, pos=None):
+def get_lem(word, pos=None) -> str:
     if not word:
         return word
     if pos is None:
@@ -250,7 +253,7 @@ def get_lem(word, pos=None):
     return LEM.lemmatize(word, pos)
 
 
-def lower(var):
+def lower(var: str) -> str:
     """
     Try to get the lower of something. Screw it if
     not, just return the param
@@ -261,14 +264,14 @@ def lower(var):
         return var
 
 
-def find_sub_idx(original, repl_list, start=0, end=9999999999999):
+def find_sub_idx(original: Iterable[Any], repl_list: Iterable[Any], start=0, end=9999999999999) -> tuple:
     length = len(repl_list)
     for index in range(start, min(end, len(original))):
         if original[index:index + length] == repl_list:
             return index, index + length
 
 
-def replace_sub(original: list, repl_list: list, new_list, start=0, end=999999999999):
+def replace_sub(original: Iterable[Any], repl_list: Iterable[Any], new_list, start=0, end=999999999999) -> Iterable[Any]:
     """
     Replace a subset of a list with some other subset
 
@@ -323,30 +326,28 @@ def get_wordnet_pos(tag):
         return tag_dict.get(tag, wordnet.NOUN)
 
 
-def paragraphs(content: str) -> list:
+def paragraphs(content: str) -> Iterable[str]:
     """
     Split content into paragraphs. Handy to isolate issues to a
     paragraph rather than let it compound over future paragraphs,
 
     :param content: string to split into paragraphs
     :return: List split by two newlines
-    :rtype: list
     """
     return content.split('\n')
 
 
-def sentences(content: str) -> list:
+def sentences(content: str) -> Iterable[str]:
     return [nltk.tokenize.sent_tokenize(para) for para in paragraphs(content)]
 
 
-def quote_aware_sent_tokenize(content: str) -> list:
+def quote_aware_sent_tokenize(content: str) -> Iterable[str]:
     """
     Get sentences but make sure that if they're in one speech part
     that the sentences do not get split away from each other.
 
     :param content: str content
     :return: list of quote aware sentences
-    :rtype: list
     """
     sentences = []
     for paragraph in paragraphs(content):
@@ -373,7 +374,7 @@ def quote_aware_sent_tokenize(content: str) -> list:
     return sentences
 
 
-def str_count_multi(string: str, things_to_count: list) -> int:
+def str_count_multi(string: str, things_to_count: Iterable[str]) -> int:
     """
 
     Usage:
@@ -381,12 +382,11 @@ def str_count_multi(string: str, things_to_count: list) -> int:
         3
 
     :return: The occurances of multiple things in a string
-    :rtype: int
     """
     return sum([string.count(thing) for thing in things_to_count])
 
 
-def rflatten(lst: list) -> list:
+def rflatten(lst: Iterable[Any]) -> Iterable[Any]:
     '''
     Given a nested list, flatten it.
 
@@ -396,7 +396,6 @@ def rflatten(lst: list) -> list:
 
     :param lst: list to be flattened
     :return: Flattened list
-    :rtype: list
     '''
     if lst == []:
         return lst
@@ -405,7 +404,7 @@ def rflatten(lst: list) -> list:
     return lst[:1] + rflatten(lst[1:])
 
 
-def flatten(lst: list) -> list:
+def flatten(lst: Iterable[Any]) -> Iterable[Any]:
     '''
     Given a nested list, flatten it.
 
@@ -415,7 +414,6 @@ def flatten(lst: list) -> list:
 
     :param lst: list to be flattened
     :return: Flattened list
-    :rtype: list
     '''
     return list(chain.from_iterable(lst))
 
@@ -428,7 +426,6 @@ def clean_gutenberg(content: str) -> str:
 
     :param content: str content
     :return: The string content with Gutenberg boilerplace removed
-    :rtype: str
     """
 
     if 'PROJECT GUTENBERG EBOOK' not in content:
@@ -454,7 +451,7 @@ def clean_gutenberg(content: str) -> str:
     return content
 
 
-def intersperse(lst: list, item) -> list:
+def intersperse(lst: Iterable[Any], item: Any) -> Iterable[Any]:
     """
 
     Usage:
@@ -466,7 +463,7 @@ def intersperse(lst: list, item) -> list:
     return result
 
 
-def split_include(lst: list, splitter: str) -> list:
+def split_include(lst: Iterable[str], splitter: str) -> Iterable[str]:
     """
 
     Usage:
@@ -486,9 +483,9 @@ def round_down(num: int, divisor: int) -> int:
     return int(num - (num % divisor))
 
 
-def replace_ellipsis(content):
+def replace_ellipsis(content: str) -> str:
     return content.replace('....', '…').replace('. . . .', '…').replace('...', '…').replace('. . .', '…')
 
 
-def remove_decimal_separators(content) -> str:
+def remove_decimal_separators(content: str) -> str:
     return re.sub(r'(\d)\,(\d)', r'\1\2', content)

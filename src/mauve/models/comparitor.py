@@ -23,7 +23,7 @@ class Comparitor():
     For things like is / was
     """
 
-    def __init__(self, text):
+    def __init__(self, text: str):
         self.text = text
 
     def __lt__(self, cmp_obj):
@@ -31,5 +31,5 @@ class Comparitor():
         return TENSE_VALUE_MAP[self.tense] < TENSE_VALUE_MAP[cmp_obj.tense]
 
     @property
-    def tense(self):
+    def tense(self) -> str:
         return TENSE_MAP[self.text.lower().replace('___', ' ').replace('_', ' ')]

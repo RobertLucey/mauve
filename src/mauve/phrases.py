@@ -3,7 +3,7 @@ import spacy
 from mauve.utils import get_en_core_web_sm
 
 
-def replace_phrases(text):
+def replace_phrases(text: str) -> str:
     """
     Replace words with something more succinct or easier to process
     Sort of like a lemma for many words but very bad

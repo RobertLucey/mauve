@@ -1,3 +1,9 @@
+from typing import (
+    Mapping,
+    Any,
+    Iterable
+)
+
 from mauve.structure.conditional import CONDITIONAL_LIST
 from mauve.constants import (
     ASSIGNMENT_WORDS,
@@ -23,7 +29,7 @@ class DepNode:
             tag=self.pos
         )
 
-    def serialize_line(self):
+    def serialize_line(self) -> str:
         return '%s   %s   %s   %s   %s' % (
             self.text.ljust(8),
             self.dep.ljust(8),
@@ -32,9 +38,9 @@ class DepNode:
             self.children
         )
 
-    def serialize(self):
+    def serialize(self) -> Mapping[str, Any]:
 
-        def serialize_children(children):
+        def serialize_children(children) -> Iterable[Mapping[str, Any]]:
             return [{
                 'text': child.text,
                 'dep': child.dep_,
@@ -68,7 +74,7 @@ class DepTree():
     def __init__(self, nodes):
         self.nodes = nodes
 
-    def join_words(self, multiword_list):
+    def join_words(self, multiword_list: Iterable[str]) -> None:
         """
 
         >>> [n.text for n in deptree.nodes]
@@ -97,7 +103,7 @@ class DepTree():
             )
             self.reindex()
 
-    def reindex(self):
+    def reindex(self) -> None:
         """
         Reindex nodes in the deptree for when the content changes
         """
@@ -108,14 +114,13 @@ class DepTree():
                 node.idx = 0
 
     @staticmethod
-    def find_sub_idx(original, repl_list, start=0):
+    def find_sub_idx(original: Iterable[Any], repl_list: Iterable[Any], start=0) -> tuple:
         """
 
         :param original: list to modify
         :repl_list: The list of items to replace
         :kwarg start: What idx to start from
         :return: The next idx of the start of the next occurance of repl_list
-        :rtype: int
         """
         length = len(repl_list)
         for idx in range(start, len(original)):
@@ -123,7 +128,7 @@ class DepTree():
                 return idx, idx + length
 
     @staticmethod
-    def replace_sub(original, repl_list, new_list):
+    def replace_sub(original: Iterable[Any], repl_list: Iterable[Any], new_list: Iterable[Any]) -> Iterable[Any]:
         """
         Replace a subset of a list with some other subset
 
@@ -144,10 +149,10 @@ class DepTree():
             idx = start + length
         return original
 
-    def get_before_node(self, cmp_node):
+    def get_before_node(self, cmp_node: DepNode) -> Iterable[DepNode]:
         return [node for node in self.nodes if node.idx < cmp_node.idx]
 
-    def get_after_node(self, cmp_node, stop_at_punct=False):
+    def get_after_node(self, cmp_node: DepNode, stop_at_punct=False) -> Iterable[DepNode]:
         if stop_at_punct:
             try:
                 first_punct = min([n.idx for n in self.nodes if n.text in SENTENCE_TERMINATORS and n.idx > cmp_node.idx])
@@ -157,8 +162,7 @@ class DepTree():
         else:
             return [node for node in self.nodes if node.idx > cmp_node.idx]
 
-
-    def get_closest_after(self, cmp_node, dep=None, text=None):
+    def get_closest_after(self, cmp_node: DepNode, dep=None, text=None) -> DepNode:
         if dep is not None:
             try:
                 return [node for node in self.nodes if node.idx > cmp_node.idx and node.dep in dep][0]
@@ -170,7 +174,7 @@ class DepTree():
             except IndexError:
                 return DepNode.get_empty_node()
 
-    def get_closest_before(self, cmp_node, dep=None, text=None):
+    def get_closest_before(self, cmp_node: DepNode, dep=None, text=None) -> DepNode:
         if dep is not None:
             try:
                 return [node for node in self.nodes if node.idx < cmp_node.idx and node.dep in dep][-1]
@@ -183,7 +187,7 @@ class DepTree():
             except IndexError:
                 return DepNode.get_empty_node()
 
-    def serialize(self):
+    def serialize(self) -> Iterable[Mapping[str, str]]:
         return [n.serialize() for n in self.nodes]
 
     @property
@@ -195,7 +199,7 @@ class DepTree():
         return [node.get_clean() for node in self.nodes if node.text.lower().replace('_', ' ') in ASSIGNMENT_WORDS]
 
     @property
-    def text(self):
+    def text(self) -> str:
         return ' '.join([n.text for n in self.nodes])
 
     @property

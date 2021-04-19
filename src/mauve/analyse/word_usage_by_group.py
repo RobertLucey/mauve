@@ -5,6 +5,7 @@ Uses the percentage usage rather than count since a long book about
     sunflowers could skew things a fair bit
 """
 
+from typing import Iterable
 import logging
 from collections import defaultdict
 
@@ -14,6 +15,7 @@ from mauve.utils import (
     iter_books,
     round_down
 )
+from mauve.models.books.book import Book
 
 logger = logging.getLogger('mauve')
 
@@ -58,10 +60,10 @@ class BaseWordUsage:
         self.required_lang = required_lang
         self.required_safe_to_use = required_safe_to_use
 
-    def grouper(self, book):
+    def grouper(self, book: Book):
         raise NotImplementedError()
 
-    def update_groups(self, book):
+    def update_groups(self, book: Book) -> None:
         group_names = set(self.grouper(book))
         if self.only_groups is not None:
             group_names = group_names.intersection(set(self.only_groups))
@@ -100,7 +102,7 @@ class BaseWordUsage:
 
             self.prevs[group_name] += 1
 
-    def get_stats(self, verbose=False):
+    def get_stats(self, verbose=False) -> Iterable[Iterable]:
         alt_groups = defaultdict(dict)
         for key in self.groups.keys():
 
@@ -152,7 +154,7 @@ class BaseWordUsage:
                 )
         return results
 
-    def log_stats(self, verbose=False):
+    def log_stats(self, verbose=False) -> None:
         for cmp_group, base_group, data in self.get_stats(verbose=verbose):
             logger.info(
                 '%s < %s: %s' % (
@@ -162,7 +164,7 @@ class BaseWordUsage:
                 )
             )
 
-    def process(self, verbose=False):
+    def process(self, verbose=False) -> None:
         for idx, book in enumerate(iter_books()):
             # Maybe only update prev if update_groups did anything.
             # Doesn't really matter
@@ -170,7 +172,7 @@ class BaseWordUsage:
             if idx % self.log_rate == 0:
                 self.log_stats(verbose=verbose)
 
-    def get_is_usable(self, book):
+    def get_is_usable(self, book: Book) -> None:
         """
         Get if the given book passes the requirements to be
         included in the data.
@@ -186,7 +188,7 @@ class AuthorGenderWordUsage(BaseWordUsage):
     Generally want to use by_word method
     """
 
-    def grouper(self, book):
+    def grouper(self, book: Book) -> None:
         groups = []
         if self.only_groups is not None:
             if book.author.gender not in self.only_groups:
@@ -198,7 +200,7 @@ class AuthorGenderWordUsage(BaseWordUsage):
 
 class AuthorNationalityWordUsage(BaseWordUsage):
 
-    def grouper(self, book):
+    def grouper(self, book: Book) -> None:
         groups = []
         if self.only_groups is not None:
             if book.author.nationality not in self.only_groups:
@@ -210,7 +212,7 @@ class AuthorNationalityWordUsage(BaseWordUsage):
 
 class AuthorDOBWordUsage(BaseWordUsage):
 
-    def grouper(self, book):
+    def grouper(self, book: Book) -> None:
         groups = []
         if self.only_groups is not None:
             if round_down(book.author.birth_year, 10) not in self.only_groups:
@@ -223,7 +225,7 @@ class AuthorDOBWordUsage(BaseWordUsage):
 
 class PublishedYearWordUsage(BaseWordUsage):
 
-    def grouper(self, book):
+    def grouper(self, book: Book) -> None:
         groups = []
         if self.only_groups is not None:
             if round_down(book.year_published, 10) not in self.only_groups:
@@ -236,7 +238,7 @@ class PublishedYearWordUsage(BaseWordUsage):
 
 class GenreWordUsage(BaseWordUsage):
 
-    def grouper(self, book):
+    def grouper(self, book: Book) -> Iterable[str]:
         groups = []
         if self.get_is_usable(book):
             if self.only_groups is not None:

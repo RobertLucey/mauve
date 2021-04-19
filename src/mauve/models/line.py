@@ -1,3 +1,5 @@
+from typing import Mapping, Any, Iterable
+
 from mauve.models.sentence import Sentence
 from mauve.constants.names import NAMES
 from mauve.models.generic import (
@@ -14,15 +16,16 @@ from mauve.models.speech import extract_speech
 
 # Do text extraction by line since by sentence cuts ends off
 
+
 class Line(GenericObject):
 
     def __init__(self, text, **kwargs):
         self.text = text.strip()
         self.line_no = kwargs.get('line_no', None)
 
-    def get_speech(self):
+    def get_speech(self) -> Iterable:
 
-        def assign_best_name(speech_parts):
+        def assign_best_name(speech_parts: Iterable) -> Iterable:
             # FIXME: what if a line has multiple speakers? Does this happen somewhere?
 
             is_multi_speaker = len(set([speech_item.speaker.name for speech_item in speech_parts if speech_item.speaker.name and speech_item.speaker.name[0].isupper()])) > 1
@@ -42,10 +45,6 @@ class Line(GenericObject):
 
             return speech_parts
 
-        def process_speech_parts(speech_parts):
-            return 
-
-
         # can probably use extract speech from here without copy paste
         # by using quote_aware_sent_tokenize
 
@@ -55,8 +54,7 @@ class Line(GenericObject):
 
         return speech_parts
 
-
-    def serialize(self):
+    def serialize(self) -> Mapping[str, Any]:
         return {
             'text': self.text,
             'line_no': self.line_no,

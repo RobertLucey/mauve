@@ -15,7 +15,7 @@ class WPS:
         self.print_rate = print_rate
         self.count = 0
 
-    def update(self):
+    def update(self) -> None:
         """
         To be called at every word processed
         """
@@ -27,7 +27,7 @@ class WPS:
             if self.count % self.print_rate == 0:
                 print(round(self.wps(), 2))
 
-    def wps(self):
+    def wps(self) -> float:
         """
         Get the wps
 
@@ -40,7 +40,7 @@ class WPS:
         except ZeroDivisionError:
             return 0.
 
-    def clean_queue(self):
+    def clean_queue(self) -> None:
         """
         Remove old data from the queue so that we only look
         at the self.past_seconds seconds for getting the wps

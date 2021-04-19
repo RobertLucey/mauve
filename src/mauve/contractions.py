@@ -2,7 +2,7 @@ from mauve.constants.contractions import CONTRACTION_MAP
 from mauve.constants import APOSTROPHES
 
 
-def replace_contractions(content):
+def replace_contractions(content: str) -> str:
     """
     Expand contractions since contractions are annoying
 

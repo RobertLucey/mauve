@@ -6,11 +6,11 @@ from mauve import ENCORE
 from mauve.constants.idioms import IDIOMS, IDIOM_MATCHER
 
 
-def replace_idioms(text):
+def replace_idioms(content: str) -> str:
 
     from mauve.constants import REPLACEMENTS
 
-    sentence = ENCORE(text)
+    sentence = ENCORE(content)
 
     phrase_matches = IDIOM_MATCHER(sentence)
 
@@ -22,22 +22,22 @@ def replace_idioms(text):
 
     replacements = [f.text for f in spacy.util.filter_spans(replacements)]
 
-    thetext = sentence.text
+    content = sentence.text
 
     sub_replace = list(set([s.text for s in sentence.ents]))
 
     for name in replacements + sub_replace:
 
-        thetext = thetext.replace(
+        content = content.replace(
             name,
             name.replace(' ', '_')
         )
 
     for name in REPLACEMENTS:
         if name in REPLACEMENTS:
-            thetext = thetext.replace(
+            content = content.replace(
                 name,
                 REPLACEMENTS[name]
             )
 
-    return thetext
+    return content

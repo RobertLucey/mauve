@@ -1,3 +1,5 @@
+from typing import Iterable, Mapping, Any
+
 from mauve.constants import (
     SPEECH_QUOTES,
     SPEECH_WORDS,
@@ -37,19 +39,19 @@ class Speech:
         raise NotImplementedError()
 
     @property
-    def text(self):
+    def text(self) -> str:
         if self._text is not None:
             return self._text
         return ' '.join([s.text for s in self.segments]).strip()
 
     @property
-    def inflection(self):
+    def inflection(self) -> str:
         inflection = None
         if self._inflection:
             inflection = self._inflection
         return inflection
 
-    def serialize(self):
+    def serialize(self) -> Mapping[str, Any]:
         return {
             'text': self.text,
             'speaker': self.speaker.serialize(),
@@ -57,7 +59,7 @@ class Speech:
         }
 
 
-def extract_speech(sentence):
+def extract_speech(sentence) -> Iterable[Speech]:
     """
 
     :param sentence:

@@ -1,5 +1,6 @@
 import difflib
 import logging
+from typing import Iterable, Mapping, Any
 
 from mauve import GENDER_DETECTOR
 from mauve.phrases import replace_phrases
@@ -24,7 +25,7 @@ from mauve.constants import (
 logger = logging.getLogger('mauve')
 
 
-def clean_name(name):
+def clean_name(name: str) -> str:
     """
     Clean up a name by removing parts we don't care about or set
     to empty if the name is untrustworthy.
@@ -88,12 +89,12 @@ class People(GenericObjects):
         kwargs.setdefault('child_class', Person)
         super(People, self).__init__(*args, **kwargs)
 
-    def __contains__(self, person):
+    def __contains__(self, person) -> bool:
         if not isinstance(person, Person):
             person = Person(name=person)
         return any([p.is_similar_to(person) for p in self])
 
-    def append(self, obj):
+    def append(self, obj) -> None:
         if not isinstance(obj, self.child_class):
             raise TypeError('Bad type: %s' % (type(obj)))
 
@@ -105,15 +106,15 @@ class People(GenericObjects):
             obj.inc_references()
             self._data.append(obj)
 
-    def get_trustworthy_people(self):
+    def get_trustworthy_people(self) -> Iterable:
         return [person for person in self if person.is_trustworthy]
 
-    def get_count_of(self, person):
+    def get_count_of(self, person) -> int:
         if isinstance(person, str):
             person = Person(name=person)
         return len([person.name for person in self if person.name == person.name])
 
-    def remove_near_duplicates(self):
+    def remove_near_duplicates(self) -> None:
         """
         Replace near name duplicates with the more commonly used
         variant. Also sum the references into the more commonly
@@ -159,7 +160,7 @@ class Person(Entity):
     def __hash__(self):
         return hash(self.name)
 
-    def is_similar_to(self, cmp_person):
+    def is_similar_to(self, cmp_person) -> bool:
         """
         Return if a person is similar enough to this person
         This is based on the cleaned name
@@ -202,17 +203,17 @@ class Person(Entity):
 
         return False
 
-    def inc_references(self):
+    def inc_references(self) -> None:
         self.references += 1
 
-    def serialize(self):
+    def serialize(self) -> Mapping[str, str]:
         return {
             'name': self.name,
             'gender': self.gender
         }
 
     @property
-    def gender(self):
+    def gender(self) -> str:
         """
         Try to get the gender based on the name of the perosn
 
@@ -269,14 +270,14 @@ class Person(Entity):
         return gender
 
     @property
-    def is_trustworthy(self):
+    def is_trustworthy(self) -> bool:
         # TODO: can do some more bits from the name I guess
         is_trustworthy = self.trustworthy or self.references > 2
         logger.debug('Person \'%s\' trustworthy: %s', self.name, is_trustworthy)
         return is_trustworthy
 
     @property
-    def name(self):
+    def name(self) -> str:
         """
         Get the cleaned name of the person
         """
@@ -286,7 +287,7 @@ class Person(Entity):
 class Author(Person):
 
     @property
-    def nationality(self):
+    def nationality(self) -> str:
         if self.name in AUTHOR_METADATA:
             nationality = AUTHOR_METADATA[self.name]['nationality']
             if nationality is not None:
@@ -302,12 +303,12 @@ class Author(Person):
         return None
 
     @property
-    def birth_year(self):
+    def birth_year(self) -> int:
         if self.name in AUTHOR_METADATA:
             return AUTHOR_METADATA[self.name]['born']
         return None
 
-    def serialize(self):
+    def serialize(self) -> Mapping[str, Any]:
         data = super(Author, self).serialize()
         data.update(
             {
@@ -318,12 +319,8 @@ class Author(Person):
         return data
 
 
-def extract_people(sentence):
+def extract_people(sentence) -> People:
     """
-
-    :param sentence:
-    :return:
-    :rtype: People
     """
     # Names can be chained by , and ands but we only get the last
     sentence.text = replace_phrases(sentence.text)

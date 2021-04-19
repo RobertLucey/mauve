@@ -1,3 +1,9 @@
+from typing import (
+    Any,
+    Iterable
+)
+
+
 class Node(object):
     def __init__(self, value):
         self.value = value
@@ -5,11 +11,11 @@ class Node(object):
         self.right = None
         self.count = 1
 
-    def __str__(self):
+    def __str__(self) -> str:
         return 'value: {0}, count: {1}'.format(self.value, self.count)
 
 
-def insert(root, value):
+def insert(root: Node, value: Any) -> Node:
     if not root:
         return Node(value)
     elif root.value == value:
@@ -22,7 +28,7 @@ def insert(root, value):
     return root
 
 
-def create(seq):
+def create(seq: Iterable) -> Node:
     root = None
     for word in seq:
         root = insert(root, word)
@@ -30,7 +36,7 @@ def create(seq):
     return root
 
 
-def search(root, word, depth=1):
+def search(root: Node, word: str, depth=1) -> tuple[int, int]:
     if not root:
         return 0, 0
     elif root.value == word:

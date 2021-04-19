@@ -2,10 +2,12 @@ from collections import (
     defaultdict,
     Counter
 )
-import os
 import pickle
 import logging
-from typing import Mapping
+from typing import (
+    Mapping,
+    List
+)
 
 from cached_property import cached_property
 
@@ -40,7 +42,6 @@ from mauve.constants import (
     ENG_WORDS,
     TOKEN_VERSION,
     PROFANITY_LIST,
-    PROFANITY_SET,
     SENTENCE_TERMINATORS,
     EXTENDED_PUNCTUATION
 )
@@ -114,19 +115,14 @@ class TextBody(GenericObject, Tagger):
         """
 
         :kwargs only_dictionary_words:
-        :return:
-        :rtype:
         """
         if only_dictionary_words:
             return float(len(set(self.dictionary_words))) / len(self.dictionary_words)
         return float(len(set(self.words))) / self.word_count
 
     @property
-    def words(self) -> list:
+    def words(self) -> List[str]:
         """
-
-        :return:
-        :rtype: list
         """
         txt = self.content.translate(
             str.maketrans(
@@ -143,7 +139,6 @@ class TextBody(GenericObject, Tagger):
         A profane phrase may be many words so not exactly every 10000 words
 
         :return: How profane the current piece of text is
-        :rtype: float
         """
         # Only include words that are in any profanity
         words = [w.lower() for w in self.words if w.lower() in PROFANITY_WORDS]
@@ -227,7 +222,7 @@ class TextBody(GenericObject, Tagger):
             return 'unknown'
 
     @cached_property
-    def basic_sentences(self) -> list:
+    def basic_sentences(self) -> List[str]:
         """
         A faster (and worse) way to get sentences of a piece of text
         """
@@ -237,15 +232,15 @@ class TextBody(GenericObject, Tagger):
         return content.split('___mauve_terminator___')
 
     @cached_property
-    def sentences(self) -> list:
+    def sentences(self) -> List[str]:
         return nltk.sent_tokenize(self.content)
 
     @cached_property
-    def quote_aware_sentences(self) -> list:
+    def quote_aware_sentences(self) -> List[str]:
         return quote_aware_sent_tokenize(self.content)
 
     @cached_property
-    def phrases_content(self) -> list:
+    def phrases_content(self) -> str:
         try:
             return replace_phrases(self.content)
         except Exception as ex:
@@ -263,7 +258,7 @@ class TextBody(GenericObject, Tagger):
         ])
 
     @cached_property
-    def speech(self) -> list:
+    def speech(self) -> List[Speech]:
         """
 
         :return: list of Speech objects
@@ -326,8 +321,6 @@ class TextBody(GenericObject, Tagger):
         """
         Extract all People from text. This is pretty stupid so includes
         a lot of false positives
-
-        :return People
         """
         people = People()
         for sentence in self.sentences:
@@ -335,7 +328,7 @@ class TextBody(GenericObject, Tagger):
                 people.append(person)
         return people
 
-    def get_speech_by_people(self, people=None) -> Mapping[str, list]:
+    def get_speech_by_people(self, people=None) -> Mapping[str, List[Speech]]:
         """
 
         :kwarg people: People object / list of Person objects
@@ -354,7 +347,7 @@ class TextBody(GenericObject, Tagger):
                     speech_people_map[speech.speaker.name].append(speech)
         return speech_people_map
 
-    def get_assignments_by(self, left_text) -> list:
+    def get_assignments_by(self, left_text: str) -> List[str]:
         """
         Get assignments by the thing being assigned to
 
@@ -374,13 +367,13 @@ class TextBody(GenericObject, Tagger):
             ).get_profanity_score() for person_name, speech_items in speech.items()
         }
 
-    def get_sentiment_by_people(self, people=None) -> Mapping[str, str]:
+    def get_sentiment_by_people(self, people=None) -> Mapping[str, dict]:
         """
         Use vader sentiment to get the sentiment of all a character has said
 
         :kwarg people: People object / list of Person objects
                         None to get speech of all people
-        :return: list of dicts {name: something, sentiment: {pos: 0, neg: 0 , neu: 0, compound: 0}}
+        :return: {person_name: {pos: 0, neg: 0 , neu: 0, compound: 0}, ...}
         """
         speech = self.get_speech_by_people(people=people)
         return {
@@ -390,7 +383,6 @@ class TextBody(GenericObject, Tagger):
         }
 
     def count_usage(self, phrase, split_multi=False, nosplit=False):
-
 
         """  USE THIS THING
                     texts = split_include(
@@ -513,7 +505,12 @@ class TextBody(GenericObject, Tagger):
                 pickle.dump(data, f_pickle)
                 f_pickle.close()
             except Exception as ex:
-                logger.error('Could not open file %s: %s' % (self.all_tokens_pickle_path, ex))
+                logger.error(
+                    'Could not open file %s: %s' % (
+                        self.all_tokens_pickle_path,
+                        ex
+                    )
+                )
 
         return data
 
@@ -538,7 +535,12 @@ class TextBody(GenericObject, Tagger):
                 pickle.dump(data, f_pickle)
                 f_pickle.close()
             except Exception as ex:
-                logger.error('Could not open file %s: %s' % (self.word_tokens_pickle_path, ex))
+                logger.error(
+                    'Could not open file %s: %s' % (
+                        self.word_tokens_pickle_path,
+                        ex
+                    )
+                )
 
         return data
 
@@ -555,7 +557,7 @@ class TextBody(GenericObject, Tagger):
         return self.content_path + '.word_tokenv{}.pickle'.format(TOKEN_VERSION)
 
     @cached_property
-    def dictionary_words(self) -> list:
+    def dictionary_words(self) -> List[str]:
         return [
             word for word in self.words if word.lower() in ENG_WORDS and word.isalpha()
         ]
@@ -565,7 +567,6 @@ class TextBody(GenericObject, Tagger):
         """
 
         :return: the number of individual words in the piece of text
-        :rtype: int
         """
         return len(self.words)
 
@@ -606,7 +607,7 @@ class TextBody(GenericObject, Tagger):
         """
         Given a piece of text guess what type of quote is used for speech
 
-        :param content: str
+        :param content:
         :kwarg default: what to give back if couldn't make a good guess
         """
         speech_words = []
@@ -628,8 +629,6 @@ class TextBody(GenericObject, Tagger):
         """
         Try to take weird and cumbersome stuff out of the text.
         Mainly around contractions and quoting to make things less ambiguous
-
-        :param content: str
         """
         content = replace_contractions(content)
         content = replace_ellipsis(content)
@@ -639,12 +638,12 @@ class TextBody(GenericObject, Tagger):
             content = normalize_spelling(content)
 
         guessed_quote = self.guess_speech_quote(content)
-        if guessed_quote != '’':
-            logger.debug('Speech quote guessed is %s so dangerously modifying ’ to \'', guessed_quote)
-            content = content.replace('’', '\'')
-        else:
+        if guessed_quote == '’':
             # Just to be safe don't change all the single quotes, just change
             # the ones that are posessive (FIXME: deal with the others)
             logger.debug('Speech quote guessed is %s so only changing posessives ’s', guessed_quote)
             content = content.replace('’s', '\'s')
+        else:
+            logger.debug('Speech quote guessed is %s so dangerously modifying ’ to \'', guessed_quote)
+            content = content.replace('’', '\'')
         return content

@@ -1,6 +1,6 @@
 from cached_property import cached_property
-from functools import lru_cache
 import logging
+from typing import Iterable, Any, Mapping
 
 import textacy.ke
 import nltk
@@ -27,10 +27,10 @@ logger = logging.getLogger('mauve')
 
 class Sentence:
 
-    def __init__(self, text):
+    def __init__(self, text: str):
         self.text = text
 
-    def serialize(self):
+    def serialize(self) -> Mapping[str, Any]:
         return {
             'text': self.text,
             'people': self.people,
@@ -38,7 +38,7 @@ class Sentence:
         }
 
     @property
-    def deptree(self):
+    def deptree(self) -> DepTree:
         doc = get_en_core_web_sm(self.get_unsplit_text)
 
         return DepTree([
@@ -57,15 +57,15 @@ class Sentence:
         return extract_people(self)
 
     @property
-    def is_question(self):
+    def is_question(self) -> bool:
         return self.text[-1] == '?'
 
     @staticmethod
-    def preprocess_text(text):
+    def preprocess_text(text: str) -> str:
         return ' '.join([SYNONYM.get_word(t.replace(' ', '_')) for t in nltk.word_tokenize(text)])
 
     @cached_property
-    def get_unsplit_text(self):
+    def get_unsplit_text(self) -> str:
         self.text = self.preprocess_text(replace_phrases(self.text))
 
         sentence = get_en_core_web_sm(self.text)
@@ -101,7 +101,7 @@ class Sentence:
         return mod_text
 
     @cached_property
-    def base_segments(self):
+    def base_segments(self) -> Iterable[Segment]:
         self.text = self.preprocess_text(self.text)
 
         sentence = get_en_core_web_sm(self.text)
@@ -139,7 +139,7 @@ class Sentence:
         ]
 
     @cached_property
-    def segments(self):
+    def segments(self) -> Iterable[Segment]:
         segments = self.base_segments
         people = self.people
 
@@ -167,11 +167,11 @@ class Sentence:
         return extract_assignments(self)
 
     @cached_property
-    def speech(self):
+    def speech(self) -> Iterable:
         return extract_speech(self)
 
     @property
-    def lvr(self):
+    def lvr(self) -> Iterable:
         assignments = extract_assignments(self)
         conditionals = extract_conditionals(self)
         return assignments + conditionals

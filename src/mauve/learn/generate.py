@@ -1,13 +1,12 @@
 import logging
 from collections import defaultdict
+from typing import Mapping
 
 import numpy as np
 
 from sklearn.neural_network import MLPClassifier
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.svm import SVC
-from sklearn.gaussian_process import GaussianProcessClassifier
-from sklearn.gaussian_process.kernels import RBF
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.ensemble import (
     RandomForestClassifier,
@@ -24,12 +23,11 @@ from mauve.learn.utils import get_train_test
 logger = logging.getLogger('mauve')
 
 
-def get_classifiers():
+def get_classifiers() -> Mapping:
     return {
         'nearest_neighbors': KNeighborsClassifier(3),
         'linear_svm': SVC(kernel='linear', C=0.025),
         'rbf_svm': SVC(gamma=2, C=1),
-        #'gaussian_rprocess': GaussianProcessClassifier(1.0 * RBF(1.0)),
         'decision_tree': DecisionTreeClassifier(max_depth=5),
         'random_forest': RandomForestClassifier(
             max_depth=5,
@@ -80,7 +78,7 @@ class ClassifierCreator():
         self.classifiers = {}
         self.class_group_map = {}
 
-    def load_tagged_docs(self):
+    def load_tagged_docs(self) -> None:
         # TODO: change this, it's a bit bookey rather than texty
         processed = 0
         for item in iter_books():
@@ -89,7 +87,7 @@ class ClassifierCreator():
             self.tagged_docs.load(item)
             processed += 1
 
-    def generate_classifier(self):
+    def generate_classifier(self) -> None:
 
         logger.debug('Start loading content')
 
@@ -157,7 +155,7 @@ class ClassifierCreator():
 
     # TODO: make a score thing that gives back a number like age
 
-    def predict(self, content):
+    def predict(self, content: str) -> str:
         return self.class_group_map[
             self.preferred_classifier.predict(
                 [self.model.infer_vector(content.split() * 100)]

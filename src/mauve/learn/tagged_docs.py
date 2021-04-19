@@ -1,17 +1,16 @@
 import logging
 from random import shuffle
 from collections import defaultdict
+from typing import (
+    Iterable,
+    Iterator
+)
 
-from gensim import utils
 from gensim.models.doc2vec import TaggedDocument
 
-from mauve.constants.names import NAMES
 from mauve.utils import round_down, flatten
-from mauve.constants import (
-    BORING_WORDS,
-    ENG_WORDS,
-    EXTENDED_PUNCTUATION
-)
+from mauve.models.books.book import Book
+from mauve.models.text import TextBody
 
 logger = logging.getLogger('mauve')
 
@@ -21,7 +20,7 @@ class Safety:
     Just a general filter for all books
     """
 
-    def should_include(self, book):
+    def should_include(self, book: Book) -> bool:
         if self.get_group_name(book) is None:
             return False
         if book.num_ratings < 1000:
@@ -47,7 +46,7 @@ class BaseTaggedDocs(object):
         self.counter = defaultdict(int)
         self.min_per_group = min_per_group
 
-    def load(self, item):
+    def load(self, item) -> None:
         if self.should_include(item):
             self.items.append(item)
             self.num_items += 1
@@ -58,7 +57,7 @@ class BaseTaggedDocs(object):
     def get_group_name(self, item):
         raise NotImplementedError()
 
-    def __iter__(self):
+    def __iter__(self) -> Iterator[TaggedDocument]:
         for item in self.items:
             group = self.get_group_name(item)
             yield TaggedDocument(
@@ -67,7 +66,7 @@ class BaseTaggedDocs(object):
             )
             self.counter[group] += 1
 
-    def to_array(self):
+    def to_array(self) -> Iterable[TaggedDocument]:
         self.docs = [i for i in self]
         return self.docs
 
@@ -75,12 +74,12 @@ class BaseTaggedDocs(object):
         shuffle(self.docs)
         return self.docs
 
-    def content_cleaner(self, item):
+    def content_cleaner(self, item: TextBody) -> str:
         return item.raw_content
 
-    def clean_data(self):
+    def clean_data(self) -> None:
 
-        def cull(skip_lang, multi=0):
+        def cull(skip_lang: bool, multi=0) -> None:
             groups_count = defaultdict(int)
             for item in self.items:
                 if self.get_group_name(item) is not None:
@@ -140,22 +139,22 @@ class AuthorTaggedDocs(Safety, BaseTaggedDocs):
         self.authors = kwargs.pop('authors', [])
         super(AuthorTaggedDocs, self).__init__(*args, **kwargs)
 
-    def content_cleaner(self, book):
+    def content_cleaner(self, book: Book) -> str:
         return book.raw_content.replace(book.author.name, '')
 
-    def get_group_name(self, book):
+    def get_group_name(self, book: Book) -> str:
         return book.author.name
 
 
 class GenderTaggedDocs(Safety, BaseTaggedDocs):
 
-    def get_group_name(self, book):
+    def get_group_name(self, book: Book) -> str:
         return book.author.gender
 
 
 class NationalityTaggedDocs(Safety, BaseTaggedDocs):
 
-    def get_group_name(self, book):
+    def get_group_name(self, book: Book) -> str:
         nationality = book.author.nationality
 
         if nationality is None:
@@ -185,12 +184,17 @@ class AgeTaggedDocs(Safety, BaseTaggedDocs):
             )
             self.counter[group] += 1
 
-    def get_group_name(self, book):
+    def get_group_name(self, book: Book) -> str:
         try:
             if book.year_published - book.author.birth_year >= 70:
                 return
-            return str(round_down(book.year_published - book.author.birth_year, 2))
-        except:
+            return str(
+                round_down(
+                    book.year_published - book.author.birth_year,
+                    2
+                )
+            )
+        except Exception:
             return
 
 
@@ -209,7 +213,7 @@ class YearPublishedTaggedDocs(Safety, BaseTaggedDocs):
             )
             self.counter[group] += 1
 
-    def get_group_name(self, book):
+    def get_group_name(self, book: Book) -> int:
         try:
             if book.year_published > 1900:
                 return round_down(book.year_published, 2)
