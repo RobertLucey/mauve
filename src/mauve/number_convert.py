@@ -50,7 +50,6 @@ def convert_numbers(content: str) -> str:
     def _replace(content: str) -> str:
         next_index, next_word = _find_next_instance(content, idx=0)
         if next_index == maximum:
-            logger.debug('Could not find next index')
             return content
 
         before_content = content[:get_word_start_index(content, next_index)]
@@ -80,10 +79,7 @@ def convert_numbers(content: str) -> str:
     while not matching:
         if contains_number(content):
             tmp_content = _replace(content)
-
             matching = tmp_content == content
-            logger.debug('tmp_content: %s', tmp_content)
-            logger.debug('content: %s', content)
             content = tmp_content
         else:
             break
