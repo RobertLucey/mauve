@@ -38,6 +38,20 @@ There is data [here](data/) of some details of 10k books to play with.
     * Author age
     * book published year
     * TODO: lots more
+* Comparisons between books
+  * Word usage by group
+    * Get the usage (by %) difference between groups like author gender / nationality / genre / publication date / whatever. Tries to ignore boring words which is essentially an extended stopwords set
+* Features of text preparation used by some functionality:
+  * Expand contractions
+  * Annotate some idioms
+  * Annotate some phrases
+  * Replace dots with ellipsis
+  * Replace general things for simplicity (e.g. "per annum" -> "yearly")
+  * Remove decimal separators (1,000 -> 1000)
+  * American spelling to correct spelling (on English content)
+  * Normalize quotation marks
+  * Replace wordy numbers with the decimals ("a hundred and twenty" -> 120)
+    * Extends word2number so it tries to be clever enough for unexpected number layouts
 * (Interesting) properties of a book:
   * Time it should take to read the text
   * How difficult the language in the book is
@@ -59,9 +73,6 @@ There is data [here](data/) of some details of 10k books to play with.
       * Assignments they use (if Bob says "Alice is a fool" you can extract to see what Bob says about Alice)
       * Profanity
       * Sentiment
-* Comparisons between books
-  * Word usage by group
-    * Get the usage (by %) difference between groups like author gender / nationality / genre / publication date / whatever. Tries to ignore boring words which is essentially an extended stopwords set
 
 
 ## Usage
