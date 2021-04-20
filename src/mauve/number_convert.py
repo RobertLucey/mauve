@@ -6,6 +6,61 @@ logger = logging.getLogger('mauve')
 
 # check words in w2n.american_number_system
 
+maximum = 999999999
+
+
+words = []
+for w in w2n.american_number_system.keys():
+    words.append(' ' + w)
+    words.append('-' + w)
+    words.append(w)
+    words.append(w.capitalize())
+
+
+def index(content: str, substr: str, idx: int) -> int:
+    try:
+        return content.index(substr, idx)
+    except ValueError:
+        return maximum
+
+
+def _find_next_instance(content: str, idx=0) -> tuple:
+    indexes = [(s, index(content, s, idx)) for s in words]
+    min_index = min([i[1] for i in indexes])
+    return (
+        min_index,
+        [i[0] for i in indexes if i[1] == min_index][0]
+    )
+
+
+def get_word_at(content: str, index: int) -> int:
+    return content[get_word_start_index(content, index):].strip().replace('-', ' ')
+
+
+def get_word_start_index(content: str, index: int) -> int:
+    return max([content.rfind(' ', 0, index + 1), 0])
+
+
+def get_next(content: str, idx=0):
+    idx = min([index(content, ' ', idx=idx), index(content, '-', idx=idx)])
+    if idx == maximum:
+        if content is None:
+            return None, None
+        return content.strip(), None
+    return content[:idx].strip(), content[idx:].strip()
+
+
+def _is_wordy(word):
+    if word is None:
+        return False
+    if word.strip() in words:
+        return True
+    if word.strip() in {'and', 'a'}:
+        return True
+    if word.split('-')[0] in words:
+        return True
+    return False
+
 
 def contains_number(content: str) -> bool:
     for num_word in w2n.american_number_system.keys():
@@ -15,65 +70,34 @@ def contains_number(content: str) -> bool:
 
 
 def convert_numbers(content: str) -> str:
-    # Maybe split by newlines to deal with smaller pieces
-    # can't split by . or ,
-
-    maximum = 999999999
-
-    words = []
-    for w in w2n.american_number_system.keys():
-        words.append(' ' + w)
-        words.append('-' + w)
-        words.append(w)
-        words.append(w.capitalize())
-
-    def index(content: str, substr: str, idx: int) -> int:
-        try:
-            return content.index(substr, idx)
-        except:
-            return maximum
-
-    def _find_next_instance(content: str, idx=0) -> tuple:
-        indexes = [(s, index(content, s, idx)) for s in words]
-        min_index = min([i[1] for i in indexes])
-        return (
-            min_index,
-            [i[0] for i in indexes if i[1] == min_index][0]
-        )
-
-    def get_word_at(content: str, index: int) -> int:
-        return content[get_word_start_index(content, index):].strip().split(' ')[0]
-
-    def get_word_start_index(content: str, index: int) -> int:
-        return max([content.rfind(' ', 0, index + 1), 0])
 
     def _replace(content: str) -> str:
-        next_index, next_word = _find_next_instance(content, idx=0)
-        if next_index == maximum:
+        first_index, first_word = _find_next_instance(content, idx=0)
+        if first_index == maximum:
+            # No numberey bits
             return content
 
-        before_content = content[:get_word_start_index(content, next_index)]
-        after_including = content[get_word_start_index(content, next_index):]
-        after_excluding = content[next_index + len(next_word):]
+        before_content = content[:get_word_start_index(content, first_index)]
+        after_excluding = content[first_index + len(first_word):]
 
-        # If it's the last word
-        if after_including in words:
-            return before_content + ' ' + str(w2n.word_to_num(get_word_at(content, next_index))) + after_excluding
+        next_content = after_excluding
+        running = [first_word.strip()]
+        to_extend = ''
 
-        # If it's not the last word but all words after are numberey
-        if all(
-            [w in words for w in after_including.replace('-', ' ').split(' ')]
-        ):
-            return before_content + ' ' + str(w2n.word_to_num(after_including))
+        while True:
+            next_word, next_content = get_next(next_content, idx=1)
+            if _is_wordy(next_word):
+                running.append(next_word.strip())
+            else:
+                if next_word is not None and next_content is not None:
+                    to_extend = next_word + ' ' + next_content
+                elif next_word is not None and next_content is None:
+                    to_extend = next_word
+                else:
+                    to_extend = ''
+                break
 
-        # If there are no more numberey words after the first can just change the one word
-        next_index, _ = _find_next_instance(after_excluding, idx=0)
-        if next_index == maximum:
-            return before_content + ' ' + str(w2n.word_to_num(next_word)) + ' ' + after_excluding
-
-        # TODO: less trivial
-
-        return content
+        return before_content + ' ' + str(w2n.word_to_num(' '.join(running))) + ' ' + to_extend
 
     matching = False
     while not matching:
@@ -83,4 +107,5 @@ def convert_numbers(content: str) -> str:
             content = tmp_content
         else:
             break
-    return str(content)
+
+    return str(content).strip()
