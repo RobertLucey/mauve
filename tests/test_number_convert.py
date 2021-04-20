@@ -48,3 +48,14 @@ class TestNumberConvert(TestCase):
             convert_numbers('$2 million'),
             '$2000000'
         )
+
+    def test_implied(self):
+        self.assertEqual(
+            convert_numbers('a hundred and fifty'),
+            'a 150'
+        )
+
+        self.assertEqual(
+            convert_numbers('hundred and fifty'),
+            '150'
+        )

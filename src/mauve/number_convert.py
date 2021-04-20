@@ -20,7 +20,7 @@ for w in w2n.american_number_system.keys():
 def index(content: str, substr: str, idx: int) -> int:
     try:
         return content.index(substr, idx)
-    except ValueError:
+    except (ValueError, AttributeError):
         return maximum
 
 
@@ -77,6 +77,10 @@ def convert_numbers(content: str) -> str:
             # No numberey bits
             return content
 
+        if content[first_index-2].isdigit():
+            # 20 million
+            pass
+
         before_content = content[:get_word_start_index(content, first_index)]
         after_excluding = content[first_index + len(first_word):]
 
@@ -97,6 +101,8 @@ def convert_numbers(content: str) -> str:
                     to_extend = ''
                 break
 
+        if running[0] in {'hundred', 'thousand', 'million', 'billion'}:
+            running.insert(0, 'one')
         return before_content + ' ' + str(w2n.word_to_num(' '.join(running))) + ' ' + to_extend
 
     matching = False
