@@ -39,14 +39,40 @@ class TestNumberConvert(TestCase):
     def test_combination(self):
         # could convert all numbers to words and then back? boo though
         self.assertEqual(
-            convert_numbers('60 million'),
-            '60000000'
+            convert_numbers('about 600 million or so'),
+            'about 600000000 or so'
         )
 
     def test_monitary_combination(self):
         self.assertEqual(
             convert_numbers('$2 million'),
             '$2000000'
+        )
+
+    def test_colloquial(self):
+        self.assertEqual(
+            convert_numbers('two-fifty'),
+            '250'
+        )
+        self.assertEqual(
+            convert_numbers('two-fifty-one'),
+            '251'
+        )
+
+    def test_year(self):
+        self.assertEqual(
+            convert_numbers('nineteen-fifty-five'),
+            '1955'
+        )
+        self.assertEqual(
+            convert_numbers('nineteen hundred and two'),
+            '1902'
+        )
+
+    def test_ordinal(self):
+        self.assertEqual(
+            convert_numbers('fifty-first'),
+            '51'
         )
 
     def test_implied(self):

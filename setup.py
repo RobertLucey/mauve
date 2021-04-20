@@ -23,7 +23,8 @@ INSTALL_REQUIRES = [
     'EbookLib',
     'tika',
     'spacy_wordnet',
-    'gensim'
+    'gensim',
+    'word2number'
 ]
 
 setup(

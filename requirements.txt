@@ -18,3 +18,4 @@ EbookLib
 tika
 spacy_wordnet
 gensim
+word2number
