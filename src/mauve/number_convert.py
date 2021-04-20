@@ -28,7 +28,7 @@ ordinals = {
 
 extra = {
     #'grand': 1000,  # Want to use this but can be used in other contexts. If word / number before is numberey we can use it
-    'dozen': 12,
+    #'dozen': 12,  # five dozen should be 60, not 512
     'nil': 0,
     'nought': 0,
     'naught': 0,
