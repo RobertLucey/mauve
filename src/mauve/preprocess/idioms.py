@@ -6,7 +6,7 @@ from mauve.preprocess.constants.idioms import IDIOM_MATCHER
 
 def replace_idioms(content: str) -> str:
 
-    from mauve.constants import REPLACEMENTS
+    from mauve.preprocess.constants.replacements import REPLACEMENTS
 
     sentence = ENCORE(content)
 
