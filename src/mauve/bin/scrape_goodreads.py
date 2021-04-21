@@ -15,6 +15,7 @@ from mauve.constants import (
     GOODREADS_METADATA_PATH,
     TEXT_PATH
 )
+from mauve.utils import clean_filename
 
 
 def get_id_from_isbn(data):
@@ -218,7 +219,7 @@ def get_request_chunk_items(files, title_id_cache):
                 titles.append(
                     {
                         'title': title,
-                        'original_filename': f,
+                        'original_filename': clean_filename(f),
                         'isbn': isbn
                     }
                 )

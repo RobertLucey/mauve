@@ -4,6 +4,8 @@ from urllib.request import (
 )
 import cgi
 
+from mauve.utils import clean_filename
+
 
 base_url = ''
 
@@ -19,7 +21,7 @@ def download(book_id):
         try:
             title, author = params['filename'].split('_')[0].split(' - ')  # NOTE: may need to modify this
             filename = 'NOPE___%s___%s.epub' % (author, title)
-            filename = '/opt/mauve/epub/' + filename
+            filename = '/opt/mauve/epub/' + clean_filename(filename)
             urlretrieve(dl_url, filename)
         except:
             raise Exception

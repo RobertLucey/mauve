@@ -11,6 +11,7 @@ import tqdm
 import bs4
 
 from mauve.constants import EPUB_PATH
+from mauve.utils import clean_filename
 
 
 def download(data):
@@ -26,7 +27,7 @@ def download(data):
     dl_url = 'https://the-eye.eu/public/Books/Bibliotik/{}/{}'.format(category, filename)
 
     try:
-        filename = os.path.join(EPUB_PATH, unquote(filename))
+        filename = os.path.join(EPUB_PATH, clean_filename(unquote(filename)))
         urlretrieve(dl_url, filename)
         time.sleep(0.5)
     except Exception as ex:

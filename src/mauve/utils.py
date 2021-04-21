@@ -44,6 +44,23 @@ LEM = WordNetLemmatizer()
 logger = logging.getLogger('mauve')
 
 
+def clean_filename(fn):
+
+    replacements = {
+        ':': ' - ',
+        '?': '',
+        '*': '_',
+        '"': '',
+        '\\': '',
+        '<': '',
+        '>': ''
+    }
+
+    for k, v in replacements.items():
+        fn = fn.replace(k, v)
+    return fn
+
+
 def loose_exists(filepath: str) -> bool:
     """
 

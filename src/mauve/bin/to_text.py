@@ -89,7 +89,7 @@ def chap2text(chap):
 def process(book_path):
 
     full_path = os.path.join(CLEAN_EPUB_PATH, book_path)
-    text_path = os.path.join(TEXT_PATH, book_path.replace('.epub', '.txt'))
+    text_path = os.path.join(TEXT_PATH, book_path.replace('.epub', '.txt'))  # already clean
 
     if os.path.exists(text_path):
         return
