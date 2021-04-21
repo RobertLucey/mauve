@@ -33,6 +33,7 @@ from mauve.preprocess.utils import (
     remove_decimal_separators,
     clean_gutenberg
 )
+from mauve.preprocess import clean
 from mauve.preprocess.phrases import replace_phrases
 from mauve.preprocess.spelling import normalize_spelling
 from mauve.constants.names import NAMES
@@ -610,5 +611,4 @@ class TextBody(GenericObject, Tagger):
         Try to take weird and cumbersome stuff out of the text.
         Mainly around contractions and quoting to make things less ambiguous
         """
-        from mauve.preprocess import clean
-        return clean(content)
+        return clean(content, lang=self.lang)
