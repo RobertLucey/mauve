@@ -57,7 +57,7 @@ class TestScrapeGoodreads(TestCase):
                 },
                 {
                     'title': 'A Book: The Sequel',
-                    'original_filename': '2___Me___A Book: The Sequel.txt',
+                    'original_filename': '2___Me___A Book -  The Sequel.txt',
                     'isbn': '2'
                 }
             ]

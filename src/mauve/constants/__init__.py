@@ -11,7 +11,6 @@ from mauve.constants.profanity import (
     PROFANITY_SET,
     PROFANITY_WORDS
 )
-from mauve.constants.replacements import REPLACEMENTS
 from mauve.constants.tokens import (
     TOKEN_MAP,
     SIMPLE_TOKEN_MAP,

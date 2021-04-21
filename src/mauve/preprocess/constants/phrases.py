@@ -2,7 +2,7 @@ from spacy.matcher import Matcher
 
 from mauve.structure.conditional import CONDITIONAL_LIST
 from mauve import ENCORE_LG
-from mauve.constants import REPLACEMENTS
+from mauve.preprocess.constants.replacements import REPLACEMENTS
 
 
 PHRASE_MATCHER = Matcher(ENCORE_LG.vocab)

@@ -1,4 +1,4 @@
-from mauve.constants.contractions import CONTRACTION_MAP
+from mauve.preprocess.constants.contractions import CONTRACTION_MAP
 from mauve.constants import APOSTROPHES
 
 

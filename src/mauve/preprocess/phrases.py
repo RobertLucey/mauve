@@ -18,8 +18,8 @@ def replace_phrases(text: str) -> str:
     """
     doc = get_en_core_web_sm(text)
 
-    from mauve.constants.phrases import PHRASE_MATCHER
-    from mauve.constants import REPLACEMENTS
+    from mauve.preprocess.constants.phrases import PHRASE_MATCHER
+    from mauve.preprocess.constants.replacements import REPLACEMENTS
 
     phrase_matches = PHRASE_MATCHER(doc)
 

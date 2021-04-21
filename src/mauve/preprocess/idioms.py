@@ -1,9 +1,7 @@
 import spacy
-from spacy.matcher import Matcher
 
-from mauve.constants import REPLACEMENTS
 from mauve import ENCORE
-from mauve.constants.idioms import IDIOMS, IDIOM_MATCHER
+from mauve.preprocess.constants.idioms import IDIOM_MATCHER
 
 
 def replace_idioms(content: str) -> str:

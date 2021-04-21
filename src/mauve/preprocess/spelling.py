@@ -1,4 +1,4 @@
-from mauve.constants.spelling import AMERICAN_TO_ENGLISH_NORMALIZER
+from mauve.preprocess.constants.spelling import AMERICAN_TO_ENGLISH_NORMALIZER
 
 
 def normalize_spelling(content: str) -> str:
