@@ -1,6 +1,6 @@
 from mauve.preprocess.contractions import replace_contractions
 from mauve import ENCORE
-from mauve.preprocess.replacements.constants import REPLACEMENTS
+from mauve.preprocess.constants.replacements import REPLACEMENTS
 from spacy.matcher import Matcher
 
 # TODO: replace apostrophes all of below
