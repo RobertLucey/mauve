@@ -1,5 +1,5 @@
 from unittest import TestCase
-from mauve.contractions import replace_contractions
+from mauve.preprocess.contractions import replace_contractions
 
 
 class TestIdioms(TestCase):

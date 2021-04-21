@@ -1,6 +1,6 @@
 from unittest import TestCase
 
-from mauve.number_convert import convert_numbers
+from mauve.preprocess.number_convert import convert_numbers
 
 
 class TestNumberConvert(TestCase):
@@ -84,4 +84,30 @@ class TestNumberConvert(TestCase):
         self.assertEqual(
             convert_numbers('hundred and fifty'),
             '150'
+        )
+
+    def test_word(self):
+        self.assertEqual(
+            convert_numbers('nine billion and nine thousand'),
+            '9000009000'
+        )
+        self.assertEqual(
+            convert_numbers('nine billion nine thousand'),
+            '9000009000'
+        )
+        self.assertEqual(
+            convert_numbers('nine million three hundred'),
+            '9000300'
+        )
+        self.assertEqual(
+            convert_numbers('seven million, eight hundred, and sixty three thousand, two hundred, and fifty four'),
+            '7863254'
+        )
+        self.assertEqual(
+            convert_numbers('one billion two hundred seventy four million'),
+            '1274000000'
+        )
+        self.assertEqual(
+            convert_numbers('want a million?'),
+            'want a 1000000 ?'
         )

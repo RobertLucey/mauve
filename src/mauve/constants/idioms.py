@@ -1,4 +1,4 @@
-from mauve.contractions import replace_contractions
+from mauve.preprocess.contractions import replace_contractions
 from mauve import ENCORE
 from mauve.constants import REPLACEMENTS
 from spacy.matcher import Matcher

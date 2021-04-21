@@ -31,8 +31,8 @@ from mauve.utils import (
     remove_decimal_separators
 )
 from mauve.utils import quote_aware_sent_tokenize
-from mauve.phrases import replace_phrases
-from mauve.spelling import normalize_spelling
+from mauve.preprocess.phrases import replace_phrases
+from mauve.preprocess.spelling import normalize_spelling
 from mauve.constants.names import NAMES
 from mauve.constants import (
     PROFANITY_WORDS,
@@ -45,7 +45,7 @@ from mauve.constants import (
     SENTENCE_TERMINATORS,
     EXTENDED_PUNCTUATION
 )
-from mauve.contractions import replace_contractions
+from mauve.preprocess.contractions import replace_contractions
 
 from mauve.models.generic import GenericObject
 from mauve.models.speech import Speech

@@ -3,7 +3,7 @@ import logging
 from typing import Iterable, Mapping, Any
 
 from mauve import GENDER_DETECTOR
-from mauve.phrases import replace_phrases
+from mauve.preprocess.phrases import replace_phrases
 from mauve.models.entity import Entity
 from mauve.models.generic import GenericObjects
 from mauve.constants.names import NAMES

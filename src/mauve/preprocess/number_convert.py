@@ -1,9 +1,10 @@
 # TODO: handle fractional words "half a million" "a quarter of a billion"
+# TODO: Only if after the word negative or minus is numberey should it be replaced with -
 
 import sys
 import logging
 
-from word2number import w2n
+from mauve.preprocess import w2n
 
 logger = logging.getLogger('mauve')
 
@@ -97,6 +98,7 @@ def _is_numberey(word: str) -> bool:
     """
     if word is None:
         return False
+    word = word.replace(',', '').replace('!', '').replace('.', '').replace('?', '')
     if word.strip() in words:
         return True
     if word.strip() in {'and', 'a'}:
@@ -123,7 +125,7 @@ def clean_for_word_to_num(number_list: list) -> list:
     """
     Clean a number word list for processing
     """
-    return [n.replace('-', '').strip() for n in number_list]
+    return [n.replace(',', '').replace('!', '').replace('.', '').replace('?', '').strip() for n in number_list]
 
 
 def parse_unordered(number_words: list) -> int:
@@ -170,6 +172,8 @@ def word_to_num(number_words: list) -> str:
         '53'
     """
     cleaned = clean_for_word_to_num(number_words)
+
+    print(cleaned)
 
     parsed_unordered = parse_unordered(number_words)
     if parsed_unordered is not None:
@@ -220,6 +224,7 @@ def convert_numbers(content: str) -> str:
             if _is_numberey(next_word):
                 number_words.append(next_word.strip())
             else:
+                print('NOT NUMBEREY: ', next_word)
                 if next_word is not None and next_content is not None:
                     to_extend = next_word + ' ' + next_content
                 elif next_word is not None and next_content is None:

@@ -14,7 +14,7 @@ from mauve.utils import (
     replace_sub,
     get_en_core_web_sm
 )
-from mauve.phrases import replace_phrases
+from mauve.preprocess.phrases import replace_phrases
 from mauve.models.deptree import (
     DepTree,
     DepNode

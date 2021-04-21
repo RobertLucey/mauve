@@ -1,5 +1,5 @@
 from unittest import TestCase
-from mauve.idioms import replace_idioms
+from mauve.preprocess.idioms import replace_idioms
 
 
 
