@@ -172,9 +172,6 @@ def word_to_num(number_words: list) -> str:
         '53'
     """
     cleaned = clean_for_word_to_num(number_words)
-
-    print(cleaned)
-
     parsed_unordered = parse_unordered(number_words)
     if parsed_unordered is not None:
         return str(parsed_unordered)
@@ -224,7 +221,6 @@ def convert_numbers(content: str) -> str:
             if _is_numberey(next_word):
                 number_words.append(next_word.strip())
             else:
-                print('NOT NUMBEREY: ', next_word)
                 if next_word is not None and next_content is not None:
                     to_extend = next_word + ' ' + next_content
                 elif next_word is not None and next_content is None:
