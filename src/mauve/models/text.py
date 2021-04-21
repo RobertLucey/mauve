@@ -23,14 +23,17 @@ from mauve.utils import (
     rflatten,
     replace_sub,
     flatten,
-    clean_gutenberg,
     split_include,
     get_loose_filepath,
     get_file_content,
     replace_ellipsis,
-    remove_decimal_separators
+    quote_aware_sent_tokenize
 )
-from mauve.utils import quote_aware_sent_tokenize
+
+from mauve.preprocess.utils import (
+    remove_decimal_separators,
+    clean_gutenberg
+)
 from mauve.preprocess.phrases import replace_phrases
 from mauve.preprocess.spelling import normalize_spelling
 from mauve.constants.names import NAMES
