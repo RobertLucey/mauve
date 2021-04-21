@@ -476,9 +476,3 @@ def split_include(lst: Iterable[str], splitter: str) -> Iterable[str]:
 
 def round_down(num: int, divisor: int) -> int:
     return int(num - (num % divisor))
-
-
-def replace_ellipsis(content: str) -> str:
-    for to_replace in {'....', '. . . .', '...', '. . .'}:
-        content = content.replace(to_replace, '…')
-    return content

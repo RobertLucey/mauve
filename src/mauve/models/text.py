@@ -26,7 +26,6 @@ from mauve.utils import (
     split_include,
     get_loose_filepath,
     get_file_content,
-    replace_ellipsis,
     quote_aware_sent_tokenize
 )
 
@@ -606,47 +605,10 @@ class TextBody(GenericObject, Tagger):
             )
         )
 
-    def guess_speech_quote(self, content: str, default='"') -> str:
-        """
-        Given a piece of text guess what type of quote is used for speech
-
-        :param content:
-        :kwarg default: what to give back if couldn't make a good guess
-        """
-        speech_words = []
-        for line in content.split('\n'):
-            if any([word in line for word in SPEECH_WORDS]):
-                speech_words.extend(
-                    [
-                        l for l in list(line) if l in SPEECH_QUOTES
-                    ]
-                )
-        try:
-            return list(Counter(speech_words).items())[0][0]
-        except:
-            # Likely is no speech but give back something to be nice
-            logger.debug('Could not guess speech quotes, assuming \'%s\'', default)
-            return default
-
     def clean_content(self, content: str) -> str:
         """
         Try to take weird and cumbersome stuff out of the text.
         Mainly around contractions and quoting to make things less ambiguous
         """
-        content = replace_contractions(content)
-        content = replace_ellipsis(content)
-        content = remove_decimal_separators(content)
-
-        if self.lang == 'en':
-            content = normalize_spelling(content)
-
-        guessed_quote = self.guess_speech_quote(content)
-        if guessed_quote == '’':
-            # Just to be safe don't change all the single quotes, just change
-            # the ones that are posessive (FIXME: deal with the others)
-            logger.debug('Speech quote guessed is %s so only changing posessives ’s', guessed_quote)
-            content = content.replace('’s', '\'s')
-        else:
-            logger.debug('Speech quote guessed is %s so dangerously modifying ’ to \'', guessed_quote)
-            content = content.replace('’', '\'')
-        return content
+        from mauve.preprocess import clean
+        return clean(content)
