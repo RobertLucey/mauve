@@ -71,6 +71,12 @@ def get_word_at(content: str, index: int) -> int:
     """
     return content[get_word_start_index(content, index):].strip().replace('-', ' ')
 
+def get_individual_word_at(content: str, index: int) -> int:
+    """
+    Get the word at the position of the index
+    """
+    return content[get_word_start_index(content, index):].strip().split()[0]
+
 
 def get_word_start_index(content: str, index: int) -> int:
     """
@@ -96,16 +102,21 @@ def _is_numberey(word: str) -> bool:
     """
     Is the given word likely contained in a number expression
     """
+    is_numberey = False
     if word is None:
-        return False
-    word = word.replace(',', '').replace('!', '').replace('.', '').replace('?', '')
-    if word.strip() in words:
-        return True
-    if word.strip() in {'and', 'a'}:
-        return True
-    if word.split('-')[0] in words:
-        return True
-    return False
+        is_numberey = False
+    try:
+        word = word.replace(',', '').replace('!', '').replace('.', '').replace('?', '')
+    except:
+        is_numberey = False
+    else:
+        if word.strip() in words:
+            is_numberey = True
+        if word.strip() in {'and', 'a'}:
+            is_numberey = True
+        if word.split('-')[0] in words:
+            is_numberey = True
+    return is_numberey
 
 
 def contains_wordy_number(content: str) -> bool:
@@ -192,10 +203,13 @@ def convert_numbers(content: str) -> str:
     """
 
     def _replace(content: str) -> str:
+
         first_index, first_word = _find_next_instance(content, idx=0)
         if first_index == sys.maxsize:
             # No numberey bits
             return content
+
+        captured_word = get_individual_word_at(content, first_index)
 
         idx = 1
         if content[first_index-idx].isdigit():
@@ -215,6 +229,14 @@ def convert_numbers(content: str) -> str:
         next_content = after_excluding
         number_words = [first_word.strip()]
         to_extend = ''
+
+        if not _is_numberey(captured_word):
+            try:
+                n = content.index(' ', first_index + len(first_word))
+            except Exception:
+                n = len(content)
+            after_excluding_wordy = content[n + 1:]
+            return before_content + ' ' + captured_word + ' ' + _replace(after_excluding_wordy)
 
         while True:
             next_word, next_content = get_next(next_content, idx=1)

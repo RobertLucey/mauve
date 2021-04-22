@@ -111,3 +111,9 @@ class TestNumberConvert(TestCase):
             convert_numbers('want a million?'),
             'want a 1000000 ?'
         )
+
+    def test_inside_word(self):
+        self.assertEqual(
+            convert_numbers('are you attending the show?'),
+            'are you attending the show?'
+        )
