@@ -217,8 +217,9 @@ def word_to_num(number_words: list) -> str:
             return str(parsed_unordered)
         logger.debug('word_to_num: %s -> %s', number_words, w2n.word_to_num(' '.join(cleaned)))
         return str(w2n.word_to_num(' '.join(cleaned)))
-    except ValueError:
+    except ValueError as ex:
         logger.warning('Could not word_to_num: %s', number_words)
+        logger.warning(ex)
         return ' '.join(number_words)
 
 
@@ -295,4 +296,3 @@ def convert_numbers(content: str) -> str:
             '. '.join(_replace(sentence).strip() for sentence in newline.split('. '))
         )
     return '\n'.join(converted_lines)
-

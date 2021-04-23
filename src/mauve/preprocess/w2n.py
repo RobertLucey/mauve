@@ -123,6 +123,20 @@ def get_decimal_sum(decimal_digit_words: list) -> float:
     return float(final_decimal_string)
 
 
+def get_subgroup(i):
+    g = []
+    for mag in {
+        10,
+        100,
+        1000,
+        1000000,
+        1000000000,
+    }:
+        if float(i) / mag < 1:
+            g.append(mag)
+    return min(g)
+
+
 def word_to_num(number_sentence: str) -> int:
     """
     Function to return integer for an input `number_sentence` string
@@ -210,24 +224,32 @@ def word_to_num(number_sentence: str) -> int:
     if group:
         groups.append(group)
 
-    total_sum = 0  # storing the number to be returned
-    for group in groups:
-        if group[-1] in three_digit_postfixes:
-            three_digit_number_word, postfix = group[:-1], group[-1]
-        else:  # the last three digits...
-            three_digit_number_word, postfix = group, 'unit'
-        if three_digit_number_word:
-            three_digit_number = number_formation(three_digit_number_word)
-        # else if there is no three_digit_number_word, a bare postfix like
-        # 'thousand' should be interpreted as 1,000
-        else:
-            three_digit_number = 1
-        postfix_value = three_digit_postfixes.get(postfix, 1)
-        total_sum += three_digit_number * postfix_value
+    try:
+        equal_subs = len(set([get_subgroup(american_number_system[i]) for i in groups[0]])) == 1
+    except:
+        equal_subs = False
 
-    # adding decimal part to total_sum (if exists)
-    if len(clean_decimal_numbers) > 0:
-        decimal_sum = get_decimal_sum(clean_decimal_numbers)
-        total_sum += decimal_sum
+    if len(groups) == 1 and equal_subs:  # e.g. nine one one = 911
+        return int(''.join([str(american_number_system[i]) for i in groups[0]]))
+    else:
+        total_sum = 0  # storing the number to be returned
+        for group in groups:
+            if group[-1] in three_digit_postfixes:
+                three_digit_number_word, postfix = group[:-1], group[-1]
+            else:  # the last three digits...
+                three_digit_number_word, postfix = group, 'unit'
+            if three_digit_number_word:
+                three_digit_number = number_formation(three_digit_number_word)
+            # else if there is no three_digit_number_word, a bare postfix like
+            # 'thousand' should be interpreted as 1,000
+            else:
+                three_digit_number = 1
+            postfix_value = three_digit_postfixes.get(postfix, 1)
+            total_sum += three_digit_number * postfix_value
 
-    return total_sum
+        # adding decimal part to total_sum (if exists)
+        if len(clean_decimal_numbers) > 0:
+            decimal_sum = get_decimal_sum(clean_decimal_numbers)
+            total_sum += decimal_sum
+
+        return total_sum

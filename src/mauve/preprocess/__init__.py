@@ -1,5 +1,6 @@
 import logging
 
+from mauve.preprocess.number_convert import convert_numbers
 from mauve.preprocess.spelling import normalize_spelling
 from mauve.preprocess.contractions import (
     replace_contractions,
@@ -9,6 +10,7 @@ from mauve.preprocess.utils import (
     remove_decimal_separators,
     guess_speech_quote
 )
+
 logger = logging.getLogger('mauve')
 
 
@@ -20,6 +22,7 @@ def clean(content: str, lang='en') -> str:
     content = replace_contractions(content)
     content = replace_ellipsis(content)
     content = remove_decimal_separators(content)
+    content = convert_numbers(content)
 
     if lang == 'en':
         content = normalize_spelling(content)

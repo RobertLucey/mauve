@@ -42,8 +42,8 @@ class TestTextBodyLine(TestCase):
         self.assertEquals(
             lines.serialize(),
             [
-                {'text': 'One two. Three.', 'line_no': 0},
-                {'text': 'Four Five', 'line_no': 1}
+                {'text': '12. 3 .', 'line_no': 0},
+                {'text': '45', 'line_no': 1}
             ]
         )
 

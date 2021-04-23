@@ -18,25 +18,25 @@ class TestDebate(TestCase):
         para1 = Para(title='title one', content='one one one')
         para2 = Para(title='title two', content='two two two')
         merged_para = merge_paras([para1, para2])
-        self.assertEqual(merged_para.content, 'one one one\n\ntwo two two')
+        self.assertEqual(merged_para.content, '111\n\n222')
 
     def test_para_words(self):
         para1 = Para(title='title one', content='one one one')
-        self.assertEqual(para1.words, ['one', 'one', 'one'])
+        self.assertEqual(para1.words, ['111'])
 
     def test_para_tokens(self):
-        para1 = Para(title='title one', content='one one one')
-        self.assertEqual(para1.tokens, [('one', 'CD'), ('one', 'CD'), ('one', 'NN')])
+        para1 = Para(title='title one', content='111')
+        self.assertEqual(para1.tokens, [('111', 'CD')])
 
     def test_para_serialize(self):
-        para1 = Para(title='title one', content='one one one')
+        para1 = Para(title='title one', content='111')
         self.assertEqual(
             para1.serialize(),
             {
                 'title': 'title one',
                 'eid': None,
-                'content': 'one one one',
-                'word_count': 3
+                'content': '111',
+                'word_count': 1
             }
         )
 
@@ -58,10 +58,10 @@ class TestDebate(TestCase):
                 'eid': '123',
                 'paras': [
                     {
-                        'content': 'one one one',
+                        'content': '111',
                         'eid': None,
                         'title': 'title one',
-                        'word_count': 3
+                        'word_count': 1
                     }
                 ]
             }
