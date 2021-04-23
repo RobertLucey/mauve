@@ -1,5 +1,6 @@
 import logging
 import random
+from pathlib import Path
 
 import gender_guesser.detector as gender
 from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
@@ -12,6 +13,16 @@ from nltk.tag.perceptron import PerceptronTagger
 from mauve.wps import WPS
 from mauve.models.synonym import Synonym
 
+from mauve.constants import (
+    BASE_DATA_PATH,
+    GOODREADS_METADATA_PATH,
+    TEXT_PATH,
+    EPUB_PATH,
+    CLEAN_EPUB_PATH,
+    OIREACHTAS_DIR,
+    RAW_OIREACHTAS_DIR,
+)
+
 
 formatter = logging.Formatter(
     fmt='%(asctime)s - %(levelname)s - %(module)s - %(message)s'
@@ -23,6 +34,22 @@ handler.setFormatter(formatter)
 logger = logging.getLogger('mauve')
 logger.setLevel(logging.DEBUG)
 logger.addHandler(handler)
+
+
+def create_structure():
+
+    directories = [
+        BASE_DATA_PATH,
+        GOODREADS_METADATA_PATH,
+        TEXT_PATH,
+        EPUB_PATH,
+        CLEAN_EPUB_PATH,
+        OIREACHTAS_DIR,
+        RAW_OIREACHTAS_DIR,
+    ]
+
+    for directory in directories:
+        Path(directory).mkdir(parents=True, exist_ok=True)
 
 
 def load_nltk():
@@ -61,6 +88,7 @@ def load_spacy():
         download('en_core_web_lg')
 
 
+create_structure()
 load_nltk()
 load_spacy()
 
