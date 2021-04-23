@@ -1,5 +1,7 @@
 # TODO: handle fractional words "half a million" "a quarter of a billion"
 # TODO: Only if after the word negative or minus is numberey should it be replaced with -
+# TODO: the 'words' below cause longish running _find_next_instance, boo
+# TODO: two and two is four = 2 and 2 is 4... complicated since and is numberey
 
 import sys
 import logging
@@ -25,6 +27,16 @@ ordinals = {
     'seventh': 7,
     'eighth': 8,
     'ninth': 9,
+    'tenth': 10,
+    'eleventh': 11,
+    'twelfth': 12,
+    'thirteenth': 13,
+    'fourteenth': 14,
+    'fifteenth': 15,
+    'sixteenth': 16,
+    'seventeenth': 17,
+    'eighteenth': 18,
+    'nineteenth': 19
 }
 
 extra = {
@@ -70,6 +82,7 @@ def get_word_at(content: str, index: int) -> int:
     Get the word at the position of the index
     """
     return content[get_word_start_index(content, index):].strip().replace('-', ' ')
+
 
 def get_individual_word_at(content: str, index: int) -> int:
     """
@@ -136,7 +149,20 @@ def clean_for_word_to_num(number_list: list) -> list:
     """
     Clean a number word list for processing
     """
-    return [n.replace(',', '').replace('!', '').replace('.', '').replace('?', '').strip() for n in number_list]
+    def cut_ends(lst):
+        if lst[-1] in {'a', 'and'}:
+            return cut_ends(lst[:-1])
+        if not isinstance(lst, list):
+            return [lst]
+        return lst
+
+    if not isinstance(number_list, list):
+        return number_list
+    temp_clean = [n.replace(',', '').replace('!', '').replace('.', '').replace('?', '').strip() for n in number_list]
+
+    temp_clean = cut_ends(temp_clean)
+
+    return temp_clean
 
 
 def parse_unordered(number_words: list) -> int:
@@ -145,6 +171,7 @@ def parse_unordered(number_words: list) -> int:
     or colloquial numbers like [one, fifty](150) that word2number isn't
     great at
     """
+
     if len(number_words) == 3:
         first_number = w2n.word_to_num(number_words[0])
         second_number = w2n.word_to_num(number_words[1])
@@ -182,12 +209,17 @@ def word_to_num(number_words: list) -> str:
         >>> word_to_num(['fifty', 'three'])
         '53'
     """
-    cleaned = clean_for_word_to_num(number_words)
-    parsed_unordered = parse_unordered(number_words)
-    if parsed_unordered is not None:
-        return str(parsed_unordered)
-
-    return str(w2n.word_to_num(' '.join(cleaned)))
+    try:
+        cleaned = clean_for_word_to_num(number_words)
+        parsed_unordered = parse_unordered(cleaned)
+        if parsed_unordered is not None:
+            logger.debug('word_to_num: %s -> %s', number_words, parsed_unordered)
+            return str(parsed_unordered)
+        logger.debug('word_to_num: %s -> %s', number_words, w2n.word_to_num(' '.join(cleaned)))
+        return str(w2n.word_to_num(' '.join(cleaned)))
+    except ValueError:
+        logger.warning('Could not word_to_num: %s', number_words)
+        return ' '.join(number_words)
 
 
 def convert_numbers(content: str) -> str:
@@ -222,7 +254,7 @@ def convert_numbers(content: str) -> str:
                     break
             pre = content[0: first_index - idx + 1]
             post = content[first_index + len(first_word):]
-            return pre + str(int(content[first_index - idx + 1: first_index]) * w2n.word_to_num(first_word)) + post
+            return pre + str(int(content[first_index - idx + 1: first_index]) * w2n.word_to_num(first_word)) + _replace(post)
 
         before_content = content[:get_word_start_index(content, first_index)]
         after_excluding = content[first_index + len(first_word):]
@@ -254,15 +286,13 @@ def convert_numbers(content: str) -> str:
         if number_words[0] in {'hundred', 'thousand', 'million', 'billion', 'trillion'}:
             number_words.insert(0, 'one')
 
-        return before_content + ' ' + word_to_num(number_words) + ' ' + to_extend
+        return before_content + ' ' + word_to_num(number_words) + ' ' + _replace(to_extend)
 
-    matching = False
-    while not matching:
-        if contains_wordy_number(content):
-            tmp_content = _replace(content)
-            matching = tmp_content == content
-            content = tmp_content
-        else:
-            break
+    converted_lines = []
+    newlines = content.split('\n')
+    for newline in newlines:
+        converted_lines.append(
+            '. '.join(_replace(sentence).strip() for sentence in newline.split('. '))
+        )
+    return '\n'.join(converted_lines)
 
-    return str(content).strip()
