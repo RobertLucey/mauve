@@ -59,10 +59,11 @@ def embed(
 
 class RAGModel():
 
-    def __init__(self, name: str, max_lines=50000, **kwargs) -> None:
+    def __init__(self, name: str, max_lines=50000, includes=None, **kwargs) -> None:
         self.device = 'cuda' if torch.cuda.is_available() else 'cpu'
         self.name = name
         self.max_lines = max_lines
+        self.includes = includes
 
         self.model = None
         self.tokenizer = None
@@ -86,6 +87,9 @@ class RAGModel():
         for idx, book in enumerate(iter_books()):
             if len(to_write) >= self.max_lines:
                 break
+            if self.includes is not None:
+                if self.includes not in book.raw_content.lower():
+                    continue
             for sentence in book.sentences:
                 if len(to_write) >= self.max_lines:
                     break
@@ -97,10 +101,18 @@ class RAGModel():
                     if len(sub_sentence.split()) < 2 or len(sub_sentence.split()) > 30:
                         continue
 
-                    to_write.append({
-                        'title': book.title,
-                        'text': sub_sentence.strip(),
-                    })
+                    if self.includes is not None:
+                        if self.includes in sub_sentence.lower():
+                            print('ADDING')
+                            to_write.append({
+                                'title': book.title,
+                                'text': sub_sentence.strip(),
+                            })
+                    else:
+                        to_write.append({
+                            'title': book.title,
+                            'text': sub_sentence.strip(),
+                        })
 
         pandas.DataFrame(to_write).to_csv(
             self.csv_path,
@@ -208,6 +220,12 @@ class RAGModel():
         return generated_string
 
     @property
+    def actual_name(self) -> str:
+        if self.includes is None:
+            return '%s_%s' % (self.name, self.max_lines)
+        return '%s_%s_%s' % (self.name, self.includes, self.max_lines)
+
+    @property
     def faiss_path(self) -> str:
         return os.path.join(
             self.output_dir,
@@ -218,16 +236,16 @@ class RAGModel():
     def dataset_path(self) -> str:
         return os.path.join(
             self.output_dir,
-            self.name
+            self.actual_name
         )
 
     @property
     def csv_path(self) -> str:
         return os.path.join(
             self.output_dir,
-            '{}.csv'.format(self.name)
+            '{}.csv'.format(self.actual_name)
         )
 
     @property
     def output_dir(self):
-        return os.path.join(RAG_PATH, self.name)
+        return os.path.join(RAG_PATH, self.actual_name)
