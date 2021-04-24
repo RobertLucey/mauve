@@ -1,11 +1,17 @@
 # TODO: handle fractional words "half a million" "a quarter of a billion"
 # TODO: Only if after the word negative or minus is numberey should it be replaced with -
 # TODO: the 'words' below cause longish running _find_next_instance, boo
-# TODO: two and two is four = 2 and 2 is 4... complicated since and is numberey
+# TODO: Roman numerals?
 
+# FIXME: fifteen-year-old => 15 year-old
+# FIXME: two and two is four => 2 and 2 is 4
+#    complicated since and is numberey
+
+import copy
 import sys
 import logging
 
+from mauve.constants import EXTENDED_PUNCTUATION
 from mauve.preprocess import w2n
 
 logger = logging.getLogger('mauve')
@@ -51,10 +57,20 @@ w2n.american_number_system.update(extra)
 
 words = []
 for w in w2n.american_number_system.keys():
+    # Should prob search with content lower so we don't need to search twice
     words.append(' ' + w)
     words.append('-' + w)
     words.append(w)
     words.append(w.capitalize())
+
+IGNORABLE_PUNCT = copy.copy(EXTENDED_PUNCTUATION)
+IGNORABLE_PUNCT.remove('-')
+
+
+def remove_boring_chars(content: str):
+    for boring in IGNORABLE_PUNCT:
+        content = content.replace(boring, '')
+    return content
 
 
 def index(content: str, substr: str, idx: int) -> int:
@@ -119,7 +135,7 @@ def _is_numberey(word: str) -> bool:
     if word is None:
         is_numberey = False
     try:
-        word = word.replace(',', '').replace('!', '').replace('.', '').replace('?', '')
+        word = remove_boring_chars(word)
     except:
         is_numberey = False
     else:
@@ -158,10 +174,8 @@ def clean_for_word_to_num(number_list: list) -> list:
 
     if not isinstance(number_list, list):
         return number_list
-    temp_clean = [n.replace(',', '').replace('!', '').replace('.', '').replace('?', '').strip() for n in number_list]
-
+    temp_clean = [remove_boring_chars(n).strip() for n in number_list]
     temp_clean = cut_ends(temp_clean)
-
     return temp_clean
 
 

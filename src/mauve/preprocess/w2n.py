@@ -125,13 +125,7 @@ def get_decimal_sum(decimal_digit_words: list) -> float:
 
 def get_subgroup(i):
     g = []
-    for mag in {
-        10,
-        100,
-        1000,
-        1000000,
-        1000000000,
-    }:
+    for mag in {10**1, 10**2, 10**3, 10**6, 10**9, 10**12}:
         if float(i) / mag < 1:
             g.append(mag)
     return min(g)
