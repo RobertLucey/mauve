@@ -209,6 +209,7 @@ def parse_unordered(number_words: list) -> int:
             first_number < 21,
             second_number < 100,
             second_number % 10 == 0 or second_number < 20,
+            second_number >= first_number
         ]):
             return int(str(first_number) + str(second_number))
 
