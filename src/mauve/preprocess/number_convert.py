@@ -230,6 +230,9 @@ def word_to_num(number_words: list) -> str:
         cleaned = clean_for_word_to_num(number_words)
         if cleaned == ['point']:
             raise ValueError('Not a number')
+        if len(cleaned) > 1 and cleaned[0].lower() in ordinals.keys():
+            # This is a bit icky
+            return number_words[0] + ' ' + word_to_num(number_words[1:])
         parsed_unordered = parse_unordered(cleaned)
         if parsed_unordered is not None:
             logger.debug('word_to_num: %s -> %s', number_words, parsed_unordered)

@@ -117,3 +117,9 @@ class TestNumberConvert(TestCase):
             convert_numbers('are you attending the show?'),
             'are you attending the show?'
         )
+
+    def test_unordered_ordinal(self):
+        self.assertEqual(
+            convert_numbers('In the first twenty years'),
+            'In the first 20 years'
+        )
