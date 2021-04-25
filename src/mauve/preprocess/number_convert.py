@@ -135,7 +135,7 @@ def _is_numberey(word: str) -> bool:
     except:
         is_numberey = False
     else:
-        cleaned = word.strip()
+        cleaned = word.strip().lower()
         if cleaned == '':
             is_numberey = False
         elif cleaned[0] == '-':
