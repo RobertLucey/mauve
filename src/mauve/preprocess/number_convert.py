@@ -3,9 +3,12 @@
 # TODO: the 'words' below cause longish running _find_next_instance, boo
 # TODO: Roman numerals?
 
+# Second can be like hour, minute, second so that'll be a toughie. Maybe one second would go to 12, sort of like "the first twenty years" thing below
+
 # FIXME: fifteen-year-old => 15 year-old
 # FIXME: two and two is four => 2 and 2 is 4
 #    complicated since and is numberey
+# FIXME: the first twenty years => the first 20
 
 import copy
 import sys
@@ -55,13 +58,6 @@ extra = {
 w2n.american_number_system.update(ordinals)
 w2n.american_number_system.update(extra)
 
-words = []
-for w in w2n.american_number_system.keys():
-    # Should prob search with content lower so we don't need to search twice
-    words.append(' ' + w)
-    words.append('-' + w)
-    words.append(w)
-    words.append(w.capitalize())
 
 IGNORABLE_PUNCT = copy.copy(EXTENDED_PUNCTUATION)
 IGNORABLE_PUNCT.remove('-')
@@ -84,7 +80,8 @@ def _find_next_instance(content: str, idx=0) -> tuple:
     """
     Find the next instance of a numberey word
     """
-    indexes = [(s, index(content, s, idx)) for s in words]
+    l = content.lower()
+    indexes = [(s, index(l, s, idx)) for s in w2n.american_number_system.keys()]
     min_index = min([i[1] for i in indexes])
     max_len_at_index = max([len(i[0]) for i in indexes if i[1] == min_index])
     return (
@@ -139,11 +136,17 @@ def _is_numberey(word: str) -> bool:
     except:
         is_numberey = False
     else:
-        if word.strip() in words:
+        cleaned = word.strip()
+        if cleaned == '':
+            is_numberey = False
+        elif cleaned[0] == '-':
+            cleaned = cleaned[1:]
+
+        if cleaned in w2n.american_number_system.keys():
             is_numberey = True
-        if word.strip() in {'and', 'a'}:
+        elif cleaned in {'and', 'a'}:
             is_numberey = True
-        if word.split('-')[0] in words:
+        elif word.split('-')[0] in w2n.american_number_system.keys():
             is_numberey = True
     return is_numberey
 
@@ -260,7 +263,7 @@ def convert_numbers(content: str) -> str:
         captured_word = get_individual_word_at(content, first_index)
 
         idx = 1
-        if content[first_index-idx].isdigit():
+        if content[first_index - (idx + 1)].isdigit():
             while True:
                 idx += 1
                 if any([
