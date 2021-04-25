@@ -1,6 +1,5 @@
 # TODO: handle fractional words "half a million" "a quarter of a billion"
 # TODO: Only if after the word negative or minus is numberey should it be replaced with -
-# TODO: the 'words' below cause longish running _find_next_instance, boo
 # TODO: Roman numerals?
 
 # Second can be like hour, minute, second so that'll be a toughie. Maybe one second would go to 12, sort of like "the first twenty years" thing below
@@ -8,7 +7,6 @@
 # FIXME: fifteen-year-old => 15 year-old
 # FIXME: two and two is four => 2 and 2 is 4
 #    complicated since and is numberey
-# FIXME: the first twenty years => the first 20
 
 import copy
 import sys
