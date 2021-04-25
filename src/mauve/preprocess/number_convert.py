@@ -80,8 +80,7 @@ def _find_next_instance(content: str, idx=0) -> tuple:
     """
     Find the next instance of a numberey word
     """
-    l = content.lower()
-    indexes = [(s, index(l, s, idx)) for s in w2n.american_number_system.keys()]
+    indexes = [(s, index(content, s, idx)) for s in w2n.american_number_system.keys()]
     min_index = min([i[1] for i in indexes])
     max_len_at_index = max([len(i[0]) for i in indexes if i[1] == min_index])
     return (
@@ -229,6 +228,8 @@ def word_to_num(number_words: list) -> str:
     """
     try:
         cleaned = clean_for_word_to_num(number_words)
+        if cleaned == ['point']:
+            raise ValueError('Not a number')
         parsed_unordered = parse_unordered(cleaned)
         if parsed_unordered is not None:
             logger.debug('word_to_num: %s -> %s', number_words, parsed_unordered)
@@ -252,10 +253,8 @@ def convert_numbers(content: str) -> str:
         >>> convert_numbers('zero Something fifty three blah blah one')
         '0 Something 53 blah blah 1'
     """
-
     def _replace(content: str) -> str:
-
-        first_index, first_word = _find_next_instance(content, idx=0)
+        first_index, first_word = _find_next_instance(content.lower(), idx=0)
         if first_index == sys.maxsize:
             # No numberey bits
             return content
