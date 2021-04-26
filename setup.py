@@ -48,6 +48,7 @@ setup(
             'mauve_mobi_to_epub = mauve.bin.mobi_to_epub:main',
             'mauve_epub_to_text = mauve.bin.to_text:main',
             'mauve_compress_files = mauve.bin.compress_files:main',
+            'mauve_generate_rag = mauve.bin.generate_rag:main',
         ]
     }
 )
