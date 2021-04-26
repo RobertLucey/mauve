@@ -21,6 +21,7 @@ from mauve.constants import (
     CLEAN_EPUB_PATH,
     OIREACHTAS_DIR,
     RAW_OIREACHTAS_DIR,
+    RAG_PATH
 )
 
 
@@ -46,6 +47,7 @@ def create_structure():
         CLEAN_EPUB_PATH,
         OIREACHTAS_DIR,
         RAW_OIREACHTAS_DIR,
+        RAG_PATH
     ]
 
     for directory in directories:
