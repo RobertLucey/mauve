@@ -123,3 +123,15 @@ class TestNumberConvert(TestCase):
             convert_numbers('In the first twenty years'),
             'In the first 20 years'
         )
+
+    def test_dash_joined(self):
+        self.assertEqual(
+            convert_numbers('blah blah fifteen-year-old blah'),
+            'blah blah 15 year old blah'
+        )
+
+        self.assertEqual(
+            convert_numbers('blah blah twenty-five-year-old blah'),
+            'blah blah 25 year old blah'
+        )
+

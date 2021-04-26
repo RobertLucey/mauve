@@ -118,7 +118,7 @@ def get_next(content: str, idx=0):
         if content is None:
             return None, None
         return content.strip(), None
-    return content[:idx].strip(), content[idx:].strip()
+    return content[:idx], content[idx:]
 
 
 def _is_numberey(word: str) -> bool:
@@ -287,15 +287,16 @@ def convert_numbers(content: str) -> str:
             except Exception:
                 n = len(content)
             after_excluding_wordy = content[n + 1:]
-            return before_content + ' ' + captured_word + ' ' + _replace(after_excluding_wordy)
+            return before_content + ' ' + captured_word + ' ' + _replace(after_excluding_wordy).strip(' -')
 
         while True:
+            pre = next_content
             next_word, next_content = get_next(next_content, idx=1)
             if _is_numberey(next_word):
                 number_words.append(next_word.strip())
             else:
                 if next_word is not None and next_content is not None:
-                    to_extend = next_word + ' ' + next_content
+                    to_extend = pre
                 elif next_word is not None and next_content is None:
                     to_extend = next_word
                 else:
@@ -305,7 +306,7 @@ def convert_numbers(content: str) -> str:
         if number_words[0] in {'hundred', 'thousand', 'million', 'billion', 'trillion'}:
             number_words.insert(0, 'one')
 
-        return before_content + ' ' + word_to_num(number_words) + ' ' + _replace(to_extend)
+        return before_content + ' ' + word_to_num(number_words) + ' ' + _replace(to_extend).strip(' -')
 
     converted_lines = []
     newlines = content.split('\n')
