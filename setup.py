@@ -8,7 +8,6 @@ INSTALL_REQUIRES = [
     'torch==1.8.0',
     'datasets==1.5.0',
     'faiss-cpu',
-    'english-words',
     'compress-pickle<2.0.0',
     'pandas',
     'scapy',
@@ -28,7 +27,6 @@ INSTALL_REQUIRES = [
     'tika',
     'spacy_wordnet',
     'gensim',
-    'word2number'
 ]
 
 setup(
