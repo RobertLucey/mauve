@@ -56,9 +56,12 @@ extra = {
 w2n.american_number_system.update(ordinals)
 w2n.american_number_system.update(extra)
 
+AMERICAN_NUMBER_WORDS = w2n.american_number_system.keys()
 
 IGNORABLE_PUNCT = copy.copy(EXTENDED_PUNCTUATION)
 IGNORABLE_PUNCT.remove('-')
+
+MAX_SIZE = sys.maxsize
 
 
 def remove_boring_chars(content: str):
@@ -71,14 +74,23 @@ def index(content: str, substr: str, idx: int) -> int:
     try:
         return content.index(substr, idx)
     except (ValueError, AttributeError):
-        return sys.maxsize
+        return MAX_SIZE
 
 
 def _find_next_instance(content: str, idx=0) -> tuple:
     """
     Find the next instance of a numberey word
     """
-    indexes = [(s, index(content, s, idx)) for s in w2n.american_number_system.keys()]
+
+    indexes = []
+    for w in AMERICAN_NUMBER_WORDS:
+        word_idx = index(content, w, idx)
+        if word_idx != MAX_SIZE:
+            indexes.append((w, word_idx))
+
+    if not indexes:
+        return MAX_SIZE, None
+
     min_index = min([i[1] for i in indexes])
     max_len_at_index = max([len(i[0]) for i in indexes if i[1] == min_index])
     return (
@@ -114,7 +126,7 @@ def get_next(content: str, idx=0):
     way of stepping through a string's content
     """
     idx = min([index(content, ' ', idx=idx), index(content, '-', idx=idx)])
-    if idx == sys.maxsize:
+    if idx == MAX_SIZE:
         if content is None:
             return None, None
         return content.strip(), None
@@ -256,7 +268,7 @@ def convert_numbers(content: str) -> str:
     """
     def _replace(content: str) -> str:
         first_index, first_word = _find_next_instance(content.lower(), idx=0)
-        if first_index == sys.maxsize:
+        if first_index is MAX_SIZE:
             # No numberey bits
             return content
 
@@ -273,7 +285,14 @@ def convert_numbers(content: str) -> str:
                     break
             pre = content[0: first_index - idx + 1]
             post = content[first_index + len(first_word):]
-            return pre + str(int(content[first_index - idx + 1: first_index]) * w2n.word_to_num(first_word)) + _replace(post)
+
+            try:
+                numberey_part = int(content[first_index - idx + 1: first_index].replace('-', '').strip()) * w2n.word_to_num(first_word)
+            except Exception:
+                logger.warning('Tricky words to convert to number: %s   %s', content[first_index - idx + 1: first_index].replace('-', '').strip(), content)
+                numberey_part = content[first_index - idx + 1: first_index].replace('-', '').strip() + first_word
+
+            return pre + str(numberey_part) + _replace(post)
 
         before_content = content[:get_word_start_index(content, first_index)]
         after_excluding = content[first_index + len(first_word):]
@@ -314,4 +333,5 @@ def convert_numbers(content: str) -> str:
         converted_lines.append(
             '. '.join(_replace(sentence).strip() for sentence in newline.split('. '))
         )
+
     return '\n'.join(converted_lines)
