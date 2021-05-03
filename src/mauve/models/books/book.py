@@ -1,8 +1,4 @@
-import pickle
-import difflib
 import os
-import random
-import statistics
 from collections import Counter
 
 from cached_property import cached_property
@@ -24,15 +20,9 @@ from mauve.models.text import TextBody
 from mauve.constants import (
     LOUD_WORDS,
     SIMPLE_TOKEN_MAP,
-    TOKEN_VERSION,
     ANALYSIS_VERSION
 )
-from mauve.utils import (
-    str_count_multi,
-    get_file_content,
-    get_loose_filepath
-)
-from mauve import GENDER_DETECTOR
+from mauve.utils import str_count_multi
 
 
 VADER = SentimentIntensityAnalyzer()
