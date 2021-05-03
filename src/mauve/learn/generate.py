@@ -158,6 +158,6 @@ class ClassifierCreator():
     def predict(self, content: str) -> str:
         return self.class_group_map[
             self.preferred_classifier.predict(
-                [self.model.infer_vector(content.split() * 100)]
+                [self.model.infer_vector(content.split())]
             )[0]
         ]
