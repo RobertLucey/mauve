@@ -29,6 +29,8 @@ class Safety:
             return False
         if not book.is_genre('fiction'):
             return False
+        if book.word_count < 10000:
+            return False
         return True
 
 
@@ -75,7 +77,7 @@ class BaseTaggedDocs(object):
         return self.docs
 
     def content_cleaner(self, item: TextBody) -> str:
-        return item.raw_content
+        return item.basic_content
 
     def clean_data(self) -> None:
 
