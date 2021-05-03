@@ -8,6 +8,7 @@ from typing import (
     Mapping,
     List
 )
+import zlib
 
 from cached_property import cached_property
 
@@ -29,18 +30,12 @@ from mauve.utils import (
     quote_aware_sent_tokenize
 )
 
-from mauve.preprocess.utils import (
-    remove_decimal_separators,
-    clean_gutenberg
-)
+from mauve.preprocess.utils import clean_gutenberg
 from mauve.preprocess import clean
 from mauve.preprocess.phrases import replace_phrases
-from mauve.preprocess.spelling import normalize_spelling
 from mauve.constants.names import NAMES
 from mauve.constants import (
     PROFANITY_WORDS,
-    SPEECH_WORDS,
-    SPEECH_QUOTES,
     BORING_WORDS,
     ENG_WORDS,
     TOKEN_VERSION,
@@ -48,7 +43,6 @@ from mauve.constants import (
     SENTENCE_TERMINATORS,
     EXTENDED_PUNCTUATION
 )
-from mauve.preprocess.contractions import replace_contractions
 
 from mauve.models.generic import GenericObject
 from mauve.models.speech import Speech
@@ -98,7 +92,6 @@ class TextBody(GenericObject, Tagger):
             'all_tokens',
             'word_tokens',
             'raw_content',
-            'basic_content',
             'content'
         ]
 
@@ -186,16 +179,20 @@ class TextBody(GenericObject, Tagger):
     def has_content(self) -> bool:
         return self.raw_content != ''
 
-    @cached_property
+    @property
     def basic_content(self) -> str:
         return clean_gutenberg(self.raw_content)
 
     @cached_property
+    def c_content(self) -> str:
+        return zlib.compress(bytes(self.clean_content(self.basic_content), encoding='utf8'))
+
+    @property
     def content(self) -> str:
-        return self.clean_content(self.basic_content)
+        return zlib.decompress(self.c_content).decode('utf8')
 
     @cached_property
-    def raw_content(self) -> str:
+    def c_raw_content(self) -> str:
         content = ''
         if self._content is not None:
             content = self._content
@@ -209,7 +206,11 @@ class TextBody(GenericObject, Tagger):
                 ).read()
             except (IOError, UnicodeDecodeError) as ex:
                 logger.error('BAD FILE %s: %s', self.content_path, ex)
-        return content
+        return zlib.compress(bytes(content, encoding='utf8'))
+
+    @property
+    def raw_content(self) -> str:
+        return zlib.decompress(self.c_raw_content).decode('utf8')
 
     @cached_property
     def sentiment(self) -> Mapping[str, int]:
