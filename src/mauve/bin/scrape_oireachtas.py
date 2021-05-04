@@ -2,15 +2,13 @@ import argparse
 import os
 import json
 from multiprocessing.pool import ThreadPool
-from urllib.request import urlopen
+from urllib.request import (
+    urlopen,
+    Request
+)
 
 import tqdm
-import bs4
 
-from urllib.request import Request
-from urllib.request import urlopen
-
-from mauve.models.oireachtas.debate import Debate
 from mauve.constants import RAW_OIREACHTAS_DIR
 
 
@@ -29,13 +27,15 @@ def scrape_debates(d):
         section_uri = section['debateSection']['formats']['xml']['uri']
 
         try:
-            section['debateSection']['data'] = urlopen(section_uri).read().decode('utf-8')  # This needs to be souped
-        except:
+            section['debateSection']['data'] = urlopen(
+                section_uri
+            ).read().decode('utf-8')
+        except Exception:
             section['debateSection']['data'] = None
-            #print('Failed to get: %s' % (section_uri))
 
     with open(os.path.join(RAW_OIREACHTAS_DIR, filename), 'w') as outfile:
         json.dump(d, outfile)
+
 
 def main():
     parser = argparse.ArgumentParser()
@@ -51,7 +51,7 @@ def main():
     chamber_id = ''
     chamber = ''
     date_start = '1900-01-01'
-    date_end = '1973-01-01'
+    date_end = '2021-01-01'
     limit = '1000'
 
     url = 'https://api.oireachtas.ie/v1/debates?chamber_type=%s&chamber_id=%s&chamber=%s&date_start=%s&date_end=%s&limit=%s' % (
@@ -76,6 +76,7 @@ def main():
         total=len(data['results'])
     ):
         pass
+
 
 if __name__ == '__main__':
     main()
