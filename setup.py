@@ -46,7 +46,7 @@ setup(
             'mauve_scrape_author_nationality = mauve.bin.scrape_author_nationality:main',
             'mauve_convert_filenames = mauve.bin.convert_filenames:main',
             'mauve_load_tokens = mauve.bin.load_tokens:main',
-            'mauve_epub_slimmer = mauve.bin.rm_images:main',
+            'mauve_epub_slimmer = mauve.bin.epub_slimmer:main',
             'mauve_mobi_to_epub = mauve.bin.mobi_to_epub:main',
             'mauve_epub_to_text = mauve.bin.to_text:main',
             'mauve_compress_files = mauve.bin.compress_files:main',

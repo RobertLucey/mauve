@@ -3,7 +3,7 @@ To save space add this to the loop in _load_manifest in epub.py and run
 
 Removes image files. May use them later but not for text analysis
 
-if len(set(['.m4a', '.svg', '.TTF', '.otf', '.mp3', '.mp4', '.css', '.jpg', '.jpeg', '.png', '.gif', '.ttf']).intersection([os.path.splitext(ei.file_name)[1]])):
+if len(set(['.m4a', '.svg', '.otf', '.mp3', '.mp4', '.css', '.jpg', '.jpeg', '.png', '.gif', '.ttf']).intersection([os.path.splitext(ei.file_name)[1].lower()])):
     continue
 """
 
@@ -23,13 +23,11 @@ from mauve.constants import BASE_DATA_PATH
 def remove_images(b):
     try:
         book = epub.read_epub(b)
-        if len([i for i in book.get_items_of_media_type('image/jpeg')]) > 0:
-            epub.write_epub(b + '.rmp', book)
-            shutil.move(b + '.rmp', b)
+        epub.write_epub(b + '.rmp', book)
+        shutil.move(b + '.rmp', b)
     except Exception as ex:
         # TODO: At some point go through these
         print(ex)
-        pass
 
 
 def main():
@@ -45,7 +43,7 @@ def main():
         '--within-hours',
         type=int,
         dest='within_hours',
-        default=24
+        default=24 * 365
     )
     args = parser.parse_args()
 
