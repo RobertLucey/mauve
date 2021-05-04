@@ -58,7 +58,7 @@ class Sentence:
 
     @property
     def is_question(self) -> bool:
-        return self.text[-1] == '?'
+        return self.text.strip()[-1] == '?'
 
     @staticmethod
     def preprocess_text(text: str) -> str:
@@ -157,7 +157,7 @@ class Sentence:
             segments = replace_sub(
                 segments,
                 ['a'] + [Segment(p) for p in person.dirty_name.split(' ')],
-                [Segment('the ' + person.dirty_name, tag='PERSON')]
+                [Segment('a ' + person.dirty_name, tag='PERSON')]
             )
 
         return segments
