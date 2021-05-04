@@ -114,7 +114,11 @@ class DepTree():
                 node.idx = 0
 
     @staticmethod
-    def find_sub_idx(original: Iterable[Any], repl_list: Iterable[Any], start=0) -> tuple:
+    def find_sub_idx(
+        original: Iterable[Any],
+        repl_list: Iterable[Any],
+        start=0
+    ) -> tuple:
         """
 
         :param original: list to modify
@@ -128,7 +132,11 @@ class DepTree():
                 return idx, idx + length
 
     @staticmethod
-    def replace_sub(original: Iterable[Any], repl_list: Iterable[Any], new_list: Iterable[Any]) -> Iterable[Any]:
+    def replace_sub(
+        original: Iterable[Any],
+        repl_list: Iterable[Any],
+        new_list: Iterable[Any]
+    ) -> Iterable[Any]:
         """
         Replace a subset of a list with some other subset
 
@@ -152,7 +160,11 @@ class DepTree():
     def get_before_node(self, cmp_node: DepNode) -> Iterable[DepNode]:
         return [node for node in self.nodes if node.idx < cmp_node.idx]
 
-    def get_after_node(self, cmp_node: DepNode, stop_at_punct=False) -> Iterable[DepNode]:
+    def get_after_node(
+        self,
+        cmp_node: DepNode,
+        stop_at_punct=False
+    ) -> Iterable[DepNode]:
         if stop_at_punct:
             try:
                 first_punct = min([n.idx for n in self.nodes if n.text in SENTENCE_TERMINATORS and n.idx > cmp_node.idx])
@@ -162,28 +174,58 @@ class DepTree():
         else:
             return [node for node in self.nodes if node.idx > cmp_node.idx]
 
-    def get_closest_after(self, cmp_node: DepNode, dep=None, text=None) -> DepNode:
+    def get_closest_after(
+        self,
+        cmp_node: DepNode,
+        dep=None,
+        text=None
+    ) -> DepNode:
         if dep is not None:
             try:
-                return [node for node in self.nodes if node.idx > cmp_node.idx and node.dep in dep][0]
+                return [
+                    node for node in self.nodes if all([
+                        node.idx > cmp_node.idx,
+                        node.dep in dep
+                    ])
+                ][0]
             except IndexError:
                 return DepNode.get_empty_node()
         if text is not None:
             try:
-                return [node for node in self.nodes if node.idx > cmp_node.idx and node.text in text][0]
+                return [
+                    node for node in self.nodes if all([
+                        node.idx > cmp_node.idx,
+                        node.text in text
+                    ])
+                ][0]
             except IndexError:
                 return DepNode.get_empty_node()
 
-    def get_closest_before(self, cmp_node: DepNode, dep=None, text=None) -> DepNode:
+    def get_closest_before(
+        self,
+        cmp_node: DepNode,
+        dep=None,
+        text=None
+    ) -> DepNode:
         if dep is not None:
             try:
-                return [node for node in self.nodes if node.idx < cmp_node.idx and node.dep in dep][-1]
+                return [
+                    node for node in self.nodes if all([
+                        node.idx < cmp_node.idx,
+                        node.dep in dep
+                    ])
+                ][-1]
             except IndexError:
                 return DepNode.get_empty_node()
 
         if text is not None:
             try:
-                return [node for node in self.nodes if node.idx < cmp_node.idx and node.text in text][-1]
+                return [
+                    node for node in self.nodes if all([
+                        node.idx < cmp_node.idx,
+                        node.text in text
+                    ])
+                ][-1]
             except IndexError:
                 return DepNode.get_empty_node()
 
@@ -194,7 +236,8 @@ class DepTree():
     def equals(self):
         self.join_words(ASSIGNMENT_WORDS)
 
-        # FIXME: Exclude things like 'what is' if the is we are using is within the 'what is'
+        # FIXME: Exclude things like 'what is' if the is we are using is
+        # within the 'what is'
 
         return [node.get_clean() for node in self.nodes if node.text.lower().replace('_', ' ') in ASSIGNMENT_WORDS]
 
