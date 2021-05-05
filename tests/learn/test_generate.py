@@ -57,8 +57,8 @@ class TestBaseTaggedDocs(TestCase):
 
         classifier_creator.generate_classifier()
 
-        content = 'this is a sentence in english. two two two two' * 100
-        content_2 = 'this is some other sentence in english. one one one one' * 100
+        content = 'this is a sentence in english. apple apple apple' * 2000
+        content_2 = 'this is some other sentence in english. orange orange orange' * 2000
 
         self.assertEqual(
             classifier_creator.predict(content),
