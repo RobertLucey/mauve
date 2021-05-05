@@ -120,7 +120,7 @@ class TextBody(GenericObject, Tagger):
     def words(self) -> List[str]:
         """
         """
-        txt = self.basic_content.translate(
+        txt = self.content.translate(
             str.maketrans(
                 '',
                 '',
