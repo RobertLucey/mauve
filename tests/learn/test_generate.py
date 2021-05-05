@@ -31,8 +31,8 @@ class TestBaseTaggedDocs(TestCase):
         Path(OIREACHTAS_DIR).mkdir(parents=True, exist_ok=True)
         Path(GOODREADS_METADATA_PATH).mkdir(parents=True, exist_ok=True)
 
-        content = 'this is a sentence in english. two two two two' * 2000
-        content_2 = 'this is some other sentence in english. one one one one' * 2000
+        content = 'this is a sentence in english. apple apple apple' * 2000
+        content_2 = 'this is some other sentence in english. orange orange orange' * 2000
 
         for i in range(10):
             write_book('title %s' % (i,), 'someone', content)
