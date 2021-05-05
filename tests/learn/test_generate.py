@@ -1,39 +1,17 @@
-import copy
-import uuid
-import json
-import os
-
 from unittest import TestCase
-
-from gensim.models import Doc2Vec
-
-from mauve import constants
-from mauve.learn.tagged_docs import (
-    AuthorTaggedDocs,
-    GenderTaggedDocs,
-    AuthorTaggedDocs
-)
-
-from mauve.learn.generate import ClassifierCreator
-
 from pathlib import Path
 import shutil
 
+from gensim.models import Doc2Vec
+
+from mauve.learn.tagged_docs import AuthorTaggedDocs
+from mauve.learn.generate import ClassifierCreator
 from mauve.constants import (
     TEXT_PATH,
     EPUB_PATH,
     CLEAN_EPUB_PATH,
     OIREACHTAS_DIR,
-    TOKEN_VERSION,
     GOODREADS_METADATA_PATH
-)
-from mauve.utils import (
-    loose_exists,
-    get_loose_filepath,
-    compress_file,
-    get_file_content,
-    get_metadata,
-    iter_books
 )
 
 from ..utils import write_book
@@ -53,8 +31,8 @@ class TestBaseTaggedDocs(TestCase):
         Path(OIREACHTAS_DIR).mkdir(parents=True, exist_ok=True)
         Path(GOODREADS_METADATA_PATH).mkdir(parents=True, exist_ok=True)
 
-        content = 'this is a sentence in english. two two two two' * 100
-        content_2 = 'this is some other sentence in english. one one one one' * 100
+        content = 'this is a sentence in english. two two two two' * 2000
+        content_2 = 'this is some other sentence in english. one one one one' * 2000
 
         for i in range(10):
             write_book('title %s' % (i,), 'someone', content)
