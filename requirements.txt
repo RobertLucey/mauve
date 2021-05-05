@@ -16,7 +16,6 @@ langdetect
 tqdm
 textstat
 vaderSentiment
-mobi
 EbookLib
 tika
 spacy_wordnet

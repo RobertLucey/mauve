@@ -22,7 +22,6 @@ INSTALL_REQUIRES = [
     'tqdm',
     'textstat',
     'vaderSentiment',
-    'mobi',
     'EbookLib',
     'tika',
     'spacy_wordnet',
