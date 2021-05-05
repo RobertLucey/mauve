@@ -41,10 +41,7 @@ class Line(GenericObject):
             is_multi_speaker = len(
                 set(
                     [
-                        item.speaker.name for item in speech_parts if all([
-                            item.speaker.name,
-                            item.speaker.name[0].isupper()
-                        ])
+                        item.speaker.name for item in speech_parts if item.speaker.name and item.speaker.name[0].isupper()
                     ]
                 )
             ) > 1
