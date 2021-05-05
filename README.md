@@ -2,7 +2,7 @@
 
 [![Build Status](https://travis-ci.com/RobertLucey/mauve.svg?branch=master)](https://travis-ci.com/RobertLucey/mauve)
 
-ORM-ing a book and using it for finding interesting stats.
+ORM-ing books and finding interesting stats.
 
 Inspiration from the book "Nabokov's Favorite Word Is Mauve".
 
