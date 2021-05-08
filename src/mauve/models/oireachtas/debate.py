@@ -3,6 +3,7 @@ import fast_json
 import os
 import requests
 
+import dateutil.parser
 from cached_property import cached_property
 import bs4
 import nltk
@@ -187,7 +188,7 @@ class Debate():
 
     @property
     def date(self):
-        return self.data['contextDate']
+        return dateutil.parser.parse(self.data['contextDate'])
 
     @property
     def chamber(self):
@@ -221,7 +222,7 @@ class Debate():
 
     def serialize(self):
         return {
-            'date': self.date,
+            'date': str(self.date),
             'chamber': self.chamber,
             'counts': self.counts,
             'debate_type': self.debate_type,
