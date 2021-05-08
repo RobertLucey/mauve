@@ -1,14 +1,9 @@
 from unittest import TestCase
-import mock
 
-import glob
-import os
-
+from mauve.models.oireachtas.utils import merge_paras
 from mauve.models.oireachtas.debate import (
-    merge_paras,
     Para,
-    Speech,
-    DebateSection
+    Speech
 )
 
 
@@ -53,7 +48,7 @@ class TestDebate(TestCase):
         self.assertEqual(
             speech.serialize(),
             {
-                'by': 'byebye',
+                'by': {'gender': None, 'name': 'byebye', 'role': None},
                 'as': 'assomething',
                 'eid': '123',
                 'paras': [

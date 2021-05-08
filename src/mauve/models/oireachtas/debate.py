@@ -8,17 +8,7 @@ import bs4
 import nltk
 
 from mauve.models.text import TextBody
-
-
-def merge_paras(paras):
-    '''
-    When you don't care about context it's often easier to treat many
-    paragraphs as one.
-
-    :param paras:
-    :return: A Para object that just merges all the paras you give it into one.
-    '''
-    return Para(content='\n\n'.join([m.content for m in paras]))
+from mauve.models.oireachtas.speaker import Speaker
 
 
 class Para(TextBody):
@@ -77,20 +67,15 @@ class Speech():
         :kwarf eid: incrementing id of the speech
         :kwarg paras: list of Para objects
         '''
-        self.by = by
+        self.by = Speaker(by)  # TODO: include as in Speaker? Can't remember what it looks like. Can then remove the _as prop
         self._as = _as
         self.eid = eid
-
-        if paras is not None and paras is not []:
-            types = list(set([type(p) for p in paras]))
-            assert(len(types) == 1)
-            assert(types[0] == Para)
 
         self.paras = paras if paras else []
 
     def serialize(self):
         return {
-            'by': self.by,
+            'by': self.by.serialize(),
             'as': self._as,
             'eid': self.eid,
             'paras': [p.serialize() for p in self.paras]
@@ -128,7 +113,7 @@ class DebateSection():
         if self.data is None:
             return
 
-        soup = bs4.BeautifulSoup(self.data, 'html.parser')
+        soup = bs4.BeautifulSoup(self.data, 'lxml')
 
         # heading
         # soup.find('debatesection').find('heading').text
@@ -252,5 +237,5 @@ class Debate():
             if section.speeches is None:
                 continue
             for speech in section.speeches:
-                speakers[speech.by].extend(speech.paras)
+                speakers[speech.by.name].extend(speech.paras)
         return speakers
