@@ -12,6 +12,8 @@ import copy
 import sys
 import logging
 
+from flashtext import KeywordProcessor
+
 from mauve.constants import EXTENDED_PUNCTUATION
 from mauve.preprocess import w2n
 
@@ -63,6 +65,10 @@ IGNORABLE_PUNCT.remove('-')
 
 MAX_SIZE = sys.maxsize
 
+NUMBER_KEYWORDS = KeywordProcessor()
+for n in AMERICAN_NUMBER_WORDS:
+    NUMBER_KEYWORDS.add_keyword(n)
+
 
 def remove_boring_chars(content: str):
     for boring in IGNORABLE_PUNCT:
@@ -81,9 +87,9 @@ def _find_next_instance(content: str, idx=0) -> tuple:
     """
     Find the next instance of a numberey word
     """
-
     indexes = []
-    for w in AMERICAN_NUMBER_WORDS:
+
+    for w in NUMBER_KEYWORDS.extract_keywords(content[idx:]):
         word_idx = index(content, w, idx)
         if word_idx != MAX_SIZE:
             indexes.append((w, word_idx))
