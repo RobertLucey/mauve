@@ -58,7 +58,10 @@ class Sentence:
 
     @property
     def is_question(self) -> bool:
-        return self.text.strip()[-1] == '?'
+        try:
+            return self.text.strip()[-1] == '?'
+        except IndexError:
+            return False
 
     @staticmethod
     def preprocess_text(text: str) -> str:
