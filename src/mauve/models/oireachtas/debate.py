@@ -1,15 +1,12 @@
 from collections import defaultdict
 import fast_json
 import os
-import pickle
 import requests
 
 from cached_property import cached_property
 import bs4
 import nltk
 
-from mauve.utils import get_file_content
-from mauve.constants import OIREACHTAS_DIR
 from mauve.models.text import TextBody
 
 
@@ -180,6 +177,7 @@ class Debate():
     def __init__(self, file_path=None):
         # TODO: also accept being given the data
         self.file_path = file_path
+        self.debate_sections = []
 
         if not os.path.exists(self.file_path):
             raise Exception()
@@ -251,6 +249,8 @@ class Debate():
     def content_by_speaker(self):
         speakers = defaultdict(list)
         for section in self.debate_sections:
+            if section.speeches is None:
+                continue
             for speech in section.speeches:
                 speakers[speech.by].extend(speech.paras)
         return speakers
