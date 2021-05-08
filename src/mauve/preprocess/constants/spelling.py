@@ -4,8 +4,4 @@ us_to_uk = {'accessorize': 'accessorise', 'accessorized': 'accessorised', 'acces
 
 AMERICAN_TO_ENGLISH_NORMALIZER = {}
 for k, v in us_to_uk.items():
-    AMERICAN_TO_ENGLISH_NORMALIZER[' ' + k + ' '] = ' ' + v + ' '
-    AMERICAN_TO_ENGLISH_NORMALIZER[' ' + k + ','] = ' ' + v + ','
-    AMERICAN_TO_ENGLISH_NORMALIZER[' ' + k + '.'] = ' ' + v + '.'
-    AMERICAN_TO_ENGLISH_NORMALIZER[' ' + k + '!'] = ' ' + v + '!'
-    AMERICAN_TO_ENGLISH_NORMALIZER[' ' + k + '?'] = ' ' + v + '?'
+    AMERICAN_TO_ENGLISH_NORMALIZER[k] = v

@@ -4,6 +4,7 @@ from setuptools import (
 )
 
 INSTALL_REQUIRES = [
+    'flashtext',
     'transformers',
     'torch==1.8.0',
     'datasets==1.5.0',
