@@ -18,7 +18,8 @@ import nltk
 
 from mauve.settings import (
     HE_SHE_SPEAKER_GUESS,
-    SPEAKER_PLACEMENT_GUESS
+    SPEAKER_PLACEMENT_GUESS,
+    ASSUMED_LANGUAGE
 )
 from mauve.utils import (
     rflatten,
@@ -218,6 +219,9 @@ class TextBody(GenericObject, Tagger):
 
     @cached_property
     def lang(self) -> str:
+        if ASSUMED_LANGUAGE is not None:
+            return ASSUMED_LANGUAGE
+
         # TODO: update metadata and use as a cache since this can't be very good
         # Also only go far enough until we're certain. Don't need to process entire books
         try:
